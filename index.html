@@ -1,64 +1,54 @@
 <!DOCTYPE html>
 <html lang="ar">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>متجر الملابس الحديث</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<title>متجر الملابس</title>
+<link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
-  <div class="app">
-    <h1>🛍️ متجر الملابس الحديث</h1>
-    <button class="admin-btn">لوحة التاجر</button>
+<h1>🛍️ متجر الملابس</h1>
 
-    <div id="products"></div>
-    <div id="cart"></div>
-  </div>
+<button onclick="toggleAdmin()">لوحة التاجر</button>
 
-  <script src="script.js"></script>
-</body>
-</html>
-<div class="app">
-  <h1>🛍️ متجر الملابس الحديث</h1>
-  <button class="admin-btn" onclick="showAdminLogin()">🔑 التاجر</button>
-  <div id="adminLogin" class="admin-login">
-    <input type="password" id="adminPass" placeholder="أدخل كلمة السر">
-    <button onclick="loginAdmin()">دخول</button>
-    <p id="adminMsg" class="admin-msg"></p>
-  </div>
-  <div id="products" class="products"></div>
-  <div class="cart-section">
-    <h2>🛒 سلة المشتريات</h2>
-    <ul id="cart"></ul>
-    <h3 id="total">الإجمالي: 0 ر.ع</h3>
-    <label>📦 فترة التوصيل:</label>
-    <select id="delivery">
-      <option>خلال 24 ساعة</option>
-      <option>خلال 2-3 أيام</option>
-      <option>خلال أسبوع</option>
-    </select>
-    <button class="pay" onclick="payNow()">💳 ادفع الآن</button>
-    <p id="status"></p>
-  </div>
-  <div id="adminPanel" class="admin-panel">
-    <h2>🛠️ لوحة التحكم للتاجر</h2>
-    <label>اسم المنتج:</label>
-    <input type="text" id="newName" placeholder="اسم المنتج">
-    <label>السعر:</label>
-    <input type="number" id="newPrice" placeholder="السعر">
-    <label>كمية المخزون:</label>
-    <input type="number" id="newStock" placeholder="الكمية">
-    <label>رابط صورة 1:</label>
-    <input type="text" id="newImg1" placeholder="رابط الصورة 1">
-    <label>رابط صورة 2:</label>
-    <input type="text" id="newImg2" placeholder="رابط الصورة 2">
-    <label>رابط صورة 3:</label>
-    <input type="text" id="newImg3" placeholder="رابط الصورة 3">
-    <button onclick="addProduct()">➕ إضافة المنتج</button>
-  </div>
-<script src="script.js"></script>
+<div class="controls">
+<input id="search" placeholder="🔍 ابحث">
+<select id="category">
+<option value="">كل التصنيفات</option>
+<option value="فساتين">فساتين</option>
+<option value="عبايات">عبايات</option>
+</select>
 </div>
+
+<div id="products"></div>
+
+<h2>🛒 السلة</h2>
+<div id="cart"></div>
+
+<h3>🚚 وقت التوصيل</h3>
+<select id="delivery">
+<option>اليوم</option>
+<option>غدًا</option>
+<option>بعد 3 أيام</option>
+</select>
+
+<button onclick="checkout()">تأكيد الطلب</button>
+
+<hr>
+
+<div id="admin" style="display:none">
+<h2>لوحة التاجر</h2>
+<input id="pname" placeholder="اسم المنتج">
+<input id="pprice" type="number" placeholder="السعر">
+<input id="pimg" placeholder="رابط الصورة">
+<input id="pstock" type="number" placeholder="الكمية">
+<select id="pcat">
+<option>فساتين</option>
+<option>عبايات</option>
+</select>
+<button onclick="addProduct()">إضافة منتج</button>
+</div>
+
+<script src="script.js"></script>
 </body>
 </html>
