@@ -1,104 +1,108 @@
-let products = [
-{
-id: 1,
-name: "فستان سهرة",
-price: 25,
-image: "https://images.unsplash.com/photo-1520975916090-3105956dac38",
-sizes: ["S","M","L"],
-stock: 2,
-category: "فساتين"
-},
-{
-id: 2,
-name: "عباية سوداء",
-price: 30,
-image: "https://images.unsplash.com/photo-1600180758890-6b94519a8ba6",
-sizes: ["M","L","XL"],
-stock: 0,
-category: "عبايات"
-}
+// ====== التخزين ======
+let products = JSON.parse(localStorage.getItem("products")) || [
+  {
+    id: 1,
+    name: "فستان أنيق",
+    price: 25,
+    stock: 5,
+    category: "فساتين",
+    sizes: ["S", "M", "L"],
+    image: "https://images.unsplash.com/photo-1520975916090-3105956dac38"
+  },
+  {
+    id: 2,
+    name: "عباية سوداء",
+    price: 40,
+    stock: 0,
+    category: "عبايات",
+    sizes: ["M", "L", "XL"],
+    image: "https://images.unsplash.com/photo-1583391733956-3759d24d8d2b"
+  }
 ];
 
 let cart = [];
 
-function renderProducts() {
-const search = searchInput.value;
-const cat = category.value;
-products.filter(p =>
-p.name.includes(search) &&
-(cat === "" || p.category === cat)
-).forEach(drawProduct);
+function saveProducts() {
+  localStorage.setItem("products", JSON.stringify(products));
 }
 
-function drawProduct(p) {
-const box = document.createElement("div");
-box.className = "product";
-box.innerHTML = `
-<img src="${p.image}">
-<h3>${p.name}</h3>
-<p>${p.price} ر.ع</p>
-<div class="sizes">${p.sizes.map(s=>`<span>${s}</span>`).join("")}</div>
-${p.stock>0
-? `<button onclick="addToCart(${p.id})">أضف للسلة</button>`
-: `<div class="out">نفدت الكمية</div>`}
-`;
-productsDiv.appendChild(box);
+// ====== عرض المنتجات ======
+function renderProducts(filter = "") {
+  const container = document.getElementById("products");
+  container.innerHTML = "";
+
+  products
+    .filter(p => p.name.includes(filter))
+    .forEach(product => {
+      const div = document.createElement("div");
+      div.className = "product";
+
+      div.innerHTML = `
+        <img src="${product.image}">
+        <h3>${product.name}</h3>
+        <div class="price">${product.price} ر.ع</div>
+        <div class="sizes">${product.sizes.map(s => `<span>${s}</span>`).join("")}</div>
+        ${
+          product.stock > 0
+            ? `<button onclick="addToCart(${product.id})">أضف للسلة</button>`
+            : `<div class="out">نفدت الكمية</div>`
+        }
+      `;
+      container.appendChild(div);
+    });
 }
 
-function addToCart(id){
-const p = products.find(x=>x.id===id);
-if(p.stock>0){
-cart.push(p);
-p.stock--;
-update();
-}
+// ====== السلة ======
+function addToCart(id) {
+  const product = products.find(p => p.id === id);
+  if (!product || product.stock <= 0) return;
+
+  cart.push(product);
+  product.stock--;
+  saveProducts();
+  renderProducts();
+  renderCart();
+  alert("تمت الإضافة للسلة ✅");
 }
 
-function renderCart(){
-cartDiv.innerHTML="";
-cart.forEach(i=>{
-cartDiv.innerHTML += `<div>${i.name} - ${i.price} ر.ع</div>`;
-});
+function renderCart() {
+  const cartDiv = document.getElementById("cart");
+  let total = 0;
+
+  cartDiv.innerHTML = "<h2>🛒 السلة</h2>";
+
+  cart.forEach(item => {
+    total += item.price;
+    cartDiv.innerHTML += `<div class="cart-item">${item.name} - ${item.price} ر.ع</div>`;
+  });
+
+  cartDiv.innerHTML += `<div class="total">الإجمالي: ${total} ر.ع</div>`;
 }
 
-function checkout(){
-alert("تم الطلب 🚚\nالتوصيل: " + delivery.value);
-cart=[];
-update();
-}
+// ====== لوحة التاجر ======
+document.querySelector(".admin-btn").onclick = () => {
+  const pass = prompt("أدخل كلمة السر");
+  if (pass !== "admin123") return alert("كلمة سر خطأ");
 
-function toggleAdmin(){
-admin.style.display =
-admin.style.display==="none" ? "block" : "none";
-}
+  const name = prompt("اسم المنتج:");
+  const price = prompt("السعر:");
+  const stock = prompt("الكمية:");
+  const category = prompt("التصنيف:");
+  const image = prompt("رابط الصورة:");
 
-function addProduct(){
-products.push({
-id: Date.now(),
-name: pname.value,
-price: +pprice.value,
-image: pimg.value,
-sizes:["S","M","L"],
-stock:+pstock.value,
-category: pcat.value
-});
-update();
-}
+  products.push({
+    id: Date.now(),
+    name,
+    price: Number(price),
+    stock: Number(stock),
+    category,
+    sizes: ["S", "M", "L"],
+    image
+  });
 
-function update(){
-productsDiv.innerHTML="";
+  saveProducts();
+  renderProducts();
+};
+
 renderProducts();
 renderCart();
-}
-
-const productsDiv = document.getElementById("products");
-const cartDiv = document.getElementById("cart");
-const searchInput = document.getElementById("search");
-const category = document.getElementById("category");
-const delivery = document.getElementById("delivery");
-const admin = document.getElementById("admin");
-
-searchInput.oninput = update;
-category.onchange = update;
-
-update();
