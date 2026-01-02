@@ -38,6 +38,11 @@ function showToast(message) {
   setTimeout(()=>{ toastDiv.style.display = "none"; }, 2000);
 }
 
+// ------------------ عدّاد السلة ------------------
+function updateCartCount() {
+  cartCount.textContent = cart.reduce((sum,item)=>sum+item.qty,0);
+}
+
 // ------------------ تسجيل المستخدم ------------------
 function registerUser() {
   const fullName = document.getElementById("fullName").value.trim();
@@ -49,8 +54,7 @@ function registerUser() {
   if (!fullName || !username || !email || !password) { msg.textContent="الرجاء تعبئة جميع البيانات"; return; }
   if (users.find(u=>u.email===email)) { msg.textContent="الإيميل مستخدم مسبقًا"; return; }
 
-  const newUser = { fullName, username, email, password };
-  users.push(newUser);
+  users.push({ fullName, username, email, password });
   saveData();
 
   msg.style.color="green";
@@ -113,7 +117,7 @@ function renderProducts(list){
     div.className="product";
 
     let deleteButtonHTML="";
-    if(isAdmin){ deleteButtonHTML=`<button onclick="deleteProduct(${product.id})" style="background:red;">حذف المنتج</button>`; }
+    if(isAdmin){ deleteButtonHTML=`<button class="delete-btn" onclick="deleteProduct(${product.id})">حذف المنتج</button>`; }
 
     div.innerHTML=`
       <img src="${product.image}">
@@ -217,6 +221,107 @@ function showProductDetail(id){
   document.getElementById("addToCartBtn").onclick = function(){ addDetailToCart(product.id); };
 }
 
+// ------------------ إضافة للسلة + حماية ------------------
+function addDetailToCart(id){
+  if(!currentUser){ showToast("يرجى تسجيل الدخول أولاً"); return; }
+
+  const product = products.find(p=>p.id===id);
+  const color = document.getElementById("selectedColor").value;
+  const size = document.getElementById("selectedSize").value;
+  const qty = parseInt(document.getElementById("selectedQty").value);
+
+  if(qty < 1 || qty > product.stock) return showToast("كمية غير صحيحة");
+
+  const existing = cart.find(i=>i.id===product.id && i.color===color && i.size===size);
+  if(existing){ existing.qty += qty; } 
+  else { cart.push({id: product.id, name: product.name, price: product.price, color, size, qty}); }
+
+  product.stock -= qty;
+
+  saveData();
+  renderProducts(products);
+  showToast("تمت إضافة المنتج للسلة ✅");
+  backToProducts();
+  updateCartCount();
+}
+
+// ------------------ السلة ------------------
+cartButton.onclick = ()=>{ renderCartPopup(); cartPopup.style.display="block"; };
+function closeCart(){ cartPopup.style.display="none"; }
+
+function renderCartPopup(){
+  cartPopupList.innerHTML="";
+  let total=0;
+  cart.forEach((item,index)=>{
+    const li = document.createElement("li");
+    li.innerHTML=`${item.name} - ${item.color}/${item.size} x${item.qty} - ${item.price*item.qty} ريال <button onclick="removeFromCart(${index})">حذف</button>`;
+    cartPopupList.appendChild(li);
+    total += item.price*item.qty;
+  });
+  popupTotal.textContent=`المجموع: ${total} ريال`;
+  updateCartCount();
+}
+
+function removeFromCart(index){
+  const item = cart[index];
+  const product = products.find(p=>p.id===item.id);
+  product.stock += item.qty;
+  cart.splice(index,1);
+  saveData();
+  renderCartPopup();
+  renderProducts(products);
+  showToast("تم حذف المنتج من السلة ❌");
+}
+
+// ------------------ الدفع ------------------
+function payNow(){
+  if(!currentUser){ showToast("سجل دخولك أولاً"); return; }
+  if(cart.length===0) return showToast("السلة فارغة!");
+
+  const total = cart.reduce((s,i)=>s+i.price*i.qty,0);
+  orders.push({user:currentUser.email, items:cart, total, status:"قيد التجهيز"});
+  cart=[];
+  saveData();
+  renderCartPopup();
+  backToProducts();
+  showToast("تمت عملية الدفع بنجاح! ✅");
+  showMyOrders();
+}
+
+// ------------------ طلباتي ------------------
+function showMyOrders(){
+  if(!currentUser) return;
+  const myOrdersDiv = document.getElementById("myOrders");
+  myOrdersDiv.innerHTML="<h3>طلباتي:</h3>";
+  orders.filter(o=>o.user===currentUser.email)
+        .forEach(o=>{
+          myOrdersDiv.innerHTML+=`<p>حالة الطلب: ${o.status} - ${o.items.map(i=>i.name+" x"+i.qty).join(", ")} - 💰 ${o.total} ريال</p>`;
+        });
+}
+
+// ------------------ إدارة الطلبات للتاجر ------------------
+function renderOrdersAdmin(){
+  const ordersAdminDiv = document.getElementById("ordersAdmin");
+  if(!ordersAdminDiv) return;
+  ordersAdminDiv.innerHTML="<h3>إدارة الطلبات</h3>";
+  orders.forEach((o, idx)=>{
+    ordersAdminDiv.innerHTML+=`<p>${o.user} - 💰 ${o.total} ريال - 📦 ${o.status} <button onclick="updateOrder(${idx})">تم التجهيز</button></p>`;
+  });
+}
+
+function updateOrder(idx){
+  orders[idx].status = "تم التجهيز";
+  saveData();
+  renderOrdersAdmin();
+  showMyOrders();
+}
+
+// ------------------ العودة للمنتجات ------------------
+function backToProducts(){
+  productDetailDiv.style.display="none";
+  renderProducts(products);
+}
+
 // ------------------ تكبير الصورة ------------------
 function zoomImage(src){
   const zoomDiv = document.createElement("div");
@@ -234,97 +339,7 @@ function zoomImage(src){
   document.body.appendChild(zoomDiv);
 }
 
-// ------------------ إضافة للسلة ------------------
-function addDetailToCart(id){
-  const product = products.find(p=>p.id===id);
-  const color = document.getElementById("selectedColor").value;
-  const size = document.getElementById("selectedSize").value;
-  const qty = parseInt(document.getElementById("selectedQty").value);
-
-  if(qty > product.stock) return showToast("الكمية المطلوبة أكبر من المتوفر");
-
-  cart.push({id: product.id, name: product.name, price: product.price, color, size, qty});
-  product.stock -= qty;
-
-  saveData();
-  renderProducts(products);
-  showToast("تمت إضافة المنتج للسلة ✅");
-  backToProducts();
-}
-
-// ------------------ العودة للمنتجات ------------------
-function backToProducts(){
-  productDetailDiv.style.display="none";
-  renderProducts(products);
-}
-
-// ------------------ السلة ------------------
-cartButton.onclick = ()=>{ renderCartPopup(); cartPopup.style.display="block"; };
-function closeCart(){ cartPopup.style.display="none"; }
-
-function renderCartPopup(){
-  cartPopupList.innerHTML="";
-  let total=0;
-  cart.forEach((item,index)=>{
-    const li = document.createElement("li");
-    li.innerHTML=`${item.name} - ${item.color}/${item.size} x${item.qty} - ${item.price*item.qty} ريال <button onclick="removeFromCart(${index})">حذف</button>`;
-    cartPopupList.appendChild(li);
-    total+=item.price*item.qty;
-  });
-  popupTotal.textContent=`المجموع: ${total} ريال`;
-  cartCount.textContent = cart.length;
-}
-
-function removeFromCart(index){
-  const item = cart[index];
-  const product = products.find(p=>p.id===item.id);
-  product.stock += item.qty;
-  cart.splice(index,1);
-  saveData();
-  renderCartPopup();
-  renderProducts(products);
-  showToast("تم حذف المنتج من السلة ❌");
-}
-
-function payNow(){
-  if(cart.length===0) return showToast("السلة فارغة!");
-  orders.push({user:currentUser.email, items:cart, total:0, status:"قيد التجهيز"});
-  cart=[];
-  saveData();
-  renderCartPopup();
-  backToProducts();
-  showToast("تمت عملية الدفع التجريبية بنجاح! ✅");
-  showMyOrders();
-}
-
-// ------------------ طلباتي ------------------
-function showMyOrders(){
-  const myOrdersDiv = document.getElementById("myOrders");
-  if(!currentUser) return;
-  myOrdersDiv.innerHTML="<h3>طلباتي:</h3>";
-  orders.filter(o=>o.user===currentUser.email)
-        .forEach(o=>myOrdersDiv.innerHTML+=`<p>حالة الطلب: ${o.status} - ${o.items.map(i=>i.name+" x"+i.qty).join(", ")}</p>`);
-}
-
-// ------------------ إدارة الطلبات للتاجر ------------------
-function renderOrdersAdmin(){
-  const ordersAdminDiv = document.getElementById("ordersAdmin");
-  if(!ordersAdminDiv) return;
-  ordersAdminDiv.innerHTML="";
-  orders.forEach((o, idx)=>{
-    ordersAdminDiv.innerHTML+=`<p>${o.user} - ${o.status} <button onclick="updateOrder(${idx})">تم التجهيز</button></p>`;
-  });
-}
-
-function updateOrder(idx){
-  orders[idx].status = "تم التجهيز";
-  saveData();
-  renderOrdersAdmin();
-}
-
 // ------------------ عند فتح الموقع ------------------
 if(currentUser) showUser();
 renderProducts(products);
-
-
-
+updateCartCount();
