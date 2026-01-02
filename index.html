@@ -14,15 +14,15 @@
 
   <!-- تسجيل / دخول المستخدم -->
   <div id="userLoginDiv">
-    <h3>تسجيل / دخول المستخدم</h3>
+    <h3>إنشاء حساب / تسجيل دخول</h3>
 
+    <input type="text" id="fullName" placeholder="الاسم الكامل">
+    <input type="text" id="username" placeholder="اسم المستخدم">
     <input type="email" id="userEmail" placeholder="البريد الإلكتروني">
     <input type="password" id="userPassword" placeholder="كلمة المرور">
 
+    <button onclick="registerUser()">إنشاء حساب</button>
     <button onclick="loginUser()">تسجيل دخول</button>
-    <button onclick="registerUser()">تسجيل جديد</button>
-
-    <button onclick="loginApple()">تسجيل دخول بـ Apple</button>
 
     <p id="userMsg" style="color:red;"></p>
   </div>
@@ -84,3 +84,4 @@
 <script src="script.js"></script>
 </body>
 </html>
+
