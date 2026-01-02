@@ -1,4 +1,3 @@
-// ====== التخزين ======
 const products = [
   {
     name: "فستان سهرة أحمر",
@@ -34,28 +33,34 @@ const products = [
 
 const container = document.getElementById("products");
 const cartDiv = document.getElementById("cart");
+const searchInput = document.getElementById("search");
+
 let cart = [];
 
 function renderProducts() {
   container.innerHTML = "";
 
-  products.forEach((p, index) => {
-    const div = document.createElement("div");
-    div.className = "product";
+  const searchText = searchInput.value.trim();
 
-    div.innerHTML = `
-      <img src="${p.image}">
-      <h3>${p.name}</h3>
-      <div class="price">${p.price} ر.ع</div>
-      ${
-        p.stock > 0
-          ? <button onclick="addToCart(${index})">أضف للسلة</button>
-          : <div class="out">نفدت الكمية</div>
-      }
-    `;
+  products
+    .filter(p => p.name.includes(searchText))
+    .forEach((p, index) => {
+      const div = document.createElement("div");
+      div.className = "product";
 
-    container.appendChild(div);
-  });
+      div.innerHTML = `
+        <img src="${p.image}">
+        <h3>${p.name}</h3>
+        <div class="price">${p.price} ر.ع</div>
+        ${
+          p.stock > 0
+            ? <button onclick="addToCart(${index})">أضف للسلة</button>
+            : <div class="out">نفدت الكمية</div>
+        }
+      `;
+
+      container.appendChild(div);
+    });
 }
 
 function addToCart(index) {
@@ -76,5 +81,7 @@ function renderCart() {
     cartDiv.appendChild(d);
   });
 }
+
+searchInput.addEventListener("input", renderProducts);
 
 renderProducts();
