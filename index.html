@@ -1,42 +1,67 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🛍️ متجر الملابس الحديث</title>
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
+<div class="container">
+  <img src="https://via.placeholder.com/200x80?text=شعار+التطبيق" alt="شعار التطبيق" class="logo">
+  <h1>متجر الملابس النسائي التجريبي</h1>
 
-  <h1>🛍️ متجر الملابس الحديث</h1>
-
-  <button onclick="toggleAdmin()" class="admin-btn">لوحة التاجر 🔑</button>
-
-  <input type="text" id="search" placeholder="🔍 ابحث عن منتج" oninput="searchProducts()">
-
-  <!-- المنتجات -->
-  <div id="products" class="products"></div>
-
-  <!-- السلة -->
-  <h2>🛒 السلة</h2>
-  <div id="cart"></div>
-  <p>الإجمالي: <span id="total">0</span> ر.ع</p>
-
-  <!-- لوحة التاجر -->
-  <div id="adminPanel" class="admin-panel" style="display:none;">
-    <h2>🛠️ لوحة التحكم للتاجر</h2>
-
-    <input id="adminPass" type="password" placeholder="أدخل كلمة السر">
-    <button onclick="login()">دخول</button>
-
-    <div id="adminControls" style="display:none;">
-      <input id="name" placeholder="اسم المنتج">
-      <input id="price" type="number" placeholder="السعر">
-      <input id="img" placeholder="رابط الصورة">
-      <button onclick="addProduct()">➕ إضافة المنتج</button>
-    </div>
+  <!-- تسجيل دخول المستخدم -->
+  <div id="userLoginDiv">
+    <h3>تسجيل/دخول المستخدم</h3>
+    <input type="email" id="userEmail" placeholder="البريد الإلكتروني">
+    <input type="password" id="userPassword" placeholder="كلمة المرور">
+    <button onclick="loginUser()">تسجيل دخول</button>
+    <button onclick="loginApple()">تسجيل دخول بـ Apple</button>
+    <p id="userMsg" style="color:red;"></p>
   </div>
 
-  <script src="script.js"></script>
-</body>
-</html>
+  <div id="welcomeUser" style="display:none;">
+    <h3>مرحباً <span id="usernameDisplay"></span> 👋</h3>
+    <button onclick="logoutUser()">تسجيل خروج</button>
+  </div>
+
+  <!-- تسجيل دخول التاجر -->
+  <div id="loginDiv">
+    <h3>تسجيل دخول التاجر</h3>
+    <input type="password" id="adminPassword" placeholder="أدخل كلمة المرور">
+    <button onclick="loginAsAdmin()">تسجيل الدخول</button>
+    <p id="loginMsg" style="color:red;"></p>
+  </div>
+
+  <!-- قسم التاجر (مخفى افتراضياً) -->
+  <div id="adminDiv" style="display:none;">
+    <h2>قسم التاجر</h2>
+    <input type="text" id="newName" placeholder="اسم المنتج">
+    <input type="number" id="newPrice" placeholder="السعر">
+    <input type="text" id="newImage" placeholder="رابط الصورة">
+    <input type="text" id="newCategory" placeholder="الفئة">
+    <input type="number" id="newDelivery" placeholder="مدة التوصيل بالأيام">
+    <input type="text" id="newColors" placeholder="الألوان (افصل بينها بفواصل)">
+    <input type="text" id="newSizes" placeholder="الأحجام (افصل بينها بفواصل)">
+    <input type="number" id="newStock" placeholder="الكمية المتاحة">
+    <button onclick="addProduct()">إضافة المنتج</button>
+  </div>
+
+  <!-- فلاتر البحث والفئات -->
+  <div class="filters">
+    <button onclick="filterCategory('all')">جميع المنتجات</button>
+    <button onclick="filterCategory('نسائي')">نسائي</button>
+  </div>
+
+  <input type="text" id="search" placeholder="ابحث عن منتج...">
+
+  <!-- قائمة المنتجات -->
+  <div id="products" class="products"></div>
+
+  <!-- صفحة المنتج التفصيلية -->
+  <div id="productDetail" class="product-detail" style="display:none;"></div>
+
+  <!-- أيقونة السلة -->
+  <button id="cartButton">🛒 السلة (<span id="cartCount">0</span>)</button>
+
+  <!-- نافذة السلة المنبثقة -->
+  <div id="cartPopup" class="cart-popup" style="display:none;">
+    <h2>سلة المشتريات</h2>
+    <ul id="cartPopupList"></ul>
+    <h3 id="popupTotal">المجموع: 0 ريال</h3>
+    <button onclick="payNow()">الدفع الآن</button>
+    <button onclick="closeCart()">إغلاق السلة</button>
+  </div>
+</div>
