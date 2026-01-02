@@ -1,291 +1,276 @@
-// ------------------ البيانات ------------------
+// ------------------ المنتجات (مع حفظ دائم) ------------------
 let products = JSON.parse(localStorage.getItem("products")) || [
-  { id: 1, name: "فستان نسائي أنيق", price: 150, image: "images/product1.png", category: "نسائي", deliveryDays: 5, colors: ["أزرق","أصفر"], sizes: ["M","L"], stock: 3 },
-  { id: 2, name: "بلوزة نسائية", price: 80, image: "images/product2.png", category: "نسائي", deliveryDays: 3, colors: ["أبيض","زهري"], sizes: ["S","M","L"], stock: 5 },
-  { id: 3, name: "تنورة نسائية", price: 120, image: "images/product3.png", category: "نسائي", deliveryDays: 4, colors: ["أسود","أزرق"], sizes: ["M","L"], stock: 4 },
-  { id: 4, name: "جاكيت نسائي شتوي", price: 200, image: "images/product4.png", category: "نسائي", deliveryDays: 7, colors: ["أبيض","رمادي"], sizes: ["M","L","XL"], stock: 2 }
+  { id: 1, name: "فستان نسائي أنيق", price: 150, image: "images/product1.png", category: "نسائي", deliveryDays: 5, colors: ["أزرق","أصفر"], sizes: ["M","L"], stock: 3, ratings: [] },
+  { id: 2, name: "بلوزة نسائية", price: 80, image: "images/product2.png", category: "نسائي", deliveryDays: 3, colors: ["أبيض","زهري"], sizes: ["S","M","L"], stock: 5, ratings: [] },
+  { id: 3, name: "تنورة نسائية", price: 120, image: "images/product3.png", category: "نسائي", deliveryDays: 4, colors: ["أسود","أزرق"], sizes: ["M","L"], stock: 4, ratings: [] },
+  { id: 4, name: "جاكيت نسائي شتوي", price: 200, image: "images/product4.png", category: "نسائي", deliveryDays: 7, colors: ["أبيض","رمادي"], sizes: ["M","L","XL"], stock: 2, ratings: [] }
 ];
 
-let cart = [];
+let cart = JSON.parse(localStorage.getItem("cart")) || [];
 let users = JSON.parse(localStorage.getItem("users")) || [];
+let orders = JSON.parse(localStorage.getItem("orders")) || [];
 let currentUser = JSON.parse(localStorage.getItem("currentUser")) || null;
+
+// ------------------ حفظ ------------------
+const saveProducts = () => localStorage.setItem("products", JSON.stringify(products));
+const saveCart = () => localStorage.setItem("cart", JSON.stringify(cart));
+const saveOrders = () => localStorage.setItem("orders", JSON.stringify(orders));
 
 // ------------------ DOM ------------------
 const productsDiv = document.getElementById("products");
 const productDetailDiv = document.getElementById("productDetail");
-const cartButton = document.getElementById("cartButton");
 const cartPopup = document.getElementById("cartPopup");
 const cartPopupList = document.getElementById("cartPopupList");
 const popupTotal = document.getElementById("popupTotal");
 const cartCount = document.getElementById("cartCount");
 const searchInput = document.getElementById("search");
 
-// ------------------ حفظ المنتجات ------------------
-function saveProducts(){
-  localStorage.setItem("products", JSON.stringify(products));
-}
+// ------------------ المستخدم ------------------
+function registerUser(){
+  const fullName = document.getElementById("fullName").value;
+  const username = document.getElementById("username").value;
+  const email = document.getElementById("userEmail").value;
+  const password = document.getElementById("userPassword").value;
 
-// ------------------ تسجيل المستخدم ------------------
-function registerUser() {
-  const fullName = document.getElementById("fullName").value.trim();
-  const username = document.getElementById("username").value.trim();
-  const email = document.getElementById("userEmail").value.trim();
-  const password = document.getElementById("userPassword").value.trim();
-  const msg = document.getElementById("userMsg");
+  if(!fullName || !username || !email || !password) return alert("أكملي البيانات");
+  if(users.find(u=>u.email===email)) return alert("الإيميل مستخدم");
 
-  if (!fullName || !username || !email || !password) { msg.textContent="الرجاء تعبئة جميع البيانات"; return; }
-  if (users.find(u=>u.email===email)) { msg.textContent="الإيميل مستخدم مسبقًا"; return; }
-
-  const newUser = { fullName, username, email, password };
-  users.push(newUser);
+  users.push({fullName, username, email, password});
   localStorage.setItem("users", JSON.stringify(users));
-
-  msg.style.color="green";
-  msg.textContent="تم إنشاء الحساب بنجاح ✅ يمكنك تسجيل الدخول الآن";
-
-  document.getElementById("fullName").value="";
-  document.getElementById("username").value="";
-  document.getElementById("userEmail").value="";
-  document.getElementById("userPassword").value="";
+  alert("تم إنشاء الحساب");
 }
 
-function loginUser() {
-  const email = document.getElementById("userEmail").value.trim();
-  const password = document.getElementById("userPassword").value.trim();
-  const msg = document.getElementById("userMsg");
-
+function loginUser(){
+  const email = userEmail.value;
+  const password = userPassword.value;
   const user = users.find(u=>u.email===email && u.password===password);
-  if(!user){ msg.textContent="بيانات الدخول غير صحيحة"; return; }
-
+  if(!user) return alert("بيانات غير صحيحة");
   currentUser = user;
   localStorage.setItem("currentUser", JSON.stringify(user));
   showUser();
 }
 
-function showUser() {
-  document.getElementById("userLoginDiv").style.display="none";
-  document.getElementById("welcomeUser").style.display="block";
-  document.getElementById("usernameDisplay").textContent=currentUser.username;
+function showUser(){
+  userLoginDiv.style.display="none";
+  welcomeUser.style.display="block";
+  usernameDisplay.textContent=currentUser.username;
 }
 
-function logoutUser() {
-  currentUser = null;
+function logoutUser(){
+  currentUser=null;
   localStorage.removeItem("currentUser");
-  document.getElementById("userLoginDiv").style.display="block";
-  document.getElementById("welcomeUser").style.display="none";
+  location.reload();
 }
 
 // ------------------ التاجر ------------------
-const adminPasswordValue="1234";
-function loginAsAdmin(){ 
-  const input=document.getElementById("adminPassword").value; 
-  const msg=document.getElementById("loginMsg"); 
-  if(input===adminPasswordValue){
-    document.getElementById("loginDiv").style.display="none"; 
-    document.getElementById("adminDiv").style.display="block"; 
-    msg.textContent=""; 
+function loginAsAdmin(){
+  if(adminPassword.value==="1234"){
+    loginDiv.style.display="none";
+    adminDiv.style.display="block";
     renderProducts(products);
-    document.getElementById("adminPassword").value="";
-  } else { msg.textContent="كلمة المرور غير صحيحة!"; }
+    renderOrdersAdmin();
+  } else alert("كلمة المرور خاطئة");
 }
 
 // ------------------ عرض المنتجات ------------------
 function renderProducts(list){
   productsDiv.innerHTML="";
-  productDetailDiv.style.display = "none";
-  productsDiv.style.display = "flex";
+  productDetailDiv.style.display="none";
+  productsDiv.style.display="flex";
 
-  const isAdmin = document.getElementById("adminDiv").style.display==="block";
+  const isAdmin = adminDiv.style.display==="block";
 
-  list.forEach(product=>{
-    const div=document.createElement("div"); 
-    div.className="product";
+  list.forEach(p=>{
+    const avgRating = p.ratings.length
+      ? (p.ratings.reduce((a,b)=>a+b)/p.ratings.length).toFixed(1)
+      : "لا يوجد";
 
-    let deleteButtonHTML="";
-    if(isAdmin){ deleteButtonHTML=`<button onclick="deleteProduct(${product.id})" style="background:red;">حذف المنتج</button>`; }
-
-    div.innerHTML=`
-      <img src="${product.image}">
-      <h4>${product.name}</h4>
-      <p>${product.price} ريال</p>
-      <p>المتبقي: ${product.stock}</p>
-      <button onclick="showProductDetail(${product.id})" ${product.stock===0?'disabled':''}>${product.stock===0?'نفدت الكمية':'عرض المنتج'}</button>
-      ${deleteButtonHTML}
+    productsDiv.innerHTML += `
+      <div class="product">
+        <img src="${p.image}">
+        <h4>${p.name}</h4>
+        <p>${p.price} ريال</p>
+        <p>⭐ ${avgRating}</p>
+        <p>المتبقي: ${p.stock}</p>
+        <button onclick="showProductDetail(${p.id})" ${p.stock===0?"disabled":""}>عرض المنتج</button>
+        ${isAdmin ? `<button style="background:red" onclick="deleteProduct(${p.id})">حذف</button>` : ""}
+      </div>
     `;
-    productsDiv.appendChild(div);
   });
 }
 
-// ------------------ حذف وإضافة المنتجات ------------------
-function deleteProduct(id){ 
-  const index = products.findIndex(p=>p.id===id); 
-  if(index!==-1){ 
-    if(confirm("هل أنت متأكد من حذف هذا المنتج؟ ❌")){ 
-      products.splice(index,1); 
-      saveProducts(); // 🔥 حفظ التغيير
-      renderProducts(products); 
-      alert("تم حذف المنتج بنجاح!"); 
-    } 
-  }
-}
-
+// ------------------ إضافة / حذف منتجات ------------------
 function addProduct(){
-  const newProduct = { 
-    id: Date.now(), 
-    name: document.getElementById("newName").value, 
-    price: parseFloat(document.getElementById("newPrice").value), 
-    image: document.getElementById("newImage").value, 
-    category: document.getElementById("newCategory").value, 
-    deliveryDays: parseInt(document.getElementById("newDelivery").value), 
-    colors: document.getElementById("newColors").value.split(","), 
-    sizes: document.getElementById("newSizes").value.split(","), 
-    stock: parseInt(document.getElementById("newStock").value) 
+  const p = {
+    id: Date.now(),
+    name: newName.value,
+    price:+newPrice.value,
+    image:newImage.value,
+    category:newCategory.value,
+    deliveryDays:+newDelivery.value,
+    colors:newColors.value.split(","),
+    sizes:newSizes.value.split(","),
+    stock:+newStock.value,
+    ratings:[]
   };
-
-  if(!newProduct.name || !newProduct.price || !newProduct.image || !newProduct.stock){ 
-    alert("الرجاء ملء جميع الحقول المهمة!"); 
-    return;
-  }
-
-  products.push(newProduct); 
-  saveProducts(); // 🔥 حفظ التغيير
-  renderProducts(products); 
-  alert("تمت إضافة المنتج بنجاح! ✅");
-
-  // مسح الحقول بعد الإضافة
-  document.getElementById("newName").value="";
-  document.getElementById("newPrice").value="";
-  document.getElementById("newImage").value="";
-  document.getElementById("newCategory").value="";
-  document.getElementById("newDelivery").value="";
-  document.getElementById("newColors").value="";
-  document.getElementById("newSizes").value="";
-  document.getElementById("newStock").value="";
+  products.push(p);
+  saveProducts();
+  renderProducts(products);
+  alert("تمت الإضافة");
 }
 
-// ------------------ البحث والفلاتر ------------------
-searchInput.addEventListener("input", ()=>{ applyFilters(); });
+function deleteProduct(id){
+  if(!confirm("هل أنت متأكد؟")) return;
+  products = products.filter(p=>p.id!==id);
+  saveProducts();
+  renderProducts(products);
+}
 
-function filterCategory(category){ applyFilters(category); }
+// ------------------ البحث والفلاتر (كما الأصل) ------------------
+searchInput.addEventListener("input", applyFilters);
 
-function applyFilters(category="all"){
+function filterCategory(category){
+  if(category==="all") renderProducts(products);
+  else renderProducts(products.filter(p=>p.category===category));
+}
+
+function applyFilters(){
+  const color = filterColor.value;
+  const size = filterSize.value;
+  const search = searchInput.value.toLowerCase();
+
   let filtered = products;
-
-  if(category !== "all") filtered = filtered.filter(p=>p.category===category);
-
-  const searchValue = searchInput.value.toLowerCase();
-  const color = document.getElementById("filterColor").value;
-  const size = document.getElementById("filterSize").value;
-
   if(color!=="all") filtered = filtered.filter(p=>p.colors.includes(color));
   if(size!=="all") filtered = filtered.filter(p=>p.sizes.includes(size));
-  if(searchValue) filtered = filtered.filter(p=>p.name.toLowerCase().includes(searchValue));
+  if(search) filtered = filtered.filter(p=>p.name.toLowerCase().includes(search));
 
   renderProducts(filtered);
 }
 
-// ------------------ عرض تفاصيل المنتج ------------------
+// ------------------ تفاصيل المنتج ------------------
 function showProductDetail(id){
-  const product = products.find(p=>p.id===id);
-  if(!product) return;
-
+  const p = products.find(x=>x.id===id);
   productsDiv.style.display="none";
   productDetailDiv.style.display="block";
 
-  let colorsOptions = product.colors.map(c=>`<option value="${c}">${c}</option>`).join("");
-  let sizesOptions = product.sizes.map(s=>`<option value="${s}">${s}</option>`).join("");
-
   productDetailDiv.innerHTML = `
-    <h2>${product.name}</h2>
-    <img src="${product.image}" alt="${product.name}" style="width:200px; cursor:pointer;" onclick="zoomImage('${product.image}')">
-    <p>السعر: ${product.price} ريال</p>
-    <p>المتبقي: ${product.stock}</p>
-    <p>مدة التوصيل: ${product.deliveryDays} أيام</p>
-    <label>اللون: <select id="selectedColor">${colorsOptions}</select></label><br>
-    <label>الحجم: <select id="selectedSize">${sizesOptions}</select></label><br>
-    <label>الكمية: <input type="number" id="selectedQty" value="1" min="1" max="${product.stock}"></label><br>
-    <button id="addToCartBtn">أضف إلى السلة</button>
-    <button onclick="backToProducts()">عودة للمنتجات</button>
-  `;
+    <h2>${p.name}</h2>
+    <img src="${p.image}" onclick="zoomImage('${p.image}')" style="cursor:pointer">
+    <p>${p.price} ريال</p>
+    <p>مدة التوصيل: ${p.deliveryDays} أيام</p>
 
-  document.getElementById("addToCartBtn").onclick = function(){ addDetailToCart(product.id); };
+    <select id="color">${p.colors.map(c=>`<option>${c}</option>`)}</select>
+    <select id="size">${p.sizes.map(s=>`<option>${s}</option>`)}</select>
+    <input id="qty" type="number" value="1" min="1" max="${p.stock}">
+
+    <label>التقييم:
+      <select id="rating">
+        <option value="5">⭐⭐⭐⭐⭐</option>
+        <option value="4">⭐⭐⭐⭐</option>
+        <option value="3">⭐⭐⭐</option>
+      </select>
+    </label>
+
+    <button onclick="addToCart(${p.id})">أضف للسلة</button>
+    <button onclick="backToProducts()">رجوع</button>
+  `;
 }
 
-// ------------------ تكبير الصورة ------------------
 function zoomImage(src){
-  const zoomDiv = document.createElement("div");
-  zoomDiv.style.position = "fixed";
-  zoomDiv.style.top = "0";
-  zoomDiv.style.left = "0";
-  zoomDiv.style.width = "100%";
-  zoomDiv.style.height = "100%";
-  zoomDiv.style.background="rgba(0,0,0,0.8)";
-  zoomDiv.style.display="flex";
-  zoomDiv.style.alignItems="center";
-  zoomDiv.style.justifyContent="center";
-  zoomDiv.style.zIndex="9999";
-  zoomDiv.innerHTML = `
-    <img src="${src}" style="max-width:90%; max-height:90%;">
-    <button class="zoom-btn" onclick="this.parentElement.remove()">✖</button>
-  `;
-  document.body.appendChild(zoomDiv);
+  const d=document.createElement("div");
+  d.style=`position:fixed;top:0;left:0;width:100%;height:100%;background:black;display:flex;align-items:center;justify-content:center`;
+  d.innerHTML=`<img src="${src}" style="max-width:90%"><button onclick="this.parentElement.remove()">✖</button>`;
+  document.body.appendChild(d);
 }
-
-// ------------------ إضافة للسلة ------------------
-function addDetailToCart(id){
-  const product = products.find(p=>p.id===id);
-  const color = document.getElementById("selectedColor").value;
-  const size = document.getElementById("selectedSize").value;
-  const qty = parseInt(document.getElementById("selectedQty").value);
-
-  if(qty > product.stock) return alert("الكمية المطلوبة أكبر من المتوفر");
-
-  cart.push({id: product.id, name: product.name, price: product.price, color, size, qty});
-  product.stock -= qty;
-  saveProducts(); // 🔥 حفظ المخزون الجديد
-
-  renderProducts(products);
-  alert("تمت إضافة المنتج للسلة ✅");
-  backToProducts();
-}
-
-function backToProducts(){ productDetailDiv.style.display="none"; renderProducts(products); }
 
 // ------------------ السلة ------------------
-cartButton.onclick = ()=>{ renderCartPopup(); cartPopup.style.display="block"; };
-function closeCart(){ cartPopup.style.display="none"; }
+function addToCart(id){
+  const p = products.find(x=>x.id===id);
+  const q = +qty.value;
+  if(q>p.stock) return alert("الكمية غير متوفرة");
 
-function renderCartPopup(){
-  cartPopupList.innerHTML="";
-  let total=0;
-  cart.forEach((item,index)=>{
-    const li = document.createElement("li");
-    li.innerHTML=`${item.name} - ${item.color}/${item.size} x${item.qty} - ${item.price*item.qty} ريال <button onclick="removeFromCart(${index})">حذف</button>`;
-    cartPopupList.appendChild(li);
-    total+=item.price*item.qty;
+  cart.push({
+    id:p.id,name:p.name,price:p.price,
+    qty:q,color:color.value,size:size.value
   });
-  popupTotal.textContent=`المجموع: ${total} ريال`;
-  cartCount.textContent = cart.length;
-}
 
-function removeFromCart(index){
-  const item = cart[index];
-  const product = products.find(p=>p.id===item.id);
-  product.stock += item.qty;
-  saveProducts(); // 🔥 حفظ المخزون بعد الحذف
-  cart.splice(index,1);
-  renderCartPopup();
-  renderProducts(products);
-}
+  p.stock -= q;
+  p.ratings.push(+rating.value);
 
-function payNow(){
-  if(cart.length===0) return alert("السلة فارغة!");
-  alert("تمت عملية الدفع التجريبية بنجاح! ✅");
-  cart=[];
-  renderCartPopup();
+  saveProducts();
+  saveCart();
+  alert("تمت الإضافة");
   backToProducts();
 }
 
-// ------------------ عند فتح الموقع ------------------
+function backToProducts(){
+  productDetailDiv.style.display="none";
+  renderProducts(products);
+}
+
+cartButton.onclick = ()=>{ renderCart(); cartPopup.style.display="block"; };
+function closeCart(){ cartPopup.style.display="none"; }
+
+function renderCart(){
+  cartPopupList.innerHTML="";
+  let total=0;
+  cart.forEach((i,idx)=>{
+    total+=i.price*i.qty;
+    cartPopupList.innerHTML+=`
+      <li>${i.name} x${i.qty}
+      <button onclick="removeFromCart(${idx})">❌</button></li>`;
+  });
+  popupTotal.textContent=`المجموع: ${total} ريال`;
+  cartCount.textContent=cart.length;
+}
+
+function removeFromCart(i){
+  cart.splice(i,1);
+  saveCart();
+  renderCart();
+}
+
+// ------------------ الطلبات ------------------
+function payNow(){
+  if(!currentUser) return alert("سجلي دخول أولاً");
+
+  const total = cart.reduce((s,i)=>s+i.price*i.qty,0);
+  orders.push({
+    user:currentUser.email,
+    items:cart,
+    total,
+    status:"قيد التجهيز",
+    date:new Date().toLocaleString()
+  });
+
+  cart=[];
+  saveCart();
+  saveOrders();
+  alert("تم الطلب بنجاح");
+  closeCart();
+}
+
+// ------------------ التاجر: الطلبات ------------------
+function renderOrdersAdmin(){
+  const div = document.getElementById("ordersAdmin");
+  if(!div) return;
+  div.innerHTML="";
+  orders.forEach((o,i)=>{
+    div.innerHTML+=`
+      <p>${o.user} - ${o.total} ريال
+      <select onchange="updateOrderStatus(${i},this.value)">
+        <option ${o.status==="قيد التجهيز"?"selected":""}>قيد التجهيز</option>
+        <option ${o.status==="تم الشحن"?"selected":""}>تم الشحن</option>
+      </select></p>`;
+  });
+}
+
+function updateOrderStatus(i,s){
+  orders[i].status=s;
+  saveOrders();
+}
+
+// ------------------ بدء ------------------
 if(currentUser) showUser();
 renderProducts(products);
+
