@@ -79,6 +79,13 @@
         <option value="XL">XL</option>
       </select>
     </label>
+    <label>السعر:
+      <input type="number" id="filterMinPrice" placeholder="من" oninput="applyFilters()">
+      <input type="number" id="filterMaxPrice" placeholder="إلى" oninput="applyFilters()">
+    </label>
+    <label>مدة التوصيل:
+      <input type="number" id="filterDelivery" placeholder="أقل من أيام" oninput="applyFilters()">
+    </label>
   </div>
 
   <!-- قائمة المنتجات -->
@@ -101,6 +108,10 @@
 
   <!-- قسم الطلبات الخاصة بالمستخدم -->
   <div id="myOrders"></div>
+
+  <!-- إشعارات منبثقة -->
+  <div id="toast" style="position:fixed;bottom:20px;left:50%;transform:translateX(-50%);
+    background:#333;color:white;padding:10px 20px;border-radius:25px;display:none;z-index:2000;"></div>
 
 </div>
 
