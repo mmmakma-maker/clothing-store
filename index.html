@@ -1,3 +1,13 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>متجر الملابس النسائي</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
 <div class="container">
   <img src="https://via.placeholder.com/200x80?text=شعار+التطبيق" alt="شعار التطبيق" class="logo">
   <h1>متجر الملابس النسائي التجريبي</h1>
@@ -25,7 +35,7 @@
     <p id="loginMsg" style="color:red;"></p>
   </div>
 
-  <!-- قسم التاجر (مخفى افتراضياً) -->
+  <!-- قسم التاجر -->
   <div id="adminDiv" style="display:none;">
     <h2>قسم التاجر</h2>
     <input type="text" id="newName" placeholder="اسم المنتج">
@@ -33,8 +43,8 @@
     <input type="text" id="newImage" placeholder="رابط الصورة">
     <input type="text" id="newCategory" placeholder="الفئة">
     <input type="number" id="newDelivery" placeholder="مدة التوصيل بالأيام">
-    <input type="text" id="newColors" placeholder="الألوان (افصل بينها بفواصل)">
-    <input type="text" id="newSizes" placeholder="الأحجام (افصل بينها بفواصل)">
+    <input type="text" id="newColors" placeholder="الألوان (افصل بفواصل)">
+    <input type="text" id="newSizes" placeholder="الأحجام (افصل بفواصل)">
     <input type="number" id="newStock" placeholder="الكمية المتاحة">
     <button onclick="addProduct()">إضافة المنتج</button>
   </div>
@@ -65,3 +75,7 @@
     <button onclick="closeCart()">إغلاق السلة</button>
   </div>
 </div>
+
+<script src="script.js"></script>
+</body>
+</html>
