@@ -26,12 +26,19 @@ body {
 }
 
 /* ===================== الفلاتر ===================== */
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
 .filters button {
   background: linear-gradient(45deg, #ff4081, #e91e63);
   color: white;
   border: none;
   padding: 10px 15px;
-  margin: 5px;
   cursor: pointer;
   border-radius: 25px;
   transition: transform 0.3s, box-shadow 0.3s;
@@ -86,6 +93,11 @@ body {
 
 .product p {
   margin: 5px 0;
+}
+
+.delete-btn {
+  background: red !important;
+  margin-top: 5px;
 }
 
 /* ===================== الأزرار العامة ===================== */
@@ -205,6 +217,20 @@ button:hover {
   transform: scale(1.05);
 }
 
+/* ===================== إشعارات منبثقة ===================== */
+#toast {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background:#333;
+  color:white;
+  padding:10px 20px;
+  border-radius:25px;
+  display:none;
+  z-index:2000;
+}
+
 /* ===================== الاستجابة للشاشات الصغيرة ===================== */
 @media (max-width: 600px) {
   .products { gap: 10px; }
@@ -212,6 +238,5 @@ button:hover {
   .product-detail { width: 90%; padding: 15px; }
   #cartButton { padding: 10px 15px; }
   .cart-popup { width: 90%; padding: 15px; }
+  .filters { flex-direction: column; gap: 5px; }
 }
-
-
