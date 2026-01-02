@@ -1,5 +1,5 @@
 // ------------------ البيانات ------------------
-let products = [
+let products = JSON.parse(localStorage.getItem("products")) || [
   { id: 1, name: "فستان نسائي أنيق", price: 150, image: "images/product1.png", category: "نسائي", deliveryDays: 5, colors: ["أزرق","أصفر"], sizes: ["M","L"], stock: 3 },
   { id: 2, name: "بلوزة نسائية", price: 80, image: "images/product2.png", category: "نسائي", deliveryDays: 3, colors: ["أبيض","زهري"], sizes: ["S","M","L"], stock: 5 },
   { id: 3, name: "تنورة نسائية", price: 120, image: "images/product3.png", category: "نسائي", deliveryDays: 4, colors: ["أسود","أزرق"], sizes: ["M","L"], stock: 4 },
@@ -20,6 +20,11 @@ const popupTotal = document.getElementById("popupTotal");
 const cartCount = document.getElementById("cartCount");
 const searchInput = document.getElementById("search");
 
+// ------------------ حفظ المنتجات ------------------
+function saveProducts(){
+  localStorage.setItem("products", JSON.stringify(products));
+}
+
 // ------------------ تسجيل المستخدم ------------------
 function registerUser() {
   const fullName = document.getElementById("fullName").value.trim();
@@ -37,6 +42,11 @@ function registerUser() {
 
   msg.style.color="green";
   msg.textContent="تم إنشاء الحساب بنجاح ✅ يمكنك تسجيل الدخول الآن";
+
+  document.getElementById("fullName").value="";
+  document.getElementById("username").value="";
+  document.getElementById("userEmail").value="";
+  document.getElementById("userPassword").value="";
 }
 
 function loginUser() {
@@ -70,14 +80,19 @@ const adminPasswordValue="1234";
 function loginAsAdmin(){ 
   const input=document.getElementById("adminPassword").value; 
   const msg=document.getElementById("loginMsg"); 
-  if(input===adminPasswordValue){document.getElementById("loginDiv").style.display="none"; document.getElementById("adminDiv").style.display="block"; msg.textContent=""; renderProducts(products);} 
-  else{msg.textContent="كلمة المرور غير صحيحة!";}
+  if(input===adminPasswordValue){
+    document.getElementById("loginDiv").style.display="none"; 
+    document.getElementById("adminDiv").style.display="block"; 
+    msg.textContent=""; 
+    renderProducts(products);
+    document.getElementById("adminPassword").value="";
+  } else { msg.textContent="كلمة المرور غير صحيحة!"; }
 }
 
 // ------------------ عرض المنتجات ------------------
 function renderProducts(list){
   productsDiv.innerHTML="";
-  productDetailDiv.style.display = "none"; // إخفاء التفاصيل
+  productDetailDiv.style.display = "none";
   productsDiv.style.display = "flex";
 
   const isAdmin = document.getElementById("adminDiv").style.display==="block";
@@ -107,6 +122,7 @@ function deleteProduct(id){
   if(index!==-1){ 
     if(confirm("هل أنت متأكد من حذف هذا المنتج؟ ❌")){ 
       products.splice(index,1); 
+      saveProducts(); // 🔥 حفظ التغيير
       renderProducts(products); 
       alert("تم حذف المنتج بنجاح!"); 
     } 
@@ -130,27 +146,36 @@ function addProduct(){
     alert("الرجاء ملء جميع الحقول المهمة!"); 
     return;
   }
+
   products.push(newProduct); 
+  saveProducts(); // 🔥 حفظ التغيير
   renderProducts(products); 
   alert("تمت إضافة المنتج بنجاح! ✅");
+
+  // مسح الحقول بعد الإضافة
+  document.getElementById("newName").value="";
+  document.getElementById("newPrice").value="";
+  document.getElementById("newImage").value="";
+  document.getElementById("newCategory").value="";
+  document.getElementById("newDelivery").value="";
+  document.getElementById("newColors").value="";
+  document.getElementById("newSizes").value="";
+  document.getElementById("newStock").value="";
 }
 
 // ------------------ البحث والفلاتر ------------------
-searchInput.addEventListener("input", ()=>{
-  applyFilters();
-});
+searchInput.addEventListener("input", ()=>{ applyFilters(); });
 
-function filterCategory(category){
-  if(category==="all"){ renderProducts(products); }
-  else{ renderProducts(products.filter(p=>p.category===category)); }
-}
+function filterCategory(category){ applyFilters(category); }
 
-function applyFilters(){
+function applyFilters(category="all"){
+  let filtered = products;
+
+  if(category !== "all") filtered = filtered.filter(p=>p.category===category);
+
   const searchValue = searchInput.value.toLowerCase();
   const color = document.getElementById("filterColor").value;
   const size = document.getElementById("filterSize").value;
-
-  let filtered = products;
 
   if(color!=="all") filtered = filtered.filter(p=>p.colors.includes(color));
   if(size!=="all") filtered = filtered.filter(p=>p.sizes.includes(size));
@@ -199,7 +224,10 @@ function zoomImage(src){
   zoomDiv.style.alignItems="center";
   zoomDiv.style.justifyContent="center";
   zoomDiv.style.zIndex="9999";
-  zoomDiv.innerHTML = `<img src="${src}" style="max-width:90%; max-height:90%;"><button style="position:absolute;top:20px;right:20px;font-size:20px;" onclick="this.parentElement.remove()">✖</button>`;
+  zoomDiv.innerHTML = `
+    <img src="${src}" style="max-width:90%; max-height:90%;">
+    <button class="zoom-btn" onclick="this.parentElement.remove()">✖</button>
+  `;
   document.body.appendChild(zoomDiv);
 }
 
@@ -214,16 +242,14 @@ function addDetailToCart(id){
 
   cart.push({id: product.id, name: product.name, price: product.price, color, size, qty});
   product.stock -= qty;
+  saveProducts(); // 🔥 حفظ المخزون الجديد
 
   renderProducts(products);
   alert("تمت إضافة المنتج للسلة ✅");
   backToProducts();
 }
 
-function backToProducts(){
-  productDetailDiv.style.display="none";
-  renderProducts(products);
-}
+function backToProducts(){ productDetailDiv.style.display="none"; renderProducts(products); }
 
 // ------------------ السلة ------------------
 cartButton.onclick = ()=>{ renderCartPopup(); cartPopup.style.display="block"; };
@@ -246,6 +272,7 @@ function removeFromCart(index){
   const item = cart[index];
   const product = products.find(p=>p.id===item.id);
   product.stock += item.qty;
+  saveProducts(); // 🔥 حفظ المخزون بعد الحذف
   cart.splice(index,1);
   renderCartPopup();
   renderProducts(products);
