@@ -1,5 +1,5 @@
 // ------------------ البيانات ------------------
-const products = [
+let products = [
   { id: 1, name: "فستان نسائي أنيق", price: 150, image: "images/product1.png", category: "نسائي", deliveryDays: 5, colors: ["أزرق","أصفر"], sizes: ["M","L"], stock: 3 },
   { id: 2, name: "بلوزة نسائية", price: 80, image: "images/product2.png", category: "نسائي", deliveryDays: 3, colors: ["أبيض","زهري"], sizes: ["S","M","L"], stock: 5 },
   { id: 3, name: "تنورة نسائية", price: 120, image: "images/product3.png", category: "نسائي", deliveryDays: 4, colors: ["أسود","أزرق"], sizes: ["M","L"], stock: 4 },
@@ -7,8 +7,8 @@ const products = [
 ];
 
 let cart = [];
-let currentUser = null;
-let users = []; // مصفوفة لتخزين المستخدمين
+let users = JSON.parse(localStorage.getItem("users")) || [];
+let currentUser = JSON.parse(localStorage.getItem("currentUser")) || null;
 
 // ------------------ DOM ------------------
 const productsDiv = document.getElementById("products");
@@ -22,40 +22,45 @@ const searchInput = document.getElementById("search");
 
 // ------------------ تسجيل المستخدم ------------------
 function registerUser() {
+  const fullName = document.getElementById("fullName").value.trim();
+  const username = document.getElementById("username").value.trim();
   const email = document.getElementById("userEmail").value.trim();
   const password = document.getElementById("userPassword").value.trim();
   const msg = document.getElementById("userMsg");
 
-  if (!email || !password) { msg.style.color="red"; msg.textContent="الرجاء ملء جميع الحقول"; return; }
-  if (users.find(u=>u.email===email)) { msg.style.color="red"; msg.textContent="هذا البريد مستخدم مسبقًا!"; return; }
+  if (!fullName || !username || !email || !password) { msg.textContent="الرجاء تعبئة جميع البيانات"; return; }
+  if (users.find(u=>u.email===email)) { msg.textContent="الإيميل مستخدم مسبقًا"; return; }
 
-  users.push({email,password});
+  const newUser = { fullName, username, email, password };
+  users.push(newUser);
+  localStorage.setItem("users", JSON.stringify(users));
+
   msg.style.color="green";
-  msg.textContent="تم إنشاء الحساب بنجاح ✅، يمكنك الآن تسجيل الدخول";
+  msg.textContent="تم إنشاء الحساب بنجاح ✅ يمكنك تسجيل الدخول الآن";
 }
 
-function loginUser() { 
-  const email = document.getElementById("userEmail").value.trim(); 
-  const password = document.getElementById("userPassword").value.trim(); 
+function loginUser() {
+  const email = document.getElementById("userEmail").value.trim();
+  const password = document.getElementById("userPassword").value.trim();
   const msg = document.getElementById("userMsg");
 
-  if(!email||!password){msg.style.color="red";msg.textContent="الرجاء ملء جميع الحقول";return;}
-
   const user = users.find(u=>u.email===email && u.password===password);
-  if(user){ currentUser=email.split("@")[0]; showUser(); msg.textContent=""; }
-  else{ msg.style.color="red"; msg.textContent="البريد أو كلمة المرور غير صحيحة!"; }
+  if(!user){ msg.textContent="بيانات الدخول غير صحيحة"; return; }
+
+  currentUser = user;
+  localStorage.setItem("currentUser", JSON.stringify(user));
+  showUser();
 }
 
-function loginApple(){ currentUser="AppleUser"; showUser(); }
-
-function showUser(){
+function showUser() {
   document.getElementById("userLoginDiv").style.display="none";
   document.getElementById("welcomeUser").style.display="block";
-  document.getElementById("usernameDisplay").textContent=currentUser;
+  document.getElementById("usernameDisplay").textContent=currentUser.username;
 }
 
-function logoutUser(){
-  currentUser=null;
+function logoutUser() {
+  currentUser = null;
+  localStorage.removeItem("currentUser");
   document.getElementById("userLoginDiv").style.display="block";
   document.getElementById("welcomeUser").style.display="none";
 }
@@ -84,7 +89,7 @@ function renderProducts(list){
   });
 }
 
-// ------------------ حذف وإضافة ------------------
+// ------------------ حذف وإضافة المنتجات ------------------
 function deleteProduct(id){ const index=products.findIndex(p=>p.id===id); if(index!==-1){if(confirm("هل أنت متأكد من حذف هذا المنتج؟ ❌")){products.splice(index,1); renderProducts(products); alert("تم حذف المنتج بنجاح!");}}}
 function addProduct(){
   const newProduct={ id:Date.now(), name:document.getElementById("newName").value, price:parseFloat(document.getElementById("newPrice").value), image:document.getElementById("newImage").value, category:document.getElementById("newCategory").value, deliveryDays:parseInt(document.getElementById("newDelivery").value), colors:document.getElementById("newColors").value.split(","), sizes:document.getElementById("newSizes").value.split(","), stock:parseInt(document.getElementById("newStock").value) };
@@ -92,9 +97,11 @@ function addProduct(){
   products.push(newProduct); renderProducts(products); alert("تمت إضافة المنتج بنجاح! ✅");
 }
 
-// ------------------ باقي الكود للسلة والتفاصيل والبحث والفلاتر ------------------
+// ------------------ البحث والفلاتر ------------------
 searchInput.addEventListener("input",()=>{ const value=searchInput.value.toLowerCase(); renderProducts(products.filter(p=>p.name.toLowerCase().includes(value)));});
 function filterCategory(category){ if(category==="all") renderProducts(products); else renderProducts(products.filter(p=>p.category===category));}
+
+// ------------------ السلة والتفاصيل ------------------
 function showProductDetail(id){ /* نفس الكود السابق */ }
 function addDetailToCart(id){ /* نفس الكود السابق */ }
 function backToProducts(){ productDetailDiv.style.display="none"; renderProducts(products);}
@@ -104,4 +111,7 @@ function renderCartPopup(){ /* نفس الكود السابق */ }
 function updateQuantity(index,value){ /* نفس الكود السابق */ }
 function removeFromCart(index){ /* نفس الكود السابق */ }
 function payNow(){ if(cart.length===0) return alert("السلة فارغة!"); alert("تمت عملية الدفع التجريبية بنجاح! ✅"); cart=[]; renderCartPopup(); backToProducts();}
+
+// ------------------ عند فتح الموقع ------------------
+if(currentUser) showUser();
 renderProducts(products);
