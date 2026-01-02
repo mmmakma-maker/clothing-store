@@ -77,12 +77,15 @@ function loginAsAdmin(){
 // ------------------ عرض المنتجات ------------------
 function renderProducts(list){
   productsDiv.innerHTML="";
-  productDetailDiv.style.display = "none";
+  productDetailDiv.style.display = "none"; // إخفاء التفاصيل
   productsDiv.style.display = "flex";
+
   const isAdmin = document.getElementById("adminDiv").style.display==="block";
 
   list.forEach(product=>{
-    const div=document.createElement("div"); div.className="product";
+    const div=document.createElement("div"); 
+    div.className="product";
+
     let deleteButtonHTML="";
     if(isAdmin){ deleteButtonHTML=`<button onclick="deleteProduct(${product.id})" style="background:red;">حذف المنتج</button>`; }
 
@@ -91,7 +94,7 @@ function renderProducts(list){
       <h4>${product.name}</h4>
       <p>${product.price} ريال</p>
       <p>المتبقي: ${product.stock}</p>
-      <button onclick="showProductDetail(${product.id})" ${product.stock===0?'disabled':''}>عرض المنتج</button>
+      <button onclick="showProductDetail(${product.id})" ${product.stock===0?'disabled':''}>${product.stock===0?'نفدت الكمية':'عرض المنتج'}</button>
       ${deleteButtonHTML}
     `;
     productsDiv.appendChild(div);
@@ -134,38 +137,70 @@ function addProduct(){
 
 // ------------------ البحث والفلاتر ------------------
 searchInput.addEventListener("input", ()=>{
-  const value = searchInput.value.toLowerCase();
-  renderProducts(products.filter(p=>p.name.toLowerCase().includes(value)));
+  applyFilters();
 });
 
 function filterCategory(category){
-  if(category==="all") renderProducts(products); 
-  else renderProducts(products.filter(p=>p.category===category));
+  if(category==="all"){ renderProducts(products); }
+  else{ renderProducts(products.filter(p=>p.category===category)); }
+}
+
+function applyFilters(){
+  const searchValue = searchInput.value.toLowerCase();
+  const color = document.getElementById("filterColor").value;
+  const size = document.getElementById("filterSize").value;
+
+  let filtered = products;
+
+  if(color!=="all") filtered = filtered.filter(p=>p.colors.includes(color));
+  if(size!=="all") filtered = filtered.filter(p=>p.sizes.includes(size));
+  if(searchValue) filtered = filtered.filter(p=>p.name.toLowerCase().includes(searchValue));
+
+  renderProducts(filtered);
 }
 
 // ------------------ عرض تفاصيل المنتج ------------------
 function showProductDetail(id){
-  const product = products.find(p => p.id === id);
+  const product = products.find(p=>p.id===id);
   if(!product) return;
 
-  productsDiv.style.display = "none";
-  productDetailDiv.style.display = "block";
+  productsDiv.style.display="none";
+  productDetailDiv.style.display="block";
 
   let colorsOptions = product.colors.map(c=>`<option value="${c}">${c}</option>`).join("");
   let sizesOptions = product.sizes.map(s=>`<option value="${s}">${s}</option>`).join("");
 
   productDetailDiv.innerHTML = `
     <h2>${product.name}</h2>
-    <img src="${product.image}" alt="${product.name}" style="width:200px;">
+    <img src="${product.image}" alt="${product.name}" style="width:200px; cursor:pointer;" onclick="zoomImage('${product.image}')">
     <p>السعر: ${product.price} ريال</p>
     <p>المتبقي: ${product.stock}</p>
     <p>مدة التوصيل: ${product.deliveryDays} أيام</p>
     <label>اللون: <select id="selectedColor">${colorsOptions}</select></label><br>
     <label>الحجم: <select id="selectedSize">${sizesOptions}</select></label><br>
     <label>الكمية: <input type="number" id="selectedQty" value="1" min="1" max="${product.stock}"></label><br>
-    <button onclick="addDetailToCart(${product.id})" ${product.stock===0?'disabled':''}>أضف إلى السلة</button>
+    <button id="addToCartBtn">أضف إلى السلة</button>
     <button onclick="backToProducts()">عودة للمنتجات</button>
   `;
+
+  document.getElementById("addToCartBtn").onclick = function(){ addDetailToCart(product.id); };
+}
+
+// ------------------ تكبير الصورة ------------------
+function zoomImage(src){
+  const zoomDiv = document.createElement("div");
+  zoomDiv.style.position = "fixed";
+  zoomDiv.style.top = "0";
+  zoomDiv.style.left = "0";
+  zoomDiv.style.width = "100%";
+  zoomDiv.style.height = "100%";
+  zoomDiv.style.background="rgba(0,0,0,0.8)";
+  zoomDiv.style.display="flex";
+  zoomDiv.style.alignItems="center";
+  zoomDiv.style.justifyContent="center";
+  zoomDiv.style.zIndex="9999";
+  zoomDiv.innerHTML = `<img src="${src}" style="max-width:90%; max-height:90%;"><button style="position:absolute;top:20px;right:20px;font-size:20px;" onclick="this.parentElement.remove()">✖</button>`;
+  document.body.appendChild(zoomDiv);
 }
 
 // ------------------ إضافة للسلة ------------------
@@ -191,11 +226,7 @@ function backToProducts(){
 }
 
 // ------------------ السلة ------------------
-cartButton.onclick = ()=>{
-  renderCartPopup();
-  cartPopup.style.display="block";
-};
-
+cartButton.onclick = ()=>{ renderCartPopup(); cartPopup.style.display="block"; };
 function closeCart(){ cartPopup.style.display="none"; }
 
 function renderCartPopup(){
