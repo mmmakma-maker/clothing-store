@@ -1,72 +1,216 @@
+/* ===================== أسلوب الجسم والخلفية ===================== */
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background: url('images/bg.jpg') no-repeat center center fixed;
   background-size: cover;
   direction: rtl;
+  margin: 0;
+  padding: 0;
 }
 
+/* ===================== الحاوية الرئيسية ===================== */
 .container {
   width: 90%;
-  margin: auto;
+  margin: 20px auto;
   text-align: center;
   background: rgba(255,255,255,0.95);
-  padding: 20px;
-  border-radius: 15px;
-  margin-top: 20px;
+  padding: 25px;
+  border-radius: 20px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
 }
 
-.logo { max-width: 200px; margin-bottom: 10px; }
+/* ===================== الشعار ===================== */
+.logo {
+  max-width: 200px;
+  margin-bottom: 15px;
+}
 
+/* ===================== الفلاتر ===================== */
 .filters button {
-  background: #e91e63;
+  background: linear-gradient(45deg, #ff4081, #e91e63);
   color: white;
   border: none;
-  padding: 8px 12px;
-  margin: 2px;
+  padding: 10px 15px;
+  margin: 5px;
   cursor: pointer;
-  border-radius: 5px;
-}
-.filters button:hover { background: #ad1457; }
-
-#search { width: 100%; padding: 10px; margin-bottom: 15px; }
-
-.products { display: flex; flex-wrap: wrap; gap: 15px; justify-content: center; }
-
-.product {
-  background: white; width: 180px; padding: 10px; border-radius: 12px;
-  text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  border-radius: 25px;
   transition: transform 0.3s, box-shadow 0.3s;
 }
-.product:hover { transform: scale(1.05); box-shadow: 0 8px 20px rgba(0,0,0,0.15); }
-.product img { width: 100%; border-radius: 8px; }
 
-button {
-  background: #4caf50; color: white; border: none; padding: 6px 8px;
-  cursor: pointer; border-radius: 5px; margin-top: 5px;
+.filters button:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
 }
-button:hover { background: #388e3c; }
 
+#search {
+  width: 100%;
+  padding: 12px;
+  margin: 15px 0;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  font-size: 16px;
+}
+
+/* ===================== المنتجات ===================== */
+.products {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+}
+
+.product {
+  background: #fff0f5;
+  width: 200px;
+  padding: 15px;
+  border-radius: 20px;
+  text-align: center;
+  box-shadow: 0 6px 10px rgba(0,0,0,0.1);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.product:hover {
+  transform: scale(1.08);
+  box-shadow: 0 12px 25px rgba(0,0,0,0.2);
+}
+
+.product img {
+  width: 100%;
+  border-radius: 15px;
+  margin-bottom: 10px;
+}
+
+.product h4 {
+  margin: 10px 0 5px 0;
+}
+
+.product p {
+  margin: 5px 0;
+}
+
+/* ===================== الأزرار العامة ===================== */
+button {
+  background: linear-gradient(45deg, #4caf50, #388e3c);
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  cursor: pointer;
+  border-radius: 25px;
+  margin-top: 5px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+/* ===================== تفاصيل المنتج ===================== */
 .product-detail {
-  background: white; padding: 15px; border-radius: 10px;
-  margin: 20px auto; max-width: 400px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  background: #fff8f0;
+  padding: 20px;
+  border-radius: 20px;
+  margin: 20px auto;
+  max-width: 450px;
+  box-shadow: 0 8px 15px rgba(0,0,0,0.15);
   text-align: center;
 }
-.product-detail img { width: 100%; border-radius: 8px; }
-.product-detail button { background: #ff5722; margin-top: 10px; }
-.product-detail button:hover { background: #e64a19; }
 
+.product-detail img {
+  width: 100%;
+  border-radius: 15px;
+  cursor: pointer;
+}
+
+.product-detail button {
+  background: linear-gradient(45deg, #ff7043, #ff5722);
+  margin-top: 10px;
+  padding: 10px 20px;
+  border-radius: 25px;
+  transition: transform 0.3s;
+}
+
+.product-detail button:hover {
+  transform: scale(1.05);
+}
+
+/* ===================== إدخال الكمية ===================== */
+.quantity-input {
+  width: 50px;
+  text-align: center;
+  margin-top: 10px;
+}
+
+/* ===================== زر السلة ===================== */
 #cartButton {
-  position: fixed; top: 10px; left: 10px; background: #ff9800; color: white;
-  padding: 10px 15px; border: none; border-radius: 50px; cursor: pointer; z-index: 1000;
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  background: #ff9800;
+  color: white;
+  padding: 12px 18px;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  z-index: 1000;
+  transition: transform 0.3s, box-shadow 0.3s;
 }
-#cartButton:hover { background: #f57c00; }
 
+#cartButton:hover {
+  transform: scale(1.05);
+  background: #f57c00;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+/* ===================== نافذة السلة ===================== */
 .cart-popup {
-  position: fixed; top: 60px; left: 50%; transform: translateX(-50%);
-  width: 300px; background: white; border-radius: 10px; padding: 15px;
-  box-shadow: 0 6px 12px rgba(0,0,0,0.2); z-index: 1000; text-align: center;
+  position: fixed;
+  top: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 350px;
+  background: #fff3e0;
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+  z-index: 1000;
+  text-align: center;
 }
-.cart-popup ul { list-style: none; padding: 0; max-height: 200px; overflow-y: auto; }
+
+.cart-popup ul {
+  list-style: none;
+  padding: 0;
+  max-height: 250px;
+  overflow-y: auto;
+  margin-bottom: 10px;
+}
+
 .cart-popup li {
-  display: flex; justify-content: space-between; margin-bottom: 8px; align-items: center;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  align-items: center;
 }
+
+.cart-popup button {
+  background: #ff7043;
+  color: white;
+  border-radius: 25px;
+  padding: 8px 15px;
+  margin-top: 10px;
+  transition: transform 0.3s;
+}
+
+.cart-popup button:hover {
+  transform: scale(1.05);
+}
+
+/* ===================== الاستجابة للشاشات الصغيرة ===================== */
+@media (max-width: 600px) {
+  .products { gap: 10px; }
+  .product { width: 45%; }
+  .product-detail { width: 90%; padding: 15px; }
+  #cartButton { padding: 10px 15px; }
+  .cart-popup { width: 90%; padding: 15px; }
+}
+
