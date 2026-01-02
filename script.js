@@ -20,6 +20,7 @@ const cartPopupList = document.getElementById("cartPopupList");
 const popupTotal = document.getElementById("popupTotal");
 const cartCount = document.getElementById("cartCount");
 const searchInput = document.getElementById("search");
+const toastDiv = document.getElementById("toast");
 
 // ------------------ حفظ البيانات ------------------
 function saveData() {
@@ -28,6 +29,13 @@ function saveData() {
   localStorage.setItem("currentUser", JSON.stringify(currentUser));
   localStorage.setItem("cart", JSON.stringify(cart));
   localStorage.setItem("orders", JSON.stringify(orders));
+}
+
+// ------------------ إشعارات ------------------
+function showToast(message) {
+  toastDiv.textContent = message;
+  toastDiv.style.display = "block";
+  setTimeout(()=>{ toastDiv.style.display = "none"; }, 2000);
 }
 
 // ------------------ تسجيل المستخدم ------------------
@@ -127,7 +135,7 @@ function deleteProduct(id){
       products.splice(index,1); 
       saveData();
       renderProducts(products); 
-      alert("تم حذف المنتج بنجاح!"); 
+      showToast("تم حذف المنتج بنجاح!"); 
     } 
   }
 }
@@ -142,15 +150,47 @@ function addProduct(){
     deliveryDays: parseInt(document.getElementById("newDelivery").value), 
     colors: document.getElementById("newColors").value.split(",").map(c=>c.trim()), 
     sizes: document.getElementById("newSizes").value.split(",").map(s=>s.trim()), 
-    stock: parseInt(document.getElementById("newStock").value)
+    stock: parseInt(document.getElementById("newStock").value) 
   };
-  products.push(newProduct);
+
+  if(!newProduct.name || !newProduct.price || !newProduct.image || !newProduct.stock){ 
+    showToast("الرجاء ملء جميع الحقول المهمة!"); 
+    return;
+  }
+  products.push(newProduct); 
   saveData();
-  renderProducts(products);
-  alert("تم إضافة المنتج ✅");
+  renderProducts(products); 
+  showToast("تمت إضافة المنتج بنجاح! ✅");
 }
 
-// ------------------ تفاصيل المنتج ------------------
+// ------------------ البحث والفلاتر ------------------
+searchInput.addEventListener("input", applyFilters);
+
+function filterCategory(category){
+  if(category==="all"){ renderProducts(products); }
+  else{ renderProducts(products.filter(p=>p.category===category)); }
+}
+
+function applyFilters(){
+  const searchValue = searchInput.value.toLowerCase();
+  const color = document.getElementById("filterColor").value;
+  const size = document.getElementById("filterSize").value;
+  const minPrice = parseFloat(document.getElementById("filterMinPrice").value) || 0;
+  const maxPrice = parseFloat(document.getElementById("filterMaxPrice").value) || Infinity;
+  const deliveryMax = parseInt(document.getElementById("filterDelivery").value) || Infinity;
+
+  let filtered = products;
+
+  if(color!=="all") filtered = filtered.filter(p=>p.colors.includes(color));
+  if(size!=="all") filtered = filtered.filter(p=>p.sizes.includes(size));
+  filtered = filtered.filter(p=>p.price>=minPrice && p.price<=maxPrice);
+  filtered = filtered.filter(p=>p.deliveryDays<=deliveryMax);
+  if(searchValue) filtered = filtered.filter(p=>p.name.toLowerCase().includes(searchValue));
+
+  renderProducts(filtered);
+}
+
+// ------------------ عرض تفاصيل المنتج ------------------
 function showProductDetail(id){
   const product = products.find(p=>p.id===id);
   if(!product) return;
@@ -158,140 +198,133 @@ function showProductDetail(id){
   productsDiv.style.display="none";
   productDetailDiv.style.display="block";
 
-  productDetailDiv.innerHTML=`
-    <img src="${product.image}" onclick="zoomImage('${product.image}')">
+  let colorsOptions = product.colors.map(c=>`<option value="${c}">${c}</option>`).join("");
+  let sizesOptions = product.sizes.map(s=>`<option value="${s}">${s}</option>`).join("");
+
+  productDetailDiv.innerHTML = `
     <h2>${product.name}</h2>
+    <img src="${product.image}" alt="${product.name}" style="width:200px; cursor:pointer;" onclick="zoomImage('${product.image}')">
     <p>السعر: ${product.price} ريال</p>
-    <p>الألوان: ${product.colors.join(", ")}</p>
-    <p>الأحجام: ${product.sizes.join(", ")}</p>
-    <p>مدة التوصيل: ${product.deliveryDays} أيام</p>
     <p>المتبقي: ${product.stock}</p>
-    <input type="number" id="quantityInput" class="quantity-input" min="1" max="${product.stock}" value="1">
-    <button onclick="addToCart(${id})" ${product.stock===0?'disabled':''}>${product.stock===0?'نفدت الكمية':'إضافة للسلة'}</button>
-    <button onclick="backToProducts()">رجوع للمتجر</button>
+    <p>مدة التوصيل: ${product.deliveryDays} أيام</p>
+    <label>اللون: <select id="selectedColor">${colorsOptions}</select></label><br>
+    <label>الحجم: <select id="selectedSize">${sizesOptions}</select></label><br>
+    <label>الكمية: <input type="number" id="selectedQty" value="1" min="1" max="${product.stock}"></label><br>
+    <button id="addToCartBtn">أضف إلى السلة</button>
+    <button onclick="backToProducts()">عودة للمنتجات</button>
   `;
+
+  document.getElementById("addToCartBtn").onclick = function(){ addDetailToCart(product.id); };
 }
 
+// ------------------ تكبير الصورة ------------------
+function zoomImage(src){
+  const zoomDiv = document.createElement("div");
+  zoomDiv.style.position = "fixed";
+  zoomDiv.style.top = "0";
+  zoomDiv.style.left = "0";
+  zoomDiv.style.width = "100%";
+  zoomDiv.style.height = "100%";
+  zoomDiv.style.background="rgba(0,0,0,0.8)";
+  zoomDiv.style.display="flex";
+  zoomDiv.style.alignItems="center";
+  zoomDiv.style.justifyContent="center";
+  zoomDiv.style.zIndex="9999";
+  zoomDiv.innerHTML = `<img src="${src}" style="max-width:90%; max-height:90%;"><button style="position:absolute;top:20px;right:20px;font-size:20px;" onclick="this.parentElement.remove()">✖</button>`;
+  document.body.appendChild(zoomDiv);
+}
+
+// ------------------ إضافة للسلة ------------------
+function addDetailToCart(id){
+  const product = products.find(p=>p.id===id);
+  const color = document.getElementById("selectedColor").value;
+  const size = document.getElementById("selectedSize").value;
+  const qty = parseInt(document.getElementById("selectedQty").value);
+
+  if(qty > product.stock) return showToast("الكمية المطلوبة أكبر من المتوفر");
+
+  cart.push({id: product.id, name: product.name, price: product.price, color, size, qty});
+  product.stock -= qty;
+
+  saveData();
+  renderProducts(products);
+  showToast("تمت إضافة المنتج للسلة ✅");
+  backToProducts();
+}
+
+// ------------------ العودة للمنتجات ------------------
 function backToProducts(){
   productDetailDiv.style.display="none";
-  productsDiv.style.display="flex";
+  renderProducts(products);
 }
 
 // ------------------ السلة ------------------
-function addToCart(id){
-  if(!currentUser){ alert("الرجاء تسجيل الدخول أولاً"); return; }
-  const product = products.find(p=>p.id===id);
-  const quantity = parseInt(document.getElementById("quantityInput").value);
-  if(quantity > product.stock){ alert("الكمية غير متاحة"); return; }
-
-  const existing = cart.find(c=>c.id===id);
-  if(existing){ existing.quantity+=quantity; } 
-  else { cart.push({ ...product, quantity }); }
-
-  saveData();
-  renderCartPopup();
-  alert("تمت الإضافة للسلة ✅");
-}
-
-cartButton.addEventListener("click",()=>{ cartPopup.style.display="block"; });
-
+cartButton.onclick = ()=>{ renderCartPopup(); cartPopup.style.display="block"; };
 function closeCart(){ cartPopup.style.display="none"; }
 
 function renderCartPopup(){
   cartPopupList.innerHTML="";
   let total=0;
-  cart.forEach(item=>{
-    total+=item.price*item.quantity;
-    const li=document.createElement("li");
-    li.innerHTML=`${item.name} (${item.quantity}) - ${item.price*item.quantity} ريال 
-      <button onclick="removeFromCart(${item.id})">❌</button>`;
+  cart.forEach((item,index)=>{
+    const li = document.createElement("li");
+    li.innerHTML=`${item.name} - ${item.color}/${item.size} x${item.qty} - ${item.price*item.qty} ريال <button onclick="removeFromCart(${index})">حذف</button>`;
     cartPopupList.appendChild(li);
+    total+=item.price*item.qty;
   });
-  popupTotal.textContent = `المجموع: ${total} ريال`;
-  cartCount.textContent = cart.reduce((a,b)=>a+b.quantity,0);
+  popupTotal.textContent=`المجموع: ${total} ريال`;
+  cartCount.textContent = cart.length;
 }
 
-function removeFromCart(id){
-  cart = cart.filter(c=>c.id!==id);
-  saveData();
-  renderCartPopup();
-}
-
-function payNow(){
-  if(cart.length===0){ alert("السلة فارغة!"); return; }
-  if(!currentUser){ alert("الرجاء تسجيل الدخول"); return; }
-
-  const userOrders = cart.map(item=>({ ...item, user: currentUser.username, orderDate: new Date().toLocaleString() }));
-  orders.push(...userOrders);
-  cart.forEach(c=>{
-    const prod = products.find(p=>p.id===c.id);
-    if(prod) prod.stock -= c.quantity;
-  });
-  cart=[];
+function removeFromCart(index){
+  const item = cart[index];
+  const product = products.find(p=>p.id===item.id);
+  product.stock += item.qty;
+  cart.splice(index,1);
   saveData();
   renderCartPopup();
   renderProducts(products);
+  showToast("تم حذف المنتج من السلة ❌");
+}
+
+function payNow(){
+  if(cart.length===0) return showToast("السلة فارغة!");
+  orders.push({user:currentUser.email, items:cart, total:0, status:"قيد التجهيز"});
+  cart=[];
+  saveData();
+  renderCartPopup();
+  backToProducts();
+  showToast("تمت عملية الدفع التجريبية بنجاح! ✅");
   showMyOrders();
-  renderOrdersAdmin();
-  alert("تمت عملية الدفع بنجاح ✅");
 }
 
-// ------------------ الفلاتر ------------------
-function filterCategory(cat){
-  if(cat==="all"){ renderProducts(products); return; }
-  renderProducts(products.filter(p=>p.category===cat));
-}
-
-function applyFilters(){
-  const color = document.getElementById("filterColor").value;
-  const size = document.getElementById("filterSize").value;
-  const search = searchInput.value.trim().toLowerCase();
-
-  let filtered = products.filter(p=>{
-    let match=true;
-    if(color!=="all") match = match && p.colors.includes(color);
-    if(size!=="all") match = match && p.sizes.includes(size);
-    if(search) match = match && p.name.toLowerCase().includes(search);
-    return match;
-  });
-  renderProducts(filtered);
-}
-
-searchInput.addEventListener("input", applyFilters);
-
-// ------------------ تكبير الصور ------------------
-function zoomImage(src){
-  const zoomDiv=document.createElement("div");
-  zoomDiv.style.cssText="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);display:flex;justify-content:center;align-items:center;z-index:2000;";
-  zoomDiv.innerHTML=`<img src="${src}" style="max-width:90%;max-height:90%;border-radius:15px;cursor:pointer;">`;
-  zoomDiv.addEventListener("click",()=>{ document.body.removeChild(zoomDiv); });
-  document.body.appendChild(zoomDiv);
-}
-
-// ------------------ الطلبات ------------------
+// ------------------ طلباتي ------------------
 function showMyOrders(){
+  const myOrdersDiv = document.getElementById("myOrders");
   if(!currentUser) return;
-  const myOrdersDiv=document.getElementById("myOrders");
   myOrdersDiv.innerHTML="<h3>طلباتي:</h3>";
-  const myOrders = orders.filter(o=>o.user===currentUser.username);
-  if(myOrders.length===0){ myOrdersDiv.innerHTML+="<p>لا توجد طلبات بعد.</p>"; return; }
-  myOrders.forEach(order=>{
-    myOrdersDiv.innerHTML+=`<p>${order.name} (${order.quantity}) - ${order.price*order.quantity} ريال - ${order.orderDate}</p>`;
-  });
+  orders.filter(o=>o.user===currentUser.email)
+        .forEach(o=>myOrdersDiv.innerHTML+=`<p>حالة الطلب: ${o.status} - ${o.items.map(i=>i.name+" x"+i.qty).join(", ")}</p>`);
 }
 
+// ------------------ إدارة الطلبات للتاجر ------------------
 function renderOrdersAdmin(){
   const ordersAdminDiv = document.getElementById("ordersAdmin");
   if(!ordersAdminDiv) return;
   ordersAdminDiv.innerHTML="";
-  if(orders.length===0){ ordersAdminDiv.innerHTML="<p>لا توجد طلبات بعد.</p>"; return; }
-  orders.forEach(order=>{
-    ordersAdminDiv.innerHTML+=`<p>${order.user} طلب ${order.name} (${order.quantity}) - ${order.price*order.quantity} ريال - ${order.orderDate}</p>`;
+  orders.forEach((o, idx)=>{
+    ordersAdminDiv.innerHTML+=`<p>${o.user} - ${o.status} <button onclick="updateOrder(${idx})">تم التجهيز</button></p>`;
   });
 }
 
-// ------------------ تهيئة الصفحة ------------------
+function updateOrder(idx){
+  orders[idx].status = "تم التجهيز";
+  saveData();
+  renderOrdersAdmin();
+}
+
+// ------------------ عند فتح الموقع ------------------
 if(currentUser) showUser();
 renderProducts(products);
+
 
 
