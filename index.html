@@ -15,15 +15,12 @@
   <!-- تسجيل / دخول المستخدم -->
   <div id="userLoginDiv">
     <h3>إنشاء حساب / تسجيل دخول</h3>
-
     <input type="text" id="fullName" placeholder="الاسم الكامل">
     <input type="text" id="username" placeholder="اسم المستخدم">
     <input type="email" id="userEmail" placeholder="البريد الإلكتروني">
     <input type="password" id="userPassword" placeholder="كلمة المرور">
-
     <button onclick="registerUser()">إنشاء حساب</button>
     <button onclick="loginUser()">تسجيل دخول</button>
-
     <p id="userMsg" style="color:red;"></p>
   </div>
 
@@ -58,9 +55,28 @@
   <div class="filters">
     <button onclick="filterCategory('all')">جميع المنتجات</button>
     <button onclick="filterCategory('نسائي')">نسائي</button>
+    <input type="text" id="search" placeholder="ابحث عن منتج...">
+    <label>اللون:
+      <select id="filterColor" onchange="applyFilters()">
+        <option value="all">جميع الألوان</option>
+        <option value="أزرق">أزرق</option>
+        <option value="أصفر">أصفر</option>
+        <option value="أبيض">أبيض</option>
+        <option value="زهري">زهري</option>
+        <option value="أسود">أسود</option>
+        <option value="رمادي">رمادي</option>
+      </select>
+    </label>
+    <label>الحجم:
+      <select id="filterSize" onchange="applyFilters()">
+        <option value="all">جميع الأحجام</option>
+        <option value="S">S</option>
+        <option value="M">M</option>
+        <option value="L">L</option>
+        <option value="XL">XL</option>
+      </select>
+    </label>
   </div>
-
-  <input type="text" id="search" placeholder="ابحث عن منتج...">
 
   <!-- قائمة المنتجات -->
   <div id="products" class="products"></div>
@@ -84,4 +100,3 @@
 <script src="script.js"></script>
 </body>
 </html>
-
