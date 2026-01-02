@@ -9,6 +9,7 @@ let products = [
 let cart = [];
 let users = JSON.parse(localStorage.getItem("users")) || [];
 let currentUser = JSON.parse(localStorage.getItem("currentUser")) || null;
+let ratings = JSON.parse(localStorage.getItem("ratings")) || {};
 
 // ------------------ DOM ------------------
 const productsDiv = document.getElementById("products");
@@ -86,6 +87,11 @@ function renderProducts(list){
     const div=document.createElement("div"); 
     div.className="product";
 
+    if(product.stock === 0){
+      div.style.opacity="0.5";
+      div.style.border="2px solid red";
+    }
+
     let deleteButtonHTML="";
     if(isAdmin){ deleteButtonHTML=`<button onclick="deleteProduct(${product.id})" style="background:red;">حذف المنتج</button>`; }
 
@@ -94,6 +100,7 @@ function renderProducts(list){
       <h4>${product.name}</h4>
       <p>${product.price} ريال</p>
       <p>المتبقي: ${product.stock}</p>
+      <p>مدة التوصيل: ${product.deliveryDays} أيام</p>
       <button onclick="showProductDetail(${product.id})" ${product.stock===0?'disabled':''}>${product.stock===0?'نفدت الكمية':'عرض المنتج'}</button>
       ${deleteButtonHTML}
     `;
@@ -130,7 +137,7 @@ function addProduct(){
     alert("الرجاء ملء جميع الحقول المهمة!"); 
     return;
   }
-  products.push(newProduct); 
+  products.unshift(newProduct); 
   renderProducts(products); 
   alert("تمت إضافة المنتج بنجاح! ✅");
 }
@@ -181,9 +188,28 @@ function showProductDetail(id){
     <label>الكمية: <input type="number" id="selectedQty" value="1" min="1" max="${product.stock}"></label><br>
     <button id="addToCartBtn">أضف إلى السلة</button>
     <button onclick="backToProducts()">عودة للمنتجات</button>
+    <hr>
+    <h3>تقييم المنتج ⭐</h3>
+    <div id="productRating">
+      <select id="ratingSelect">
+        <option value="1">1 ⭐</option>
+        <option value="2">2 ⭐⭐</option>
+        <option value="3">3 ⭐⭐⭐</option>
+        <option value="4">4 ⭐⭐⭐⭐</option>
+        <option value="5">5 ⭐⭐⭐⭐⭐</option>
+      </select>
+      <input type="text" id="ratingComment" placeholder="اكتب تعليقك...">
+      <button onclick="submitRating(${product.id})">أرسل التقييم</button>
+    </div>
+    <div id="ratingList"></div>
+    <hr>
+    <h3>منتجات مشابهة</h3>
+    <div id="similarProducts" style="display:flex; gap:10px;"></div>
   `;
 
   document.getElementById("addToCartBtn").onclick = function(){ addDetailToCart(product.id); };
+  displayRatings(product.id);
+  showSimilarProducts(product);
 }
 
 // ------------------ تكبير الصورة ------------------
@@ -225,41 +251,32 @@ function backToProducts(){
   renderProducts(products);
 }
 
-// ------------------ السلة ------------------
-cartButton.onclick = ()=>{ renderCartPopup(); cartPopup.style.display="block"; };
-function closeCart(){ cartPopup.style.display="none"; }
+// ------------------ التقييمات ------------------
+function submitRating(productId){
+  const ratingValue = parseInt(document.getElementById("ratingSelect").value);
+  const comment = document.getElementById("ratingComment").value.trim();
 
-function renderCartPopup(){
-  cartPopupList.innerHTML="";
-  let total=0;
-  cart.forEach((item,index)=>{
-    const li = document.createElement("li");
-    li.innerHTML=`${item.name} - ${item.color}/${item.size} x${item.qty} - ${item.price*item.qty} ريال <button onclick="removeFromCart(${index})">حذف</button>`;
-    cartPopupList.appendChild(li);
-    total+=item.price*item.qty;
+  if(!ratings[productId]) ratings[productId] = [];
+  ratings[productId].push({rating: ratingValue, comment});
+  localStorage.setItem("ratings", JSON.stringify(ratings));
+
+  displayRatings(productId);
+  document.getElementById("ratingComment").value = "";
+}
+
+function displayRatings(productId){
+  const listDiv = document.getElementById("ratingList");
+  listDiv.innerHTML = "";
+  if(!ratings[productId]) return;
+
+  ratings[productId].forEach(r=>{
+    const div = document.createElement("div");
+    div.innerHTML = `${"⭐".repeat(r.rating)} - ${r.comment}`;
+    listDiv.appendChild(div);
   });
-  popupTotal.textContent=`المجموع: ${total} ريال`;
-  cartCount.textContent = cart.length;
 }
 
-function removeFromCart(index){
-  const item = cart[index];
-  const product = products.find(p=>p.id===item.id);
-  product.stock += item.qty;
-  cart.splice(index,1);
-  renderCartPopup();
-  renderProducts(products);
-}
-
-function payNow(){
-  if(cart.length===0) return alert("السلة فارغة!");
-  alert("تمت عملية الدفع التجريبية بنجاح! ✅");
-  cart=[];
-  renderCartPopup();
-  backToProducts();
-}
-
-// ------------------ عند فتح الموقع ------------------
-if(currentUser) showUser();
-renderProducts(products);
-
+// ------------------ المنتجات المشابهة ------------------
+function showSimilarProducts(product){
+  const similarDiv = document.getElementById("similarProducts");
+  similarDiv.innerHTML =
