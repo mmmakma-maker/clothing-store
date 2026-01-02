@@ -1,6 +1,6 @@
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: url('https://via.placeholder.com/1200x800?text=خلفية+التطبيق') no-repeat center center fixed;
+  background: url('images/bg.jpg') no-repeat center center fixed;
   background-size: cover;
   direction: rtl;
 }
