@@ -1,108 +1,80 @@
 // ====== التخزين ======
-let products = JSON.parse(localStorage.getItem("products")) || [
+const products = [
   {
-    id: 1,
-    name: "فستان أنيق",
-    price: 25,
-    stock: 5,
-    category: "فساتين",
-    sizes: ["S", "M", "L"],
-    image: "https://images.unsplash.com/photo-1520975916090-3105956dac38"
+    name: "فستان سهرة أحمر",
+    price: 28,
+    image: "https://images.unsplash.com/photo-1520975916090-3105956dac38",
+    stock: 2
   },
   {
-    id: 2,
+    name: "فستان يومي",
+    price: 20,
+    image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab",
+    stock: 5
+  },
+  {
     name: "عباية سوداء",
-    price: 40,
-    stock: 0,
-    category: "عبايات",
-    sizes: ["M", "L", "XL"],
-    image: "https://images.unsplash.com/photo-1583391733956-3759d24d8d2b"
+    price: 30,
+    image: "https://images.unsplash.com/photo-1600180758890-6b94519a8ba6",
+    stock: 0
+  },
+  {
+    name: "عباية رمادية",
+    price: 32,
+    image: "https://images.unsplash.com/photo-1593032465171-8e1e2c2e2f1a",
+    stock: 3
+  },
+  {
+    name: "فستان أطفال",
+    price: 15,
+    image: "https://images.unsplash.com/photo-1503342217505-b0a15ec3261c",
+    stock: 4
   }
 ];
 
+const container = document.getElementById("products");
+const cartDiv = document.getElementById("cart");
 let cart = [];
 
-function saveProducts() {
-  localStorage.setItem("products", JSON.stringify(products));
-}
-
-// ====== عرض المنتجات ======
-function renderProducts(filter = "") {
-  const container = document.getElementById("products");
+function renderProducts() {
   container.innerHTML = "";
 
-  products
-    .filter(p => p.name.includes(filter))
-    .forEach(product => {
-      const div = document.createElement("div");
-      div.className = "product";
+  products.forEach((p, index) => {
+    const div = document.createElement("div");
+    div.className = "product";
 
-      div.innerHTML = `
-        <img src="${product.image}">
-        <h3>${product.name}</h3>
-        <div class="price">${product.price} ر.ع</div>
-        <div class="sizes">${product.sizes.map(s => `<span>${s}</span>`).join("")}</div>
-        ${
-          product.stock > 0
-            ? `<button onclick="addToCart(${product.id})">أضف للسلة</button>`
-            : `<div class="out">نفدت الكمية</div>`
-        }
-      `;
-      container.appendChild(div);
-    });
+    div.innerHTML = `
+      <img src="${p.image}">
+      <h3>${p.name}</h3>
+      <div class="price">${p.price} ر.ع</div>
+      ${
+        p.stock > 0
+          ? <button onclick="addToCart(${index})">أضف للسلة</button>
+          : <div class="out">نفدت الكمية</div>
+      }
+    `;
+
+    container.appendChild(div);
+  });
 }
 
-// ====== السلة ======
-function addToCart(id) {
-  const product = products.find(p => p.id === id);
-  if (!product || product.stock <= 0) return;
-
-  cart.push(product);
-  product.stock--;
-  saveProducts();
-  renderProducts();
-  renderCart();
-  alert("تمت الإضافة للسلة ✅");
+function addToCart(index) {
+  const product = products[index];
+  if (product.stock > 0) {
+    cart.push(product);
+    product.stock--;
+    renderCart();
+    renderProducts();
+  }
 }
 
 function renderCart() {
-  const cartDiv = document.getElementById("cart");
-  let total = 0;
-
-  cartDiv.innerHTML = "<h2>🛒 السلة</h2>";
-
+  cartDiv.innerHTML = "";
   cart.forEach(item => {
-    total += item.price;
-    cartDiv.innerHTML += `<div class="cart-item">${item.name} - ${item.price} ر.ع</div>`;
+    const d = document.createElement("div");
+    d.textContent = ${item.name} - ${item.price} ر.ع;
+    cartDiv.appendChild(d);
   });
-
-  cartDiv.innerHTML += `<div class="total">الإجمالي: ${total} ر.ع</div>`;
 }
 
-// ====== لوحة التاجر ======
-document.querySelector(".admin-btn").onclick = () => {
-  const pass = prompt("أدخل كلمة السر");
-  if (pass !== "admin123") return alert("كلمة سر خطأ");
-
-  const name = prompt("اسم المنتج:");
-  const price = prompt("السعر:");
-  const stock = prompt("الكمية:");
-  const category = prompt("التصنيف:");
-  const image = prompt("رابط الصورة:");
-
-  products.push({
-    id: Date.now(),
-    name,
-    price: Number(price),
-    stock: Number(stock),
-    category,
-    sizes: ["S", "M", "L"],
-    image
-  });
-
-  saveProducts();
-  renderProducts();
-};
-
 renderProducts();
-renderCart();
