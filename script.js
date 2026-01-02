@@ -77,41 +77,158 @@ function loginAsAdmin(){
 // ------------------ عرض المنتجات ------------------
 function renderProducts(list){
   productsDiv.innerHTML="";
-  productDetailDiv.style.display="none";
-  productsDiv.style.display="flex";
-  const isAdmin=document.getElementById("adminDiv").style.display==="block";
+  productDetailDiv.style.display = "none";
+  productsDiv.style.display = "flex";
+  const isAdmin = document.getElementById("adminDiv").style.display==="block";
+
   list.forEach(product=>{
     const div=document.createElement("div"); div.className="product";
     let deleteButtonHTML="";
     if(isAdmin){ deleteButtonHTML=`<button onclick="deleteProduct(${product.id})" style="background:red;">حذف المنتج</button>`; }
-    div.innerHTML=`<img src="${product.image}"><h4>${product.name}</h4><p>${product.price} ريال</p><p>المتبقي: ${product.stock}</p><button onclick="showProductDetail(${product.id})" ${product.stock===0?'disabled':''}>عرض المنتج</button>${deleteButtonHTML}`;
+
+    div.innerHTML=`
+      <img src="${product.image}">
+      <h4>${product.name}</h4>
+      <p>${product.price} ريال</p>
+      <p>المتبقي: ${product.stock}</p>
+      <button onclick="showProductDetail(${product.id})" ${product.stock===0?'disabled':''}>عرض المنتج</button>
+      ${deleteButtonHTML}
+    `;
     productsDiv.appendChild(div);
   });
 }
 
 // ------------------ حذف وإضافة المنتجات ------------------
-function deleteProduct(id){ const index=products.findIndex(p=>p.id===id); if(index!==-1){if(confirm("هل أنت متأكد من حذف هذا المنتج؟ ❌")){products.splice(index,1); renderProducts(products); alert("تم حذف المنتج بنجاح!");}}}
+function deleteProduct(id){ 
+  const index = products.findIndex(p=>p.id===id); 
+  if(index!==-1){ 
+    if(confirm("هل أنت متأكد من حذف هذا المنتج؟ ❌")){ 
+      products.splice(index,1); 
+      renderProducts(products); 
+      alert("تم حذف المنتج بنجاح!"); 
+    } 
+  }
+}
+
 function addProduct(){
-  const newProduct={ id:Date.now(), name:document.getElementById("newName").value, price:parseFloat(document.getElementById("newPrice").value), image:document.getElementById("newImage").value, category:document.getElementById("newCategory").value, deliveryDays:parseInt(document.getElementById("newDelivery").value), colors:document.getElementById("newColors").value.split(","), sizes:document.getElementById("newSizes").value.split(","), stock:parseInt(document.getElementById("newStock").value) };
-  if(!newProduct.name || !newProduct.price || !newProduct.image || !newProduct.stock){alert("الرجاء ملء جميع الحقول المهمة!"); return;}
-  products.push(newProduct); renderProducts(products); alert("تمت إضافة المنتج بنجاح! ✅");
+  const newProduct = { 
+    id: Date.now(), 
+    name: document.getElementById("newName").value, 
+    price: parseFloat(document.getElementById("newPrice").value), 
+    image: document.getElementById("newImage").value, 
+    category: document.getElementById("newCategory").value, 
+    deliveryDays: parseInt(document.getElementById("newDelivery").value), 
+    colors: document.getElementById("newColors").value.split(","), 
+    sizes: document.getElementById("newSizes").value.split(","), 
+    stock: parseInt(document.getElementById("newStock").value) 
+  };
+
+  if(!newProduct.name || !newProduct.price || !newProduct.image || !newProduct.stock){ 
+    alert("الرجاء ملء جميع الحقول المهمة!"); 
+    return;
+  }
+  products.push(newProduct); 
+  renderProducts(products); 
+  alert("تمت إضافة المنتج بنجاح! ✅");
 }
 
 // ------------------ البحث والفلاتر ------------------
-searchInput.addEventListener("input",()=>{ const value=searchInput.value.toLowerCase(); renderProducts(products.filter(p=>p.name.toLowerCase().includes(value)));});
-function filterCategory(category){ if(category==="all") renderProducts(products); else renderProducts(products.filter(p=>p.category===category));}
+searchInput.addEventListener("input", ()=>{
+  const value = searchInput.value.toLowerCase();
+  renderProducts(products.filter(p=>p.name.toLowerCase().includes(value)));
+});
 
-// ------------------ السلة والتفاصيل ------------------
-function showProductDetail(id){ /* نفس الكود السابق */ }
-function addDetailToCart(id){ /* نفس الكود السابق */ }
-function backToProducts(){ productDetailDiv.style.display="none"; renderProducts(products);}
-cartButton.onclick=()=>{ renderCartPopup(); cartPopup.style.display="block";};
-function closeCart(){ cartPopup.style.display="none";}
-function renderCartPopup(){ /* نفس الكود السابق */ }
-function updateQuantity(index,value){ /* نفس الكود السابق */ }
-function removeFromCart(index){ /* نفس الكود السابق */ }
-function payNow(){ if(cart.length===0) return alert("السلة فارغة!"); alert("تمت عملية الدفع التجريبية بنجاح! ✅"); cart=[]; renderCartPopup(); backToProducts();}
+function filterCategory(category){
+  if(category==="all") renderProducts(products); 
+  else renderProducts(products.filter(p=>p.category===category));
+}
+
+// ------------------ عرض تفاصيل المنتج ------------------
+function showProductDetail(id){
+  const product = products.find(p => p.id === id);
+  if(!product) return;
+
+  productsDiv.style.display = "none";
+  productDetailDiv.style.display = "block";
+
+  let colorsOptions = product.colors.map(c=>`<option value="${c}">${c}</option>`).join("");
+  let sizesOptions = product.sizes.map(s=>`<option value="${s}">${s}</option>`).join("");
+
+  productDetailDiv.innerHTML = `
+    <h2>${product.name}</h2>
+    <img src="${product.image}" alt="${product.name}" style="width:200px;">
+    <p>السعر: ${product.price} ريال</p>
+    <p>المتبقي: ${product.stock}</p>
+    <p>مدة التوصيل: ${product.deliveryDays} أيام</p>
+    <label>اللون: <select id="selectedColor">${colorsOptions}</select></label><br>
+    <label>الحجم: <select id="selectedSize">${sizesOptions}</select></label><br>
+    <label>الكمية: <input type="number" id="selectedQty" value="1" min="1" max="${product.stock}"></label><br>
+    <button onclick="addDetailToCart(${product.id})" ${product.stock===0?'disabled':''}>أضف إلى السلة</button>
+    <button onclick="backToProducts()">عودة للمنتجات</button>
+  `;
+}
+
+// ------------------ إضافة للسلة ------------------
+function addDetailToCart(id){
+  const product = products.find(p=>p.id===id);
+  const color = document.getElementById("selectedColor").value;
+  const size = document.getElementById("selectedSize").value;
+  const qty = parseInt(document.getElementById("selectedQty").value);
+
+  if(qty > product.stock) return alert("الكمية المطلوبة أكبر من المتوفر");
+
+  cart.push({id: product.id, name: product.name, price: product.price, color, size, qty});
+  product.stock -= qty;
+
+  renderProducts(products);
+  alert("تمت إضافة المنتج للسلة ✅");
+  backToProducts();
+}
+
+function backToProducts(){
+  productDetailDiv.style.display="none";
+  renderProducts(products);
+}
+
+// ------------------ السلة ------------------
+cartButton.onclick = ()=>{
+  renderCartPopup();
+  cartPopup.style.display="block";
+};
+
+function closeCart(){ cartPopup.style.display="none"; }
+
+function renderCartPopup(){
+  cartPopupList.innerHTML="";
+  let total=0;
+  cart.forEach((item,index)=>{
+    const li = document.createElement("li");
+    li.innerHTML=`${item.name} - ${item.color}/${item.size} x${item.qty} - ${item.price*item.qty} ريال <button onclick="removeFromCart(${index})">حذف</button>`;
+    cartPopupList.appendChild(li);
+    total+=item.price*item.qty;
+  });
+  popupTotal.textContent=`المجموع: ${total} ريال`;
+  cartCount.textContent = cart.length;
+}
+
+function removeFromCart(index){
+  const item = cart[index];
+  const product = products.find(p=>p.id===item.id);
+  product.stock += item.qty;
+  cart.splice(index,1);
+  renderCartPopup();
+  renderProducts(products);
+}
+
+function payNow(){
+  if(cart.length===0) return alert("السلة فارغة!");
+  alert("تمت عملية الدفع التجريبية بنجاح! ✅");
+  cart=[];
+  renderCartPopup();
+  backToProducts();
+}
 
 // ------------------ عند فتح الموقع ------------------
 if(currentUser) showUser();
 renderProducts(products);
+
