@@ -8,6 +8,7 @@ const products = [
 
 let cart = [];
 let currentUser = null;
+let users = []; // مصفوفة لتخزين المستخدمين
 
 // ------------------ DOM ------------------
 const productsDiv = document.getElementById("products");
@@ -20,16 +21,44 @@ const cartCount = document.getElementById("cartCount");
 const searchInput = document.getElementById("search");
 
 // ------------------ تسجيل المستخدم ------------------
-function loginUser() { 
-  const email = document.getElementById("userEmail").value; 
-  const password = document.getElementById("userPassword").value; 
-  if(!email||!password){document.getElementById("userMsg").textContent="الرجاء ملء جميع الحقول"; return;} 
-  currentUser=email.split("@")[0]; 
-  showUser(); 
+function registerUser() {
+  const email = document.getElementById("userEmail").value.trim();
+  const password = document.getElementById("userPassword").value.trim();
+  const msg = document.getElementById("userMsg");
+
+  if (!email || !password) { msg.style.color="red"; msg.textContent="الرجاء ملء جميع الحقول"; return; }
+  if (users.find(u=>u.email===email)) { msg.style.color="red"; msg.textContent="هذا البريد مستخدم مسبقًا!"; return; }
+
+  users.push({email,password});
+  msg.style.color="green";
+  msg.textContent="تم إنشاء الحساب بنجاح ✅، يمكنك الآن تسجيل الدخول";
 }
+
+function loginUser() { 
+  const email = document.getElementById("userEmail").value.trim(); 
+  const password = document.getElementById("userPassword").value.trim(); 
+  const msg = document.getElementById("userMsg");
+
+  if(!email||!password){msg.style.color="red";msg.textContent="الرجاء ملء جميع الحقول";return;}
+
+  const user = users.find(u=>u.email===email && u.password===password);
+  if(user){ currentUser=email.split("@")[0]; showUser(); msg.textContent=""; }
+  else{ msg.style.color="red"; msg.textContent="البريد أو كلمة المرور غير صحيحة!"; }
+}
+
 function loginApple(){ currentUser="AppleUser"; showUser(); }
-function showUser(){ document.getElementById("userLoginDiv").style.display="none"; document.getElementById("welcomeUser").style.display="block"; document.getElementById("usernameDisplay").textContent=currentUser; }
-function logoutUser(){ currentUser=null; document.getElementById("userLoginDiv").style.display="block"; document.getElementById("welcomeUser").style.display="none"; }
+
+function showUser(){
+  document.getElementById("userLoginDiv").style.display="none";
+  document.getElementById("welcomeUser").style.display="block";
+  document.getElementById("usernameDisplay").textContent=currentUser;
+}
+
+function logoutUser(){
+  currentUser=null;
+  document.getElementById("userLoginDiv").style.display="block";
+  document.getElementById("welcomeUser").style.display="none";
+}
 
 // ------------------ التاجر ------------------
 const adminPasswordValue="1234";
