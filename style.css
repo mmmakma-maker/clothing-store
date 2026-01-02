@@ -1,51 +1,179 @@
 body {
-  font-family: Arial, sans-serif;
-  background: #f5f7fa;
-  text-align: center;
-  padding: 10px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: url('https://via.placeholder.com/1200x800?text=خلفية+التطبيق') no-repeat center center fixed;
+  background-size: cover;
+  direction: rtl;
 }
 
-h1 {
-  font-size: 26px;
-}
-
-input, button {
-  padding: 10px;
-  margin: 5px;
+.container {
   width: 90%;
-  max-width: 400px;
-  font-size: 16px;
+  margin: auto;
+  text-align: center;
+  background: rgba(255,255,255,0.95);
+  padding: 20px;
+  border-radius: 15px;
+  margin-top: 20px;
 }
 
-button {
-  background: #007bff;
+.logo {
+  max-width: 200px;
+  margin-bottom: 10px;
+}
+
+.filters {
+  margin-bottom: 10px;
+}
+
+.filters button {
+  background: #e91e63;
   color: white;
   border: none;
-  border-radius: 6px;
+  padding: 8px 12px;
+  margin: 2px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.filters button:hover {
+  background: #ad1457;
+}
+
+#search {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
 }
 
 .products {
   display: flex;
   flex-wrap: wrap;
+  gap: 15px;
   justify-content: center;
 }
 
 .product {
   background: white;
-  border-radius: 8px;
+  width: 180px;
   padding: 10px;
-  margin: 10px;
-  width: 160px;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.product:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
 }
 
 .product img {
   width: 100%;
-  border-radius: 6px;
+  border-radius: 8px;
 }
 
-.admin-panel {
-  background: #fff;
-  margin-top: 20px;
+button {
+  background: #4caf50;
+  color: white;
+  border: none;
+  padding: 6px 8px;
+  cursor: pointer;
+  border-radius: 5px;
+  margin-top: 5px;
+}
+
+button:hover {
+  background: #388e3c;
+}
+
+.product-detail {
+  background: white;
   padding: 15px;
   border-radius: 10px;
+  margin: 20px auto;
+  max-width: 400px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  text-align: center;
+}
+
+.product-detail img {
+  width: 100%;
+  border-radius: 8px;
+}
+
+.product-detail button {
+  background: #ff5722;
+  margin-top: 10px;
+}
+
+.product-detail button:hover {
+  background: #e64a19;
+}
+
+.quantity-input {
+  width: 50px;
+  text-align: center;
+  margin-top: 10px;
+}
+
+/* السلة المنبثقة */
+#cartButton {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  background: #ff9800;
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  z-index: 1000;
+}
+
+#cartButton:hover {
+  background: #f57c00;
+}
+
+.cart-popup {
+  position: fixed;
+  top: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 300px;
+  background: white;
+  border-radius: 10px;
+  padding: 15px;
+  box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+  z-index: 1000;
+  text-align: center;
+}
+
+.cart-popup ul {
+  list-style: none;
+  padding: 0;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.cart-popup li {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  align-items: center;
+}
+
+.suggested-products {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 15px;
+}
+
+.suggested-products .product {
+  width: 120px;
+  padding: 5px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  border-radius: 8px;
+  text-align: center;
+  background: #fff;
 }
