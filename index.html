@@ -143,7 +143,7 @@ body{
   border-radius:20px;
   cursor:pointer;
 }
-.cart-popup, #authPopup{
+.cart-popup, #authPopup, #adminLogin, #adminPanel{
   position:fixed;
   top:80px;
   left:50%;
@@ -221,7 +221,7 @@ body{
   border-radius:5px;
   border:1px solid #ccc;
 }
-#authPopup button{
+#authPopup button, #adminPanel button, #adminLogin button{
   width:100%;
   padding:8px;
   background:#ff5722;
@@ -229,12 +229,20 @@ body{
   border:none;
   border-radius:5px;
   cursor:pointer;
+  margin-bottom:5px;
 }
 #authPopup p{
   text-align:center;
   margin-top:8px;
   cursor:pointer;
   color:#007bff;
+}
+#adminPanel input, #adminPanel select{
+  width:100%;
+  padding:5px;
+  margin-bottom:5px;
+  border-radius:5px;
+  border:1px solid #ccc;
 }
 </style>
 </head>
@@ -249,7 +257,7 @@ body{
     <button data-category="pieces">قطع بلوشي</button>
   </div>
 
-  <!-- شريط العروض مع الانزلاق -->
+  <!-- شريط العروض -->
   <div id="offerBar">
     <div id="offerContent">
       <img id="offerImg" src="" alt="عرض">
@@ -277,6 +285,7 @@ body{
 
 </div>
 
+<!-- سلة التسوق -->
 <div class="cart-popup" id="cartPopup">
   <h3>سلة التسوق</h3>
   <ul id="cartList"></ul>
@@ -284,6 +293,7 @@ body{
   <button onclick="cartPopup.style.display='none'">إغلاق</button>
 </div>
 
+<!-- تسجيل / دخول المستخدم -->
 <div id="authPopup">
   <h3 id="authTitle">تسجيل الدخول</h3>
   <input type="text" id="authName" placeholder="الاسم" style="display:none;">
@@ -293,31 +303,56 @@ body{
   <p id="toggleAuth">ليس لديك حساب؟ سجل الآن</p>
 </div>
 
+<!-- تسجيل التاجر -->
+<div id="adminLogin">
+  <h3>دخول التاجر</h3>
+  <input type="password" id="adminPass" placeholder="الرقم السري">
+  <button onclick="loginAdmin()">دخول</button>
+</div>
+
+<!-- لوحة تحكم التاجر -->
+<div id="adminPanel">
+  <h3>لوحة تحكم التاجر</h3>
+  <input id="pName" placeholder="اسم المنتج">
+  <input id="pPrice" type="number" placeholder="السعر">
+  <input id="pImg" placeholder="رابط الصورة">
+  <select id="pCat">
+    <option value="omani">عمانية</option>
+    <option value="blushi">بلوشي</option>
+    <option value="pieces">قطع بلوشي</option>
+  </select>
+  <button onclick="addProduct()">➕ إضافة منتج</button>
+  <hr>
+  <div id="adminProducts"></div>
+  <button onclick="logoutAdmin()">خروج</button>
+</div>
+
+<!-- شريط السفلي -->
 <div class="bottom-nav">
   <button>🏠<span>الرئيسية</span></button>
   <button>📂<span>الفئات</span></button>
   <button>🔥<span>تخفيضات</span></button>
   <button onclick="openCart()">🛒<span>السلة</span></button>
-  <button>👤<span>حسابي</span></button>
+  <button onclick="openAuth(false)"><span id="accountName">حسابي</span></button>
+  <button onclick="openAdminLogin()">🛠️<span>تاجر</span></button>
 </div>
 
 <div id="toast"></div>
 
 <script>
-// البيانات
-const productsData=[
-  {name:"عباية عمانية سوداء",price:80.00,img:"https://i.imgur.com/0y8Ftya.jpg",category:"omani"},
-  {name:"عباية عمانية بيضاء",price:85.50,img:"https://i.imgur.com/mP7a7bU.jpg",category:"omani"},
-  {name:"فستان بلوشي مطرز",price:95.00,img:"https://i.imgur.com/Yx8FqPz.jpg",category:"blushi"},
-  {name:"جلابية بلوشي",price:78.00,img:"https://i.imgur.com/7pG9x0k.jpg",category:"blushi"},
-  {name:"قطعة بلوشية",price:40.00,img:"https://i.imgur.com/1bX5QH6.jpg",category:"pieces"},
-  {name:"قطع بلوشي مطرزة",price:50.00,img:"https://i.imgur.com/2ZqE3pT.jpg",category:"pieces"}
+// البيانات والـ localStorage
+let productsData = JSON.parse(localStorage.getItem("products")) || [
+  {name:"عباية عمانية سوداء",price:80,img:"https://i.imgur.com/0y8Ftya.jpg",category:"omani"},
+  {name:"فستان بلوشي مطرز",price:95,img:"https://i.imgur.com/Yx8FqPz.jpg",category:"blushi"},
+  {name:"قطعة بلوشية",price:40,img:"https://i.imgur.com/1bX5QH6.jpg",category:"pieces"}
 ];
 
+function saveProducts(){ localStorage.setItem("products", JSON.stringify(productsData)); }
+
 const categoryOffers={
-  omani: {text:"عرض اليوم: خصم 10% على جميع العباءات العمانية!", img:"https://i.imgur.com/0y8Ftya.jpg"},
-  blushi: {text:"عرض اليوم: فستان بلوشي مطرز بسعر خاص!", img:"https://i.imgur.com/Yx8FqPz.jpg"},
-  pieces: {text:"عرض اليوم: قطعة بلوشية إضافية عند شراء أي منتج!", img:"https://i.imgur.com/1bX5QH6.jpg"}
+  omani:{text:"عرض اليوم: خصم 10% على جميع العباءات العمانية!",img:"https://i.imgur.com/0y8Ftya.jpg"},
+  blushi:{text:"عرض اليوم: فستان بلوشي مطرز بسعر خاص!",img:"https://i.imgur.com/Yx8FqPz.jpg"},
+  pieces:{text:"عرض اليوم: قطعة بلوشية إضافية عند شراء أي منتج!",img:"https://i.imgur.com/1bX5QH6.jpg"}
 };
 
 let cart=[];
@@ -336,7 +371,7 @@ const authEmail=document.getElementById("authEmail");
 const authPassword=document.getElementById("authPassword");
 const authBtn=document.getElementById("authBtn");
 const toggleAuth=document.getElementById("toggleAuth");
-const accountBtn=document.querySelector(".bottom-nav button:last-child span");
+const accountBtn=document.getElementById("accountName");
 
 const offerBar=document.getElementById("offerBar");
 const offerText=document.getElementById("offerText");
@@ -346,6 +381,12 @@ const offerContent=document.getElementById("offerContent");
 const cartSummary=document.getElementById("cartSummary");
 const cartCount=document.getElementById("cartCount");
 const cartTotalSummary=document.getElementById("cartTotalSummary");
+
+const adminLogin=document.getElementById("adminLogin");
+const adminPanel=document.getElementById("adminPanel");
+
+const ADMIN_PASSWORD = "1234"; 
+let isAdmin = false;
 
 // عرض المنتجات
 function renderProducts(list){
@@ -399,7 +440,6 @@ function updateCart(){
     cartList.appendChild(li);
   });
   cartTotal.innerText="الإجمالي: "+total.toFixed(2)+" ر.ع";
-  // تحديث شريط السلة الدائم
   cartCount.innerText=`${totalQty} عناصر`;
   cartTotalSummary.innerText=`${total.toFixed(2)} ر.ع`;
 }
@@ -526,26 +566,63 @@ authBtn.addEventListener("click",()=>{
 });
 
 // زر الحساب
-document.querySelector(".bottom-nav button:last-child").addEventListener("click",()=>{
+document.querySelector(".bottom-nav button:nth-child(5)").addEventListener("click",()=>{
   if(currentUser){
     if(confirm("تسجيل الخروج؟")){
       localStorage.removeItem("currentUser");
       currentUser=null;
       accountBtn.innerText="حسابي";
-      showToast("تم تسجيل الخروج");
     }
-  }else openAuth(false);
+  } else openAuth(false);
 });
 
-// التحقق من تسجيل دخول سابق
-let currentUser=JSON.parse(localStorage.getItem("currentUser")) || null;
+let currentUser=JSON.parse(localStorage.getItem("currentUser"))||null;
 if(currentUser) accountBtn.innerText=currentUser.name;
 
-// فتح السلة عند الضغط على شريط السلة الدائم
-cartSummary.addEventListener("click",()=>openCart());
+// التاجر
+function openAdminLogin(){ adminLogin.style.display="block"; }
+function loginAdmin(){
+  const pass=document.getElementById("adminPass").value;
+  if(pass===ADMIN_PASSWORD){
+    isAdmin=true;
+    adminLogin.style.display="none";
+    adminPanel.style.display="block";
+    renderAdminProducts();
+    showToast("تم دخول التاجر");
+  } else showToast("الرقم السري خطأ");
+}
+function logoutAdmin(){ isAdmin=false; adminPanel.style.display="none"; }
 
-// عرض المنتجات الأولية
-renderProducts(productsData.filter(p=>p.category===currentCategory));
+function addProduct(){
+  const name=pName.value.trim();
+  const price=Number(pPrice.value);
+  const img=pImg.value.trim();
+  const category=pCat.value;
+  if(!name||!price||!img){ showToast("أدخل جميع البيانات"); return; }
+  productsData.push({name,price,img,category});
+  saveProducts();
+  renderProducts(productsData.filter(p=>p.category===currentCategory));
+  renderAdminProducts();
+  pName.value=""; pPrice.value=""; pImg.value="";
+}
+
+function deleteProduct(index){
+  productsData.splice(index,1);
+  saveProducts();
+  renderProducts(productsData.filter(p=>p.category===currentCategory));
+  renderAdminProducts();
+}
+
+function renderAdminProducts(){
+  const box=document.getElementById("adminProducts");
+  box.innerHTML="";
+  productsData.forEach((p,i)=>{
+    box.innerHTML+=`<div style="margin-bottom:5px;">${p.name} - ${p.price} ر.ع <button onclick="deleteProduct(${i})">🗑️</button></div>`;
+  });
+}
+
+// البداية
+renderProducts(productsData.filter(p=>p.category==="omani"));
 updateOffer();
 updateCart();
 </script>
