@@ -148,6 +148,43 @@ body{
   margin-bottom:8px;
 }
 
+/* ===== نافذة حسابي ===== */
+.account-popup{
+  position:fixed;
+  top:80px;
+  left:50%;
+  transform:translateX(-50%);
+  background:white;
+  width:90%;
+  max-width:350px;
+  border-radius:15px;
+  padding:15px;
+  display:none;
+  z-index:2000;
+  box-shadow:0 6px 15px rgba(0,0,0,0.2);
+  text-align:center;
+}
+.account-popup input{
+  width:80%;
+  padding:8px;
+  margin:10px 0;
+  border-radius:10px;
+  border:1px solid #ccc;
+}
+.account-popup button{
+  padding:8px 15px;
+  border:none;
+  background:#4caf50;
+  color:white;
+  border-radius:20px;
+  cursor:pointer;
+  margin-top:10px;
+  transition: transform 0.2s;
+}
+.account-popup button:hover{
+  transform: scale(1.05);
+}
+
 /* ===== شريط سفلي ===== */
 .bottom-nav{
   position:fixed;
@@ -221,13 +258,27 @@ body{
   <button onclick="cartPopup.style.display='none'">إغلاق</button>
 </div>
 
+<!-- نافذة حسابي -->
+<div class="account-popup" id="accountPopup">
+  <h3>حسابي</h3>
+  <div id="userSection">
+    <input type="text" id="username" placeholder="أدخل اسمك">
+    <button onclick="login()">تسجيل الدخول</button>
+  </div>
+  <div id="loggedInSection" style="display:none;">
+    <p>مرحباً، <span id="displayName"></span></p>
+    <button onclick="logout()">تسجيل الخروج</button>
+  </div>
+  <button onclick="accountPopup.style.display='none'">إغلاق</button>
+</div>
+
 <!-- الشريط السفلي -->
 <div class="bottom-nav">
   <button>🏠<span>الرئيسية</span></button>
-  <button>📂<span>الفئات</span></button>
-  <button>🔥<span>تخفيضات</span></button>
+  <button onclick="showToast('الفئات قريباً')">📂<span>الفئات</span></button>
+  <button onclick="showToast('تخفيضات قريباً')">🔥<span>تخفيضات</span></button>
   <button onclick="openCart()">🛒<span>السلة</span></button>
-  <button>👤<span>حسابي</span></button>
+  <button onclick="openAccount()">👤<span>حسابي</span></button>
 </div>
 
 <div id="toast"></div>
@@ -274,6 +325,28 @@ function renderCart(){
   });
 }
 
+// ===== حسابي =====
+const accountPopup=document.getElementById("accountPopup");
+function openAccount(){
+  accountPopup.style.display="block";
+}
+function login(){
+  const username=document.getElementById("username").value;
+  if(username.trim()!==""){
+    document.getElementById("displayName").innerText=username;
+    document.getElementById("userSection").style.display="none";
+    document.getElementById("loggedInSection").style.display="block";
+    showToast("تم تسجيل الدخول");
+  } else showToast("يرجى إدخال الاسم");
+}
+function logout(){
+  document.getElementById("username").value="";
+  document.getElementById("userSection").style.display="block";
+  document.getElementById("loggedInSection").style.display="none";
+  accountPopup.style.display="none";
+  showToast("تم تسجيل الخروج");
+}
+
 // ===== إشعارات =====
 function showToast(msg){
   const t=document.getElementById("toast");
@@ -286,5 +359,4 @@ renderProducts(productsData);
 </script>
 </body>
 </html>
-
 
