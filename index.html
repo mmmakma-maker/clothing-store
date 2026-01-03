@@ -65,6 +65,18 @@ body{
   cursor:pointer;
   font-size:18px;
 }
+#cartSummary{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:10px;
+  background:#ff5722;
+  color:white;
+  font-weight:bold;
+  border-radius:5px;
+  margin-bottom:10px;
+  cursor:pointer;
+}
 .search-bar input{
   width:100%;
   padding:12px;
@@ -246,6 +258,12 @@ body{
     <button onclick="document.getElementById('offerBar').style.display='none'">❌</button>
   </div>
 
+  <!-- شريط إجمالي السلة -->
+  <div id="cartSummary">
+    <span id="cartCount">0 عناصر</span>
+    <span id="cartTotalSummary">0 ر.ع</span>
+  </div>
+
   <div class="search-bar">
     <input type="text" id="search" placeholder="ابحث">
   </div>
@@ -325,6 +343,10 @@ const offerText=document.getElementById("offerText");
 const offerImg=document.getElementById("offerImg");
 const offerContent=document.getElementById("offerContent");
 
+const cartSummary=document.getElementById("cartSummary");
+const cartCount=document.getElementById("cartCount");
+const cartTotalSummary=document.getElementById("cartTotalSummary");
+
 // عرض المنتجات
 function renderProducts(list){
   productsDiv.innerHTML="";
@@ -359,9 +381,10 @@ function addToCart(name,price){
 
 function updateCart(){
   cartList.innerHTML="";
-  let total=0;
+  let total=0, totalQty=0;
   cart.forEach(i=>{
     total+=i.price*i.qty;
+    totalQty+=i.qty;
     const li=document.createElement("li");
     li.innerHTML=`
       ${i.name} 
@@ -376,6 +399,9 @@ function updateCart(){
     cartList.appendChild(li);
   });
   cartTotal.innerText="الإجمالي: "+total.toFixed(2)+" ر.ع";
+  // تحديث شريط السلة الدائم
+  cartCount.innerText=`${totalQty} عناصر`;
+  cartTotalSummary.innerText=`${total.toFixed(2)} ر.ع`;
 }
 
 function changeQty(name,delta){
@@ -425,7 +451,6 @@ function showToast(msg){
 // شريط العرض مع الانزلاق
 let scrollPos=0;
 let requestId=null;
-
 function startOfferScroll(){
   const scrollWidth=offerContent.scrollWidth - offerContent.clientWidth;
   if(scrollWidth>0){
@@ -516,9 +541,13 @@ document.querySelector(".bottom-nav button:last-child").addEventListener("click"
 let currentUser=JSON.parse(localStorage.getItem("currentUser")) || null;
 if(currentUser) accountBtn.innerText=currentUser.name;
 
+// فتح السلة عند الضغط على شريط السلة الدائم
+cartSummary.addEventListener("click",()=>openCart());
+
 // عرض المنتجات الأولية
 renderProducts(productsData.filter(p=>p.category===currentCategory));
 updateOffer();
+updateCart();
 </script>
 
 </body>
