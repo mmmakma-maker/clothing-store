@@ -1,120 +1,269 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>متجر الملابس النسائي</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>المتجر</title>
+
+<style>
+/* ===== الأساس ===== */
+body{
+  margin:0;
+  font-family: 'Segoe UI', Tahoma;
+  background:#f5f5f5;
+}
+
+/* ===== الحاوية ===== */
+.container{
+  padding:15px;
+  padding-bottom:90px;
+}
+
+/* ===== التبويبات العلوية ===== */
+.top-tabs{
+  display:flex;
+  gap:10px;
+  overflow-x:auto;
+  margin-bottom:10px;
+}
+.top-tabs button{
+  border:none;
+  padding:8px 16px;
+  border-radius:20px;
+  background:#eee;
+  font-size:14px;
+}
+.top-tabs .active{
+  background:#000;
+  color:#fff;
+}
+
+/* ===== البحث ===== */
+.search-bar input{
+  width:100%;
+  padding:12px;
+  border-radius:10px;
+  border:1px solid #ccc;
+  margin-bottom:10px;
+}
+
+/* ===== تصنيف / تصفية ===== */
+.sort-filter-bar{
+  display:flex;
+  justify-content:space-around;
+  background:#222;
+  color:white;
+  padding:10px;
+  border-radius:10px;
+  margin-bottom:15px;
+}
+.sort-filter-bar button{
+  background:none;
+  border:none;
+  color:white;
+  font-size:14px;
+}
+
+/* ===== المنتجات ===== */
+.products{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+}
+.product{
+  width:48%;
+  background:white;
+  border-radius:15px;
+  padding:10px;
+  position:relative;
+}
+.product img{
+  width:100%;
+  height:220px;
+  object-fit:cover;
+  border-radius:10px;
+}
+.heart{
+  position:absolute;
+  top:10px;
+  left:10px;
+  background:white;
+  border-radius:50%;
+  padding:6px;
+}
+.product h4{
+  margin:8px 0 5px;
+  font-size:14px;
+}
+.price{
+  font-weight:bold;
+}
+.add-btn{
+  width:100%;
+  margin-top:5px;
+  border:none;
+  padding:8px;
+  background:#ff5722;
+  color:white;
+  border-radius:20px;
+}
+
+/* ===== السلة ===== */
+.cart-popup{
+  position:fixed;
+  top:80px;
+  left:50%;
+  transform:translateX(-50%);
+  background:white;
+  width:90%;
+  max-width:350px;
+  border-radius:15px;
+  padding:15px;
+  display:none;
+  z-index:2000;
+}
+.cart-popup ul{
+  list-style:none;
+  padding:0;
+}
+.cart-popup li{
+  display:flex;
+  justify-content:space-between;
+  margin-bottom:8px;
+}
+
+/* ===== شريط سفلي ===== */
+.bottom-nav{
+  position:fixed;
+  bottom:0;
+  width:100%;
+  height:65px;
+  background:white;
+  display:flex;
+  justify-content:space-around;
+  align-items:center;
+  border-top:1px solid #ddd;
+}
+.bottom-nav button{
+  background:none;
+  border:none;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  font-size:14px;
+}
+
+/* ===== تنبيه ===== */
+#toast{
+  position:fixed;
+  bottom:80px;
+  left:50%;
+  transform:translateX(-50%);
+  background:#333;
+  color:white;
+  padding:10px 20px;
+  border-radius:20px;
+  display:none;
+}
+</style>
 </head>
+
 <body>
 
 <div class="container">
-  <img src="images/logo.png" alt="شعار التطبيق" class="logo">
-  <h1>متجر الملابس النسائي</h1>
 
-  <!-- تسجيل / دخول المستخدم -->
-  <div id="userLoginDiv">
-    <h3>إنشاء حساب / تسجيل دخول</h3>
-    <input type="text" id="fullName" placeholder="الاسم الكامل">
-    <input type="text" id="username" placeholder="اسم المستخدم">
-    <input type="email" id="userEmail" placeholder="البريد الإلكتروني">
-    <input type="password" id="userPassword" placeholder="كلمة المرور">
-    <button onclick="registerUser()">إنشاء حساب</button>
-    <button onclick="loginUser()">تسجيل دخول</button>
-    <p id="userMsg" style="color:red;"></p>
+  <!-- التبويبات -->
+  <div class="top-tabs">
+    <button class="active">بريميوم</button>
+    <button>المنزل وأكثر</button>
+    <button>الأطفال</button>
   </div>
 
-  <div id="welcomeUser" style="display:none;">
-    <h3>مرحباً <span id="usernameDisplay"></span> 👋</h3>
-    <button onclick="logoutUser()">تسجيل خروج</button>
+  <!-- البحث -->
+  <div class="search-bar">
+    <input type="text" id="search" placeholder="ابحث">
   </div>
 
-  <!-- تسجيل دخول التاجر -->
-  <div id="loginDiv">
-    <h3>تسجيل دخول التاجر</h3>
-    <input type="password" id="adminPassword" placeholder="أدخل كلمة المرور">
-    <button onclick="loginAsAdmin()">تسجيل الدخول</button>
-    <p id="loginMsg" style="color:red;"></p>
+  <!-- تصنيف / تصفية -->
+  <div class="sort-filter-bar">
+    <button onclick="showToast('التصنيف قريباً')">⇅ تصنيف</button>
+    <button onclick="showToast('التصفية قريباً')">☰ تصفية</button>
   </div>
 
-  <!-- قسم التاجر -->
-  <div id="adminDiv" style="display:none;">
-    <h2>قسم التاجر</h2>
-    <input type="text" id="newName" placeholder="اسم المنتج">
-    <input type="number" id="newPrice" placeholder="السعر">
-    <input type="text" id="newImage" placeholder="رابط الصورة">
-    <input type="text" id="newCategory" placeholder="الفئة">
-    <input type="number" id="newDelivery" placeholder="مدة التوصيل بالأيام">
-    <input type="text" id="newColors" placeholder="الألوان (افصل بفواصل)">
-    <input type="text" id="newSizes" placeholder="الأحجام (افصل بفواصل)">
-    <input type="number" id="newStock" placeholder="الكمية المتاحة">
-    <button onclick="addProduct()">إضافة المنتج</button>
-
-    <h3>جميع الطلبات:</h3>
-    <div id="ordersAdmin"></div>
-  </div>
-
-  <!-- فلاتر البحث والفئات -->
-  <div class="filters">
-    <button onclick="filterCategory('all')">جميع المنتجات</button>
-    <button onclick="filterCategory('نسائي')">نسائي</button>
-    <input type="text" id="search" placeholder="ابحث عن منتج...">
-    <label>اللون:
-      <select id="filterColor" onchange="applyFilters()">
-        <option value="all">جميع الألوان</option>
-        <option value="أزرق">أزرق</option>
-        <option value="أصفر">أصفر</option>
-        <option value="أبيض">أبيض</option>
-        <option value="زهري">زهري</option>
-        <option value="أسود">أسود</option>
-        <option value="رمادي">رمادي</option>
-      </select>
-    </label>
-    <label>الحجم:
-      <select id="filterSize" onchange="applyFilters()">
-        <option value="all">جميع الأحجام</option>
-        <option value="S">S</option>
-        <option value="M">M</option>
-        <option value="L">L</option>
-        <option value="XL">XL</option>
-      </select>
-    </label>
-    <label>السعر:
-      <input type="number" id="filterMinPrice" placeholder="من" oninput="applyFilters()">
-      <input type="number" id="filterMaxPrice" placeholder="إلى" oninput="applyFilters()">
-    </label>
-    <label>مدة التوصيل:
-      <input type="number" id="filterDelivery" placeholder="أقل من أيام" oninput="applyFilters()">
-    </label>
-  </div>
-
-  <!-- قائمة المنتجات -->
-  <div id="products" class="products"></div>
-
-  <!-- صفحة المنتج التفصيلية -->
-  <div id="productDetail" class="product-detail" style="display:none;"></div>
-
-  <!-- أيقونة السلة -->
-  <button id="cartButton">🛒 السلة (<span id="cartCount">0</span>)</button>
-
-  <!-- نافذة السلة المنبثقة -->
-  <div id="cartPopup" class="cart-popup" style="display:none;">
-    <h2>سلة المشتريات</h2>
-    <ul id="cartPopupList"></ul>
-    <h3 id="popupTotal">المجموع: 0 ريال</h3>
-    <button onclick="payNow()">الدفع الآن</button>
-    <button onclick="closeCart()">إغلاق السلة</button>
-  </div>
-
-  <!-- قسم الطلبات الخاصة بالمستخدم -->
-  <div id="myOrders"></div>
-
-  <!-- إشعارات منبثقة -->
-  <div id="toast" style="position:fixed;bottom:20px;left:50%;transform:translateX(-50%);
-    background:#333;color:white;padding:10px 20px;border-radius:25px;display:none;z-index:2000;"></div>
+  <!-- المنتجات -->
+  <div class="products" id="products"></div>
 
 </div>
 
-<script src="script.js"></script>
+<!-- السلة -->
+<div class="cart-popup" id="cartPopup">
+  <h3>سلة التسوق</h3>
+  <ul id="cartList"></ul>
+  <button onclick="cartPopup.style.display='none'">إغلاق</button>
+</div>
+
+<!-- الشريط السفلي -->
+<div class="bottom-nav">
+  <button>🏠<span>الرئيسية</span></button>
+  <button>📂<span>الفئات</span></button>
+  <button>🔥<span>تخفيضات</span></button>
+  <button onclick="openCart()">🛒<span>السلة</span></button>
+  <button>👤<span>حسابي</span></button>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const productsData=[
+ {name:"فستان سهرة",price:81.93,img:"https://i.imgur.com/0y8Ftya.jpg"},
+ {name:"فستان أسود",price:60.79,img:"https://i.imgur.com/mP7a7bU.jpg"},
+ {name:"فستان وردي",price:74.50,img:"https://i.imgur.com/Yx8FqPz.jpg"},
+ {name:"فستان مطرز",price:92.00,img:"https://i.imgur.com/7pG9x0k.jpg"}
+];
+
+let cart=[];
+
+const productsDiv=document.getElementById("products");
+const cartPopup=document.getElementById("cartPopup");
+const cartList=document.getElementById("cartList");
+
+function renderProducts(list){
+ productsDiv.innerHTML="";
+ list.forEach(p=>{
+  productsDiv.innerHTML+=`
+   <div class="product">
+    <div class="heart">♡</div>
+    <img src="${p.img}">
+    <h4>${p.name}</h4>
+    <div class="price">${p.price} ر.ع</div>
+    <button class="add-btn" onclick='addToCart("${p.name}",${p.price})'>أضف للسلة</button>
+   </div>
+  `;
+ });
+}
+
+function addToCart(name,price){
+ cart.push({name,price});
+ showToast("تمت الإضافة للسلة");
+}
+
+function openCart(){
+ cartList.innerHTML="";
+ cart.forEach(i=>{
+  cartList.innerHTML+=`<li>${i.name}<span>${i.price}</span></li>`;
+ });
+ cartPopup.style.display="block";
+}
+
+function showToast(msg){
+ const t=document.getElementById("toast");
+ t.innerText=msg;
+ t.style.display="block";
+ setTimeout(()=>t.style.display="none",2000);
+}
+
+renderProducts(productsData);
+</script>
+
 </body>
 </html>
