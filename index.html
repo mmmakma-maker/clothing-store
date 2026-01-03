@@ -2,284 +2,410 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<title>متجر الملابس</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+<title>المتجر</title>
 <style>
-/* ===================== BODY ===================== */
-body{
-  margin:0;
-  font-family:'Segoe UI', Tahoma;
-  background:#f5f5f5;
+/* ===================== أسلوب الجسم والخلفية ===================== */
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: url('images/bg.jpg') no-repeat center center fixed;
+  background-size: cover;
+  direction: rtl;
+  margin: 0;
+  padding: 0;
 }
 
-/* ===================== CONTAINER ===================== */
-.container{
-  width:90%;
-  margin:20px auto;
-  background:white;
-  padding:20px;
-  border-radius:15px;
-  position:relative;
-  z-index:1;
+/* ===================== الحاوية الرئيسية ===================== */
+.container {
+  width: 90%;
+  margin: 20px auto;
+  text-align: center;
+  background: rgba(255,255,255,0.95);
+  padding: 25px;
+  border-radius: 20px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
 }
 
-/* ===================== SEARCH ===================== */
-#search{
-  width:100%;
-  padding:12px;
-  border-radius:10px;
-  border:1px solid #ccc;
-  margin-bottom:15px;
+/* ===================== الفلاتر ===================== */
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 20px;
 }
 
-/* ===================== PRODUCTS ===================== */
-.products{
-  display:flex;
-  flex-wrap:wrap;
-  gap:15px;
-  justify-content:center;
+.filters button {
+  background: linear-gradient(45deg, #ff4081, #e91e63);
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  cursor: pointer;
+  border-radius: 25px;
+  transition: transform 0.3s, box-shadow 0.3s;
 }
 
-.product{
-  width:200px;
-  background:#fff0f5;
-  padding:10px;
-  border-radius:15px;
-  text-align:center;
-  box-shadow:0 4px 10px rgba(0,0,0,.1);
+.filters button:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
 }
 
-.product img{
-  width:100%;
-  height:200px;
-  object-fit:cover;
-  border-radius:10px;
-  cursor:pointer;
+#search {
+  width: 100%;
+  padding: 12px;
+  margin: 15px 0;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  font-size: 16px;
 }
 
-.product button{
-  margin-top:5px;
+/* ===================== المنتجات ===================== */
+.products {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
 }
 
-/* ===================== BUTTONS ===================== */
-button{
-  background:#ff5722;
-  color:white;
-  border:none;
-  padding:8px 15px;
-  border-radius:20px;
-  cursor:pointer;
+.product {
+  background: #fff0f5;
+  width: 200px;
+  padding: 15px;
+  border-radius: 20px;
+  text-align: center;
+  box-shadow: 0 6px 10px rgba(0,0,0,0.1);
+  transition: transform 0.3s, box-shadow 0.3s;
 }
 
-button:disabled{
-  background:#ccc;
-  cursor:not-allowed;
+.product:hover {
+  transform: scale(1.08);
+  box-shadow: 0 12px 25px rgba(0,0,0,0.2);
 }
 
-/* ===================== PRODUCT DETAIL ===================== */
-.product-detail{
-  display:none;
-  text-align:center;
-  position:relative;
-  z-index:2;
+.product img {
+  width: 100%;
+  border-radius: 15px;
+  margin-bottom: 10px;
 }
 
-.product-detail img{
-  width:250px;
-  border-radius:15px;
-  cursor:pointer;
+.product h4 {
+  margin: 10px 0 5px 0;
 }
 
-/* ===================== CART BUTTON ===================== */
-#cartButton{
-  position:fixed;
-  top:10px;
-  left:10px;
-  background:#000;
-  color:white;
-  padding:12px 16px;
-  border-radius:50px;
-  z-index:3000;
+.product p {
+  margin: 5px 0;
 }
 
-/* ===================== CART POPUP ===================== */
-.cart-popup{
-  display:none;
-  position:fixed;
-  top:70px;
-  left:50%;
-  transform:translateX(-50%);
-  width:320px;
-  background:white;
-  padding:15px;
-  border-radius:15px;
-  box-shadow:0 8px 20px rgba(0,0,0,.3);
-  z-index:2000;
+.delete-btn {
+  background: red !important;
+  margin-top: 5px;
 }
 
-.cart-popup ul{
-  list-style:none;
-  padding:0;
+/* ===================== الأزرار العامة ===================== */
+button {
+  background: linear-gradient(45deg, #4caf50, #388e3c);
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  cursor: pointer;
+  border-radius: 25px;
+  margin-top: 5px;
+  transition: transform 0.2s, box-shadow 0.2s;
 }
 
-/* ===================== TOAST ===================== */
-#toast{
-  position:fixed;
-  bottom:20px;
-  left:50%;
-  transform:translateX(-50%);
+button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+/* ===================== تفاصيل المنتج ===================== */
+.product-detail {
+  background: #fff8f0;
+  padding: 20px;
+  border-radius: 20px;
+  margin: 20px auto;
+  max-width: 450px;
+  box-shadow: 0 8px 15px rgba(0,0,0,0.15);
+  text-align: center;
+  display: none;
+}
+
+.product-detail img {
+  width: 100%;
+  border-radius: 15px;
+  cursor: pointer;
+}
+
+.product-detail button {
+  background: linear-gradient(45deg, #ff7043, #ff5722);
+  margin-top: 10px;
+  padding: 10px 20px;
+  border-radius: 25px;
+  transition: transform 0.3s;
+}
+
+.product-detail button:hover {
+  transform: scale(1.05);
+}
+
+/* ===================== إدخال الكمية ===================== */
+.quantity-input {
+  width: 50px;
+  text-align: center;
+  margin-top: 10px;
+}
+
+/* ===================== زر السلة ===================== */
+#cartButton {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  background: #ff9800;
+  color: white;
+  padding: 12px 18px;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  z-index: 1000;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+#cartButton:hover {
+  transform: scale(1.05);
+  background: #f57c00;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+/* ===================== نافذة السلة ===================== */
+.cart-popup {
+  position: fixed;
+  top: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 350px;
+  background: #fff3e0;
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+  z-index: 1000;
+  text-align: center;
+  display: none;
+}
+
+.cart-popup ul {
+  list-style: none;
+  padding: 0;
+  max-height: 250px;
+  overflow-y: auto;
+  margin-bottom: 10px;
+}
+
+.cart-popup li {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  align-items: center;
+}
+
+.cart-popup button {
+  background: #ff7043;
+  color: white;
+  border-radius: 25px;
+  padding: 8px 15px;
+  margin-top: 10px;
+  transition: transform 0.3s;
+}
+
+.cart-popup button:hover {
+  transform: scale(1.05);
+}
+
+/* ===================== إشعارات منبثقة ===================== */
+#toast {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
   background:#333;
   color:white;
   padding:10px 20px;
-  border-radius:20px;
+  border-radius:25px;
   display:none;
-  z-index:4000;
+  z-index:2000;
+}
+
+/* ===================== الاستجابة للشاشات الصغيرة ===================== */
+@media (max-width: 600px) {
+  .products { gap: 10px; }
+  .product { width: 45%; }
+  .product-detail { width: 90%; padding: 15px; }
+  #cartButton { padding: 10px 15px; }
+  .cart-popup { width: 90%; padding: 15px; }
+  .filters { flex-direction: column; gap: 5px; }
 }
 </style>
 </head>
-
 <body>
 
-<button id="cartButton">🛒 السلة (<span id="cartCount">0</span>)</button>
-
 <div class="container">
-
-  <input type="text" id="search" placeholder="ابحث عن منتج">
-
+  <input type="text" id="search" placeholder="ابحث عن المنتج...">
+  <div class="filters">
+    <button onclick="filterCategory('all')">الكل</button>
+    <button onclick="filterCategory('نسائي')">نسائي</button>
+    <button onclick="filterCategory('رجالي')">رجالي</button>
+  </div>
   <div id="products" class="products"></div>
-
   <div id="productDetail" class="product-detail"></div>
-
 </div>
 
-<!-- CART -->
-<div id="cartPopup" class="cart-popup">
+<button id="cartButton">🛒 السلة <span id="cartCount">0</span></button>
+
+<div class="cart-popup" id="cartPopup">
   <h3>سلة التسوق</h3>
-  <ul id="cartList"></ul>
-  <p id="cartTotal"></p>
+  <ul id="cartPopupList"></ul>
+  <p id="popupTotal">المجموع: 0 ريال</p>
   <button onclick="closeCart()">إغلاق</button>
+  <button onclick="payNow()">ادفع الآن</button>
 </div>
 
 <div id="toast"></div>
 
 <script>
-/* ===================== DATA ===================== */
-const products=[
- {id:1,name:"فستان أسود",price:80,stock:5,img:"https://i.imgur.com/mP7a7bU.jpg"},
- {id:2,name:"فستان وردي",price:95,stock:3,img:"https://i.imgur.com/Yx8FqPz.jpg"},
- {id:3,name:"فستان سهرة",price:120,stock:2,img:"https://i.imgur.com/7pG9x0k.jpg"}
+// ================= البيانات =================
+let products = [
+  {id:1,name:"فستان سهرة",price:150,img:"https://i.imgur.com/0y8Ftya.jpg",category:"نسائي",stock:5},
+  {id:2,name:"بلوزة نسائية",price:80,img:"https://i.imgur.com/mP7a7bU.jpg",category:"نسائي",stock:8},
+  {id:3,name:"جاكيت رجالي",price:200,img:"https://i.imgur.com/7pG9x0k.jpg",category:"رجالي",stock:3},
+  {id:4,name:"قميص رجالي",price:100,img:"https://i.imgur.com/Yx8FqPz.jpg",category:"رجالي",stock:6}
 ];
 
-let cart=[];
+let cart = [];
+const productsDiv = document.getElementById("products");
+const detailDiv = document.getElementById("productDetail");
+const cartPopup = document.getElementById("cartPopup");
+const cartPopupList = document.getElementById("cartPopupList");
+const popupTotal = document.getElementById("popupTotal");
+const cartButton = document.getElementById("cartButton");
+const searchInput = document.getElementById("search");
+const toastDiv = document.getElementById("toast");
 
-/* ===================== DOM ===================== */
-const productsDiv=document.getElementById("products");
-const detailDiv=document.getElementById("productDetail");
-const cartPopup=document.getElementById("cartPopup");
-const cartList=document.getElementById("cartList");
-const cartTotal=document.getElementById("cartTotal");
-const cartCount=document.getElementById("cartCount");
-const toast=document.getElementById("toast");
-
-/* ===================== FUNCTIONS ===================== */
+// ================= حفظ وإشعارات =================
 function showToast(msg){
- toast.textContent=msg;
- toast.style.display="block";
- setTimeout(()=>toast.style.display="none",2000);
+  toastDiv.innerText = msg;
+  toastDiv.style.display="block";
+  setTimeout(()=>{toastDiv.style.display="none";},2000);
 }
 
+function updateCartCount(){
+  let count = cart.reduce((sum,i)=>sum+i.qty,0);
+  document.getElementById("cartCount").innerText = count;
+}
+
+// ================= عرض المنتجات =================
 function renderProducts(list){
- productsDiv.innerHTML="";
- detailDiv.style.display="none";
- productsDiv.style.display="flex";
-
- list.forEach(p=>{
-  const div=document.createElement("div");
-  div.className="product";
-  div.innerHTML=`
-   <img src="${p.img}" onclick="zoomImage('${p.img}')">
-   <h4>${p.name}</h4>
-   <p>${p.price} ريال</p>
-   <p>المتبقي: ${p.stock}</p>
-   <button onclick="showDetail(${p.id})" ${p.stock===0?"disabled":""}>عرض</button>
-  `;
-  productsDiv.appendChild(div);
- });
+  productsDiv.innerHTML="";
+  detailDiv.style.display="none";
+  productsDiv.style.display="flex";
+  list.forEach(p=>{
+    const div = document.createElement("div");
+    div.className="product";
+    div.innerHTML=`
+      <img src="${p.img}">
+      <h4>${p.name}</h4>
+      <p>${p.price} ريال</p>
+      <p>المتبقي: ${p.stock}</p>
+      <button onclick="showDetail(${p.id})" ${p.stock===0?'disabled':''}>${p.stock===0?'نفدت الكمية':'عرض المنتج'}</button>
+    `;
+    productsDiv.appendChild(div);
+  });
 }
 
+// ================= عرض التفاصيل =================
 function showDetail(id){
- const p=products.find(x=>x.id===id);
- productsDiv.style.display="none";
- detailDiv.style.display="block";
- detailDiv.innerHTML=`
-  <h2>${p.name}</h2>
-  <img src="${p.img}" onclick="zoomImage('${p.img}')">
-  <p>${p.price} ريال</p>
-  <input type="number" id="qty" min="1" max="${p.stock}" value="1">
-  <br><br>
-  <button onclick="addToCart(${p.id})">أضف للسلة</button>
-  <button onclick="renderProducts(products)">رجوع</button>
- `;
+  const p = products.find(x=>x.id===id);
+  if(!p) return;
+  productsDiv.style.display="none";
+  detailDiv.style.display="block";
+  detailDiv.innerHTML=`
+    <h2>${p.name}</h2>
+    <img src="${p.img}" onclick="zoomImage('${p.img}')">
+    <p>السعر: ${p.price} ريال</p>
+    <p>المتبقي: ${p.stock}</p>
+    <label>الكمية: <input type="number" id="qty" min="1" max="${p.stock}" value="1"></label>
+    <br><br>
+    <button onclick="addToCart(${p.id})">أضف للسلة</button>
+    <br><br>
+    <button onclick="backToProducts()">رجوع</button>
+  `;
 }
 
+function backToProducts(){
+  detailDiv.style.display="none";
+  renderProducts(products);
+}
+
+// ================= إضافة للسلة =================
 function addToCart(id){
- const p=products.find(x=>x.id===id);
- const qty=parseInt(document.getElementById("qty").value);
- if(qty<1 || qty>p.stock) return showToast("كمية غير صحيحة");
- cart.push({id:p.id,name:p.name,price:p.price,qty});
- p.stock-=qty;
- updateCart();
- renderProducts(products);
- showToast("تمت الإضافة للسلة");
+  const p = products.find(x=>x.id===id);
+  let qty = parseInt(document.getElementById("qty") ? document.getElementById("qty").value : 1);
+  if(qty>p.stock){ showToast("الكمية أكبر من المخزون"); return; }
+  const exist = cart.find(i=>i.id===id);
+  if(exist){ exist.qty += qty; } else { cart.push({id:p.id,name:p.name,price:p.price,qty}); }
+  p.stock -= qty;
+  showToast("تمت الإضافة للسلة ✅");
+  updateCartCount();
+  backToProducts();
 }
 
-function updateCart(){
- cartList.innerHTML="";
- let total=0;
- cart.forEach(i=>{
-  cartList.innerHTML+=`<li>${i.name} x${i.qty} - ${i.price*i.qty} ريال</li>`;
-  total+=i.price*i.qty;
- });
- cartTotal.textContent="المجموع: "+total+" ريال";
- cartCount.textContent=cart.reduce((s,i)=>s+i.qty,0);
+// ================= السلة =================
+cartButton.onclick = ()=>{ renderCartPopup(); cartPopup.style.display="block"; };
+function closeCart(){ cartPopup.style.display="none"; }
+
+function renderCartPopup(){
+  cartPopupList.innerHTML="";
+  let total=0;
+  cart.forEach((item,index)=>{
+    const li = document.createElement("li");
+    li.innerHTML=`${item.name} x${item.qty} - ${item.price*item.qty} ريال <button onclick="removeFromCart(${index})">حذف</button>`;
+    cartPopupList.appendChild(li);
+    total += item.price*item.qty;
+  });
+  popupTotal.innerText=`المجموع: ${total} ريال`;
 }
 
-document.getElementById("cartButton").onclick=()=>{
- updateCart();
- cartPopup.style.display="block";
-};
-
-function closeCart(){
- cartPopup.style.display="none";
+function removeFromCart(index){
+  const item = cart[index];
+  const product = products.find(p=>p.id===item.id);
+  product.stock += item.qty;
+  cart.splice(index,1);
+  renderCartPopup();
+  renderProducts(products);
+  updateCartCount();
+  showToast("تم الحذف من السلة ❌");
 }
 
-/* ===================== SEARCH ===================== */
-document.getElementById("search").addEventListener("input",e=>{
- const v=e.target.value.toLowerCase();
- renderProducts(products.filter(p=>p.name.toLowerCase().includes(v)));
+function payNow(){
+  if(cart.length===0){ showToast("السلة فارغة!"); return; }
+  cart=[]; updateCartCount(); renderCartPopup(); showToast("تم الدفع بنجاح ✅");
+}
+
+// ================= البحث =================
+searchInput.addEventListener("input",()=>{
+  const val = searchInput.value.toLowerCase();
+  renderProducts(products.filter(p=>p.name.toLowerCase().includes(val)));
 });
 
-/* ===================== ZOOM IMAGE (FIXED) ===================== */
+// ================= تكبير الصورة =================
 function zoomImage(src){
- const z=document.createElement("div");
- z.style.position="fixed";
- z.style.top=0;
- z.style.left=0;
- z.style.width="100%";
- z.style.height="100%";
- z.style.background="rgba(0,0,0,.8)";
- z.style.display="flex";
- z.style.alignItems="center";
- z.style.justifyContent="center";
- z.style.zIndex="9999";
- z.innerHTML=`<img src="${src}" style="max-width:90%;max-height:90%;border-radius:15px;">`;
- z.onclick=()=>z.remove();
- document.body.appendChild(z);
+  const div = document.createElement("div");
+  div.style.cssText="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);display:flex;align-items:center;justify-content:center;z-index:9999;";
+  div.innerHTML=`<img src="${src}" style="max-width:90%;max-height:90%;"><button style="position:absolute;top:20px;right:20px;font-size:20px;" onclick="this.parentElement.remove()">✖</button>`;
+  document.body.appendChild(div);
 }
 
-/* ===================== INIT ===================== */
+// ================= عند تحميل الصفحة =================
 renderProducts(products);
+updateCartCount();
 </script>
 
 </body>
