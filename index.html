@@ -118,7 +118,21 @@ body{
 .cart-popup li{
   display:flex;
   justify-content:space-between;
+  align-items:center;
   margin-bottom:8px;
+}
+.cart-item-controls{
+  display:flex;
+  gap:5px;
+  align-items:center;
+}
+.cart-item-controls button{
+  padding:2px 6px;
+  border:none;
+  border-radius:5px;
+  background:#ff5722;
+  color:white;
+  cursor:pointer;
 }
 .cart-total{
   font-weight:bold;
@@ -225,7 +239,6 @@ function renderProducts(list){
       <div class="price">${p.price} ر.ع</div>
       <button class="add-btn">أضف للسلة</button>
     `;
-    // إضافة الحدث للزر ♡
     const heart=productDiv.querySelector(".heart");
     heart.addEventListener("click",()=>{
       if(heart.innerText==="♡"){
@@ -235,17 +248,13 @@ function renderProducts(list){
         heart.innerText="♡";
       }
     });
-    // إضافة الحدث لزر السلة
     const addBtn=productDiv.querySelector(".add-btn");
-    addBtn.addEventListener("click",()=>{
-      addToCart(p.name,p.price);
-    });
+    addBtn.addEventListener("click",()=>{ addToCart(p.name,p.price); });
     productsDiv.appendChild(productDiv);
   });
 }
 
 function addToCart(name,price){
-  // إذا المنتج موجود مسبقاً زد الكمية
   const existing=cart.find(i=>i.name===name);
   if(existing){
     existing.qty+=1;
@@ -261,9 +270,33 @@ function updateCart(){
   let total=0;
   cart.forEach(i=>{
     total+=i.price*i.qty;
-    cartList.innerHTML+=`<li>${i.name} × ${i.qty} <span>${(i.price*i.qty).toFixed(2)} ر.ع</span></li>`;
+    const li=document.createElement("li");
+    li.innerHTML=`
+      ${i.name} 
+      <div class="cart-item-controls">
+        <button onclick="changeQty('${i.name}',-1)">-</button>
+        <span>${i.qty}</span>
+        <button onclick="changeQty('${i.name}',1)">+</button>
+        <button onclick="removeItem('${i.name}')">🗑️</button>
+        <span>${(i.price*i.qty).toFixed(2)} ر.ع</span>
+      </div>
+    `;
+    cartList.appendChild(li);
   });
   cartTotal.innerText="الإجمالي: "+total.toFixed(2)+" ر.ع";
+}
+
+function changeQty(name,delta){
+  const item=cart.find(i=>i.name===name);
+  if(!item) return;
+  item.qty+=delta;
+  if(item.qty<1) removeItem(name);
+  updateCart();
+}
+
+function removeItem(name){
+  cart=cart.filter(i=>i.name!==name);
+  updateCart();
 }
 
 function openCart(){
@@ -278,7 +311,6 @@ function showToast(msg){
   setTimeout(()=>t.style.display="none",2000);
 }
 
-// البحث الحي
 searchInput.addEventListener("input",()=>{
   const query=searchInput.value.toLowerCase();
   const filtered=productsData.filter(p=>p.name.toLowerCase().includes(query));
