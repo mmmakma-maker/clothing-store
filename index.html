@@ -5,20 +5,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>المتجر</title>
 <style>
-/* ===== الأساس ===== */
 body{
   margin:0;
   font-family: 'Segoe UI', Tahoma;
   background:#f5f5f5;
 }
-
-/* ===== الحاوية ===== */
 .container{
   padding:15px;
   padding-bottom:90px;
 }
-
-/* ===== التبويبات العلوية ===== */
 .top-tabs{
   display:flex;
   gap:10px;
@@ -31,13 +26,12 @@ body{
   border-radius:20px;
   background:#eee;
   font-size:14px;
+  cursor:pointer;
 }
 .top-tabs .active{
   background:#000;
   color:#fff;
 }
-
-/* ===== البحث ===== */
 .search-bar input{
   width:100%;
   padding:12px;
@@ -45,8 +39,6 @@ body{
   border:1px solid #ccc;
   margin-bottom:10px;
 }
-
-/* ===== تصنيف / تصفية ===== */
 .sort-filter-bar{
   display:flex;
   justify-content:space-around;
@@ -63,8 +55,6 @@ body{
   font-size:14px;
   cursor:pointer;
 }
-
-/* ===== المنتجات ===== */
 .products{
   display:flex;
   flex-wrap:wrap;
@@ -108,9 +98,7 @@ body{
   border-radius:20px;
   cursor:pointer;
 }
-
-/* ===== السلة ===== */
-.cart-popup{
+.cart-popup, #accountPopup{
   position:fixed;
   top:80px;
   left:50%;
@@ -121,7 +109,9 @@ body{
   border-radius:15px;
   padding:15px;
   display:none;
-  z-index:2000;
+  z-index:9999;
+  text-align:center;
+  box-shadow:0 8px 20px rgba(0,0,0,0.2);
 }
 .cart-popup ul{
   list-style:none;
@@ -134,24 +124,6 @@ body{
   justify-content:space-between;
   margin-bottom:8px;
 }
-
-/* ===== نافذة الحساب ===== */
-#accountPopup{
-  display:none;
-  position:fixed;
-  top:80px;
-  left:50%;
-  transform:translateX(-50%);
-  background:white;
-  width:90%;
-  max-width:300px;
-  border-radius:15px;
-  padding:20px;
-  z-index:2000;
-  text-align:center;
-}
-
-/* ===== شريط سفلي ===== */
 .bottom-nav{
   position:fixed;
   bottom:0;
@@ -172,8 +144,6 @@ body{
   font-size:14px;
   cursor:pointer;
 }
-
-/* ===== تنبيه ===== */
 #toast{
   position:fixed;
   bottom:80px;
@@ -184,43 +154,37 @@ body{
   padding:10px 20px;
   border-radius:20px;
   display:none;
-  z-index:2000;
+  z-index:10000;
 }
 </style>
 </head>
-
 <body>
+
 <div class="container">
-  <!-- التبويبات -->
   <div class="top-tabs">
     <button class="active">بريميوم</button>
     <button>المنزل وأكثر</button>
     <button>الأطفال</button>
   </div>
 
-  <!-- البحث -->
   <div class="search-bar">
     <input type="text" id="search" placeholder="ابحث">
   </div>
 
-  <!-- تصنيف / تصفية -->
   <div class="sort-filter-bar">
     <button onclick="showToast('التصنيف قريباً')">⇅ تصنيف</button>
     <button onclick="showToast('التصفية قريباً')">☰ تصفية</button>
   </div>
 
-  <!-- المنتجات -->
   <div class="products" id="products"></div>
 </div>
 
-<!-- السلة -->
 <div class="cart-popup" id="cartPopup">
   <h3>سلة التسوق</h3>
   <ul id="cartList"></ul>
   <button onclick="cartPopup.style.display='none'">إغلاق</button>
 </div>
 
-<!-- نافذة الحساب -->
 <div id="accountPopup">
   <h3>حسابي</h3>
   <p id="userName">غير مسجل</p>
@@ -228,7 +192,6 @@ body{
   <button onclick="closeAccount()">إغلاق</button>
 </div>
 
-<!-- الشريط السفلي -->
 <div class="bottom-nav">
   <button onclick="showToast('الرئيسية')">🏠<span>الرئيسية</span></button>
   <button onclick="showToast('الفئات')">📂<span>الفئات</span></button>
@@ -248,7 +211,6 @@ const productsData=[
 ];
 
 let cart=[];
-
 const productsDiv=document.getElementById("products");
 const cartPopup=document.getElementById("cartPopup");
 const cartList=document.getElementById("cartList");
@@ -256,7 +218,6 @@ const accountPopup=document.getElementById("accountPopup");
 const userName=document.getElementById("userName");
 const toastDiv=document.getElementById("toast");
 
-// ===== عرض المنتجات =====
 function renderProducts(list){
   productsDiv.innerHTML="";
   list.forEach(p=>{
@@ -272,7 +233,6 @@ function renderProducts(list){
   });
 }
 
-// ===== السلة =====
 function addToCart(name,price){
   cart.push({name,price});
   showToast("تمت الإضافة للسلة");
@@ -286,21 +246,17 @@ function openCart(){
   cartPopup.style.display="block";
 }
 
-// ===== الحساب =====
 function openAccount(){
   accountPopup.style.display="block";
 }
-
 function closeAccount(){
   accountPopup.style.display="none";
 }
-
 function loginUser(){
   userName.innerText="أحمد";
   showToast("تم تسجيل الدخول ✅");
 }
 
-// ===== إشعارات =====
 function showToast(msg){
   toastDiv.innerText=msg;
   toastDiv.style.display="block";
@@ -309,6 +265,8 @@ function showToast(msg){
 
 renderProducts(productsData);
 </script>
+
 </body>
 </html>
+
 
