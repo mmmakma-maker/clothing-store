@@ -3,13 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>المتجر</title>
+<title>المتجر الكامل</title>
 <style>
 /* ===================== أسلوب الجسم والخلفية ===================== */
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: url('images/bg.jpg') no-repeat center center fixed;
-  background-size: cover;
+  background: #f5f5f5;
   direction: rtl;
   margin: 0;
   padding: 0;
@@ -96,11 +95,6 @@ body {
   margin: 5px 0;
 }
 
-.delete-btn {
-  background: red !important;
-  margin-top: 5px;
-}
-
 /* ===================== الأزرار العامة ===================== */
 button {
   background: linear-gradient(45deg, #4caf50, #388e3c);
@@ -127,7 +121,6 @@ button:hover {
   max-width: 450px;
   box-shadow: 0 8px 15px rgba(0,0,0,0.15);
   text-align: center;
-  display: none;
 }
 
 .product-detail img {
@@ -207,19 +200,6 @@ button:hover {
   align-items: center;
 }
 
-.cart-popup button {
-  background: #ff7043;
-  color: white;
-  border-radius: 25px;
-  padding: 8px 15px;
-  margin-top: 10px;
-  transition: transform 0.3s;
-}
-
-.cart-popup button:hover {
-  transform: scale(1.05);
-}
-
 /* ===================== إشعارات منبثقة ===================== */
 #toast {
   position: fixed;
@@ -248,166 +228,182 @@ button:hover {
 <body>
 
 <div class="container">
-  <input type="text" id="search" placeholder="ابحث عن المنتج...">
+  <h1>متجر كامل</h1>
+
+  <!-- البحث والفلاتر -->
+  <input type="text" id="search" placeholder="ابحث عن منتج">
   <div class="filters">
     <button onclick="filterCategory('all')">الكل</button>
     <button onclick="filterCategory('نسائي')">نسائي</button>
     <button onclick="filterCategory('رجالي')">رجالي</button>
   </div>
-  <div id="products" class="products"></div>
-  <div id="productDetail" class="product-detail"></div>
+
+  <!-- المنتجات -->
+  <div class="products" id="products"></div>
+
+  <!-- تفاصيل المنتج -->
+  <div class="product-detail" id="productDetail" style="display:none;"></div>
 </div>
 
-<button id="cartButton">🛒 السلة <span id="cartCount">0</span></button>
+<!-- زر السلة -->
+<button id="cartButton">🛒 السلة (<span id="cartCount">0</span>)</button>
 
+<!-- نافذة السلة -->
 <div class="cart-popup" id="cartPopup">
   <h3>سلة التسوق</h3>
   <ul id="cartPopupList"></ul>
   <p id="popupTotal">المجموع: 0 ريال</p>
   <button onclick="closeCart()">إغلاق</button>
-  <button onclick="payNow()">ادفع الآن</button>
 </div>
 
+<!-- إشعار -->
 <div id="toast"></div>
 
 <script>
-// ================= البيانات =================
-let products = [
-  {id:1,name:"فستان سهرة",price:150,img:"https://i.imgur.com/0y8Ftya.jpg",category:"نسائي",stock:5},
-  {id:2,name:"بلوزة نسائية",price:80,img:"https://i.imgur.com/mP7a7bU.jpg",category:"نسائي",stock:8},
-  {id:3,name:"جاكيت رجالي",price:200,img:"https://i.imgur.com/7pG9x0k.jpg",category:"رجالي",stock:3},
-  {id:4,name:"قميص رجالي",price:100,img:"https://i.imgur.com/Yx8FqPz.jpg",category:"رجالي",stock:6}
+// ------------------ البيانات ------------------
+let products = JSON.parse(localStorage.getItem("products")) || [
+  {id:1,name:"فستان سهرة",price:150,category:"نسائي",image:"https://i.imgur.com/0y8Ftya.jpg",stock:5},
+  {id:2,name:"قميص رجالي",price:100,category:"رجالي",image:"https://i.imgur.com/mP7a7bU.jpg",stock:3},
+  {id:3,name:"بلوزة نسائية",price:80,category:"نسائي",image:"https://i.imgur.com/Yx8FqPz.jpg",stock:4},
+  {id:4,name:"جاكيت رجالي",price:200,category:"رجالي",image:"https://i.imgur.com/7pG9x0k.jpg",stock:2}
 ];
 
-let cart = [];
-const productsDiv = document.getElementById("products");
-const detailDiv = document.getElementById("productDetail");
-const cartPopup = document.getElementById("cartPopup");
-const cartPopupList = document.getElementById("cartPopupList");
-const popupTotal = document.getElementById("popupTotal");
-const cartButton = document.getElementById("cartButton");
-const searchInput = document.getElementById("search");
-const toastDiv = document.getElementById("toast");
+let cart = JSON.parse(localStorage.getItem("cart")) || [];
 
-// ================= حفظ وإشعارات =================
+// ------------------ حفظ البيانات ------------------
+function saveData(){
+  localStorage.setItem("products", JSON.stringify(products));
+  localStorage.setItem("cart", JSON.stringify(cart));
+}
+
+// ------------------ إشعارات ------------------
 function showToast(msg){
-  toastDiv.innerText = msg;
-  toastDiv.style.display="block";
-  setTimeout(()=>{toastDiv.style.display="none";},2000);
+  const t=document.getElementById("toast");
+  t.innerText=msg;
+  t.style.display="block";
+  setTimeout(()=>t.style.display="none",2000);
 }
 
+// ------------------ عداد السلة ------------------
 function updateCartCount(){
-  let count = cart.reduce((sum,i)=>sum+i.qty,0);
-  document.getElementById("cartCount").innerText = count;
+  document.getElementById("cartCount").innerText = cart.reduce((sum,i)=>sum+ (i.qty||1),0);
 }
 
-// ================= عرض المنتجات =================
+// ------------------ عرض المنتجات ------------------
+const productsDiv = document.getElementById("products");
+const productDetailDiv = document.getElementById("productDetail");
+
 function renderProducts(list){
   productsDiv.innerHTML="";
-  detailDiv.style.display="none";
+  productDetailDiv.style.display="none";
   productsDiv.style.display="flex";
+
   list.forEach(p=>{
-    const div = document.createElement("div");
+    const div=document.createElement("div");
     div.className="product";
     div.innerHTML=`
-      <img src="${p.img}">
+      <img src="${p.image}">
       <h4>${p.name}</h4>
       <p>${p.price} ريال</p>
       <p>المتبقي: ${p.stock}</p>
-      <button onclick="showDetail(${p.id})" ${p.stock===0?'disabled':''}>${p.stock===0?'نفدت الكمية':'عرض المنتج'}</button>
+      <button ${p.stock===0?'disabled':''} onclick="showProductDetail(${p.id})">${p.stock===0?'نفدت الكمية':'عرض المنتج'}</button>
     `;
     productsDiv.appendChild(div);
   });
 }
 
-// ================= عرض التفاصيل =================
-function showDetail(id){
+// ------------------ تفاصيل المنتج ------------------
+function showProductDetail(id){
   const p = products.find(x=>x.id===id);
   if(!p) return;
+
   productsDiv.style.display="none";
-  detailDiv.style.display="block";
-  detailDiv.innerHTML=`
+  productDetailDiv.style.display="block";
+  productDetailDiv.innerHTML=`
     <h2>${p.name}</h2>
-    <img src="${p.img}" onclick="zoomImage('${p.img}')">
+    <img src="${p.image}" style="width:200px;">
     <p>السعر: ${p.price} ريال</p>
     <p>المتبقي: ${p.stock}</p>
-    <label>الكمية: <input type="number" id="qty" min="1" max="${p.stock}" value="1"></label>
-    <br><br>
+    <label>الكمية: <input type="number" id="selectedQty" value="1" min="1" max="${p.stock}" class="quantity-input"></label><br>
     <button onclick="addToCart(${p.id})">أضف للسلة</button>
-    <br><br>
-    <button onclick="backToProducts()">رجوع</button>
+    <button onclick="backToProducts()">عودة للمنتجات</button>
   `;
 }
 
+// ------------------ العودة للمنتجات ------------------
 function backToProducts(){
-  detailDiv.style.display="none";
+  productDetailDiv.style.display="none";
   renderProducts(products);
 }
 
-// ================= إضافة للسلة =================
+// ------------------ إضافة للسلة ------------------
 function addToCart(id){
   const p = products.find(x=>x.id===id);
-  let qty = parseInt(document.getElementById("qty") ? document.getElementById("qty").value : 1);
-  if(qty>p.stock){ showToast("الكمية أكبر من المخزون"); return; }
-  const exist = cart.find(i=>i.id===id);
-  if(exist){ exist.qty += qty; } else { cart.push({id:p.id,name:p.name,price:p.price,qty}); }
+  const qty = parseInt(document.getElementById("selectedQty").value);
+  if(qty>p.stock){ showToast("الكمية المطلوبة أكبر من المخزون"); return; }
+
+  const existing = cart.find(x=>x.id===id);
+  if(existing){ existing.qty += qty; }
+  else{ cart.push({id:p.id,name:p.name,price:p.price,qty:qty}); }
+
   p.stock -= qty;
-  showToast("تمت الإضافة للسلة ✅");
-  updateCartCount();
+  saveData();
+  showToast("تمت إضافة المنتج للسلة ✅");
   backToProducts();
+  updateCartCount();
 }
 
-// ================= السلة =================
-cartButton.onclick = ()=>{ renderCartPopup(); cartPopup.style.display="block"; };
-function closeCart(){ cartPopup.style.display="none"; }
-
+// ------------------ السلة ------------------
+const cartPopup = document.getElementById("cartPopup");
 function renderCartPopup(){
-  cartPopupList.innerHTML="";
+  const list = document.getElementById("cartPopupList");
+  const totalP = document.getElementById("popupTotal");
+  list.innerHTML="";
   let total=0;
-  cart.forEach((item,index)=>{
+  cart.forEach((item,i)=>{
     const li = document.createElement("li");
-    li.innerHTML=`${item.name} x${item.qty} - ${item.price*item.qty} ريال <button onclick="removeFromCart(${index})">حذف</button>`;
-    cartPopupList.appendChild(li);
+    li.innerHTML=`${item.name} x${item.qty} - ${item.price*item.qty} ريال <button onclick="removeFromCart(${i})">حذف</button>`;
+    list.appendChild(li);
     total += item.price*item.qty;
   });
-  popupTotal.innerText=`المجموع: ${total} ريال`;
+  totalP.innerText = `المجموع: ${total} ريال`;
+  updateCartCount();
 }
 
-function removeFromCart(index){
-  const item = cart[index];
-  const product = products.find(p=>p.id===item.id);
-  product.stock += item.qty;
-  cart.splice(index,1);
+function removeFromCart(i){
+  const item = cart[i];
+  const p = products.find(x=>x.id===item.id);
+  p.stock += item.qty;
+  cart.splice(i,1);
+  saveData();
   renderCartPopup();
   renderProducts(products);
-  updateCartCount();
-  showToast("تم الحذف من السلة ❌");
+  showToast("تم حذف المنتج من السلة ❌");
 }
 
-function payNow(){
-  if(cart.length===0){ showToast("السلة فارغة!"); return; }
-  cart=[]; updateCartCount(); renderCartPopup(); showToast("تم الدفع بنجاح ✅");
-}
+function closeCart(){ cartPopup.style.display="none"; }
+document.getElementById("cartButton").onclick = ()=>{
+  renderCartPopup();
+  cartPopup.style.display="block";
+};
 
-// ================= البحث =================
-searchInput.addEventListener("input",()=>{
-  const val = searchInput.value.toLowerCase();
+// ------------------ البحث والفلاتر ------------------
+document.getElementById("search").addEventListener("input", ()=>{
+  const val = document.getElementById("search").value.toLowerCase();
   renderProducts(products.filter(p=>p.name.toLowerCase().includes(val)));
 });
 
-// ================= تكبير الصورة =================
-function zoomImage(src){
-  const div = document.createElement("div");
-  div.style.cssText="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);display:flex;align-items:center;justify-content:center;z-index:9999;";
-  div.innerHTML=`<img src="${src}" style="max-width:90%;max-height:90%;"><button style="position:absolute;top:20px;right:20px;font-size:20px;" onclick="this.parentElement.remove()">✖</button>`;
-  document.body.appendChild(div);
+function filterCategory(cat){
+  if(cat==="all") renderProducts(products);
+  else renderProducts(products.filter(p=>p.category===cat));
 }
 
-// ================= عند تحميل الصفحة =================
+// ------------------ تشغيل عند التحميل ------------------
 renderProducts(products);
 updateCartCount();
 </script>
 
 </body>
 </html>
+
 
