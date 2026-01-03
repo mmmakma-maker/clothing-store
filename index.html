@@ -27,6 +27,7 @@ body{
   border-radius:20px;
   background:#eee;
   font-size:14px;
+  cursor:pointer;
 }
 .top-tabs .active{
   background:#000;
@@ -177,9 +178,9 @@ body{
 <div class="container">
 
   <div class="top-tabs">
-    <button class="active">بريميوم</button>
-    <button>المنزل وأكثر</button>
-    <button>الأطفال</button>
+    <button class="active" data-category="premium">بريميوم</button>
+    <button data-category="home">المنزل وأكثر</button>
+    <button data-category="kids">الأطفال</button>
   </div>
 
   <div class="search-bar">
@@ -214,18 +215,23 @@ body{
 
 <script>
 const productsData=[
- {name:"فستان سهرة",price:81.93,img:"https://i.imgur.com/0y8Ftya.jpg"},
- {name:"فستان أسود",price:60.79,img:"https://i.imgur.com/mP7a7bU.jpg"},
- {name:"فستان وردي",price:74.50,img:"https://i.imgur.com/Yx8FqPz.jpg"}
+ {name:"فستان سهرة",price:81.93,img:"https://i.imgur.com/0y8Ftya.jpg",category:"premium"},
+ {name:"فستان أسود",price:60.79,img:"https://i.imgur.com/mP7a7bU.jpg",category:"premium"},
+ {name:"فستان وردي",price:74.50,img:"https://i.imgur.com/Yx8FqPz.jpg",category:"premium"},
+ {name:"وسادة منزلية",price:15.00,img:"https://i.imgur.com/1bX5QH6.jpg",category:"home"},
+ {name:"مفرش سرير",price:30.00,img:"https://i.imgur.com/2ZqE3pT.jpg",category:"home"},
+ {name:"لعبة أطفال",price:12.50,img:"https://i.imgur.com/3Q9p2dX.jpg",category:"kids"}
 ];
 
 let cart=[];
+let currentCategory="premium";
 
 const productsDiv=document.getElementById("products");
 const cartPopup=document.getElementById("cartPopup");
 const cartList=document.getElementById("cartList");
 const cartTotal=document.getElementById("cartTotal");
 const searchInput=document.getElementById("search");
+const tabButtons=document.querySelectorAll(".top-tabs button");
 
 function renderProducts(list){
   productsDiv.innerHTML="";
@@ -241,12 +247,8 @@ function renderProducts(list){
     `;
     const heart=productDiv.querySelector(".heart");
     heart.addEventListener("click",()=>{
-      if(heart.innerText==="♡"){
-        heart.innerText="❤️";
-        showToast("تمت الإضافة للمفضلة");
-      }else{
-        heart.innerText="♡";
-      }
+      heart.innerText = heart.innerText==="♡" ? "❤️" : "♡";
+      showToast(heart.innerText==="❤️"?"تمت الإضافة للمفضلة":"تمت الإزالة من المفضلة");
     });
     const addBtn=productDiv.querySelector(".add-btn");
     addBtn.addEventListener("click",()=>{ addToCart(p.name,p.price); });
@@ -311,13 +313,25 @@ function showToast(msg){
   setTimeout(()=>t.style.display="none",2000);
 }
 
+// البحث الحي مع الفئة الحالية
 searchInput.addEventListener("input",()=>{
   const query=searchInput.value.toLowerCase();
-  const filtered=productsData.filter(p=>p.name.toLowerCase().includes(query));
+  const filtered=productsData.filter(p=>p.category===currentCategory && p.name.toLowerCase().includes(query));
   renderProducts(filtered);
 });
 
-renderProducts(productsData);
+// التبويبات
+tabButtons.forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    tabButtons.forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
+    currentCategory=btn.dataset.category;
+    searchInput.value="";
+    renderProducts(productsData.filter(p=>p.category===currentCategory));
+  });
+});
+
+renderProducts(productsData.filter(p=>p.category===currentCategory));
 </script>
 
 </body>
