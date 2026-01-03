@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>المتجر</title>
+<title>متجري للملابس النسائية</title>
 
 <style>
 body{
@@ -177,25 +177,30 @@ body{
 
 <div class="container">
 
+  <!-- تبويبات الفئات -->
   <div class="top-tabs">
-    <button class="active" data-category="premium">بريميوم</button>
-    <button data-category="home">المنزل وأكثر</button>
-    <button data-category="kids">الأطفال</button>
+    <button class="active" data-category="omani">عمانية</button>
+    <button data-category="blushi">بلوشي</button>
+    <button data-category="pieces">قطع بلوشي</button>
   </div>
 
+  <!-- البحث -->
   <div class="search-bar">
     <input type="text" id="search" placeholder="ابحث">
   </div>
 
+  <!-- تصنيف / تصفية -->
   <div class="sort-filter-bar">
     <button onclick="showToast('التصنيف قريباً')">⇅ تصنيف</button>
     <button onclick="showToast('التصفية قريباً')">☰ تصفية</button>
   </div>
 
+  <!-- المنتجات -->
   <div class="products" id="products"></div>
 
 </div>
 
+<!-- السلة -->
 <div class="cart-popup" id="cartPopup">
   <h3>سلة التسوق</h3>
   <ul id="cartList"></ul>
@@ -203,6 +208,7 @@ body{
   <button onclick="cartPopup.style.display='none'">إغلاق</button>
 </div>
 
+<!-- الشريط السفلي -->
 <div class="bottom-nav">
   <button>🏠<span>الرئيسية</span></button>
   <button>📂<span>الفئات</span></button>
@@ -214,18 +220,18 @@ body{
 <div id="toast"></div>
 
 <script>
+// المنتجات حسب الفئة
 const productsData=[
- {name:"فستان سهرة",price:81.93,img:"https://i.imgur.com/0y8Ftya.jpg",category:"premium"},
- {name:"فستان أسود",price:60.79,img:"https://i.imgur.com/mP7a7bU.jpg",category:"premium"},
- {name:"فستان وردي",price:74.50,img:"https://i.imgur.com/Yx8FqPz.jpg",category:"premium"},
- {name:"وسادة منزلية",price:15.00,img:"https://i.imgur.com/l9K2G8J.jpg",category:"home"},
- {name:"مفرش سرير",price:30.00,img:"https://i.imgur.com/e9bS8p2.jpg",category:"home"},
- {name:"لعبة أطفال",price:12.50,img:"https://i.imgur.com/2u4Y8Qh.jpg",category:"kids"},
- {name:"دمية أطفال",price:18.00,img:"https://i.imgur.com/3zN7R8p.jpg",category:"kids"}
+  {name:"عباية عمانية سوداء",price:80.00,img:"https://i.imgur.com/0y8Ftya.jpg",category:"omani"},
+  {name:"عباية عمانية بيضاء",price:85.50,img:"https://i.imgur.com/mP7a7bU.jpg",category:"omani"},
+  {name:"فستان بلوشي مطرز",price:95.00,img:"https://i.imgur.com/Yx8FqPz.jpg",category:"blushi"},
+  {name:"جلابية بلوشي",price:78.00,img:"https://i.imgur.com/7pG9x0k.jpg",category:"blushi"},
+  {name:"قطعة بلوشية",price:40.00,img:"https://i.imgur.com/1bX5QH6.jpg",category:"pieces"},
+  {name:"قطع بلوشي مطرزة",price:50.00,img:"https://i.imgur.com/2ZqE3pT.jpg",category:"pieces"}
 ];
 
 let cart=[];
-let currentCategory="premium";
+let currentCategory="omani";
 
 const productsDiv=document.getElementById("products");
 const cartPopup=document.getElementById("cartPopup");
@@ -257,6 +263,7 @@ function renderProducts(list){
   });
 }
 
+// وظائف السلة
 function addToCart(name,price){
   const existing=cart.find(i=>i.name===name);
   if(existing){
@@ -314,14 +321,14 @@ function showToast(msg){
   setTimeout(()=>t.style.display="none",2000);
 }
 
-// البحث الحي مع الفئة الحالية
+// البحث حسب الفئة
 searchInput.addEventListener("input",()=>{
   const query=searchInput.value.toLowerCase();
   const filtered=productsData.filter(p=>p.category===currentCategory && p.name.toLowerCase().includes(query));
   renderProducts(filtered);
 });
 
-// التبويبات
+// التبويبات للفئات
 tabButtons.forEach(btn=>{
   btn.addEventListener("click",()=>{
     tabButtons.forEach(b=>b.classList.remove("active"));
@@ -332,6 +339,7 @@ tabButtons.forEach(btn=>{
   });
 });
 
+// عرض المنتجات عند التحميل
 renderProducts(productsData.filter(p=>p.category===currentCategory));
 </script>
 
