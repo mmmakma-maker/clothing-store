@@ -99,7 +99,7 @@ body{
   border-radius:20px;
   cursor:pointer;
 }
-.cart-popup{
+.cart-popup, #authPopup{
   position:fixed;
   top:80px;
   left:50%;
@@ -112,7 +112,7 @@ body{
   display:none;
   z-index:2000;
 }
-.cart-popup ul{
+.cart-popup ul, #authPopup ul{
   list-style:none;
   padding:0;
 }
@@ -170,6 +170,28 @@ body{
   border-radius:20px;
   display:none;
 }
+#authPopup input{
+  width:100%;
+  padding:8px;
+  margin-bottom:8px;
+  border-radius:5px;
+  border:1px solid #ccc;
+}
+#authPopup button{
+  width:100%;
+  padding:8px;
+  background:#ff5722;
+  color:white;
+  border:none;
+  border-radius:5px;
+  cursor:pointer;
+}
+#authPopup p{
+  text-align:center;
+  margin-top:8px;
+  cursor:pointer;
+  color:#007bff;
+}
 </style>
 </head>
 
@@ -177,30 +199,25 @@ body{
 
 <div class="container">
 
-  <!-- تبويبات الفئات -->
   <div class="top-tabs">
     <button class="active" data-category="omani">عمانية</button>
     <button data-category="blushi">بلوشي</button>
     <button data-category="pieces">قطع بلوشي</button>
   </div>
 
-  <!-- البحث -->
   <div class="search-bar">
     <input type="text" id="search" placeholder="ابحث">
   </div>
 
-  <!-- تصنيف / تصفية -->
   <div class="sort-filter-bar">
     <button onclick="showToast('التصنيف قريباً')">⇅ تصنيف</button>
     <button onclick="showToast('التصفية قريباً')">☰ تصفية</button>
   </div>
 
-  <!-- المنتجات -->
   <div class="products" id="products"></div>
 
 </div>
 
-<!-- السلة -->
 <div class="cart-popup" id="cartPopup">
   <h3>سلة التسوق</h3>
   <ul id="cartList"></ul>
@@ -208,7 +225,15 @@ body{
   <button onclick="cartPopup.style.display='none'">إغلاق</button>
 </div>
 
-<!-- الشريط السفلي -->
+<div id="authPopup">
+  <h3 id="authTitle">تسجيل الدخول</h3>
+  <input type="text" id="authName" placeholder="الاسم" style="display:none;">
+  <input type="email" id="authEmail" placeholder="البريد الإلكتروني">
+  <input type="password" id="authPassword" placeholder="كلمة المرور">
+  <button id="authBtn">دخول</button>
+  <p id="toggleAuth">ليس لديك حساب؟ سجل الآن</p>
+</div>
+
 <div class="bottom-nav">
   <button>🏠<span>الرئيسية</span></button>
   <button>📂<span>الفئات</span></button>
@@ -220,7 +245,7 @@ body{
 <div id="toast"></div>
 
 <script>
-// المنتجات حسب الفئة
+// المنتجات
 const productsData=[
   {name:"عباية عمانية سوداء",price:80.00,img:"https://i.imgur.com/0y8Ftya.jpg",category:"omani"},
   {name:"عباية عمانية بيضاء",price:85.50,img:"https://i.imgur.com/mP7a7bU.jpg",category:"omani"},
@@ -233,13 +258,29 @@ const productsData=[
 let cart=[];
 let currentCategory="omani";
 
+// عناصر الصفحة
 const productsDiv=document.getElementById("products");
 const cartPopup=document.getElementById("cartPopup");
 const cartList=document.getElementById("cartList");
 const cartTotal=document.getElementById("cartTotal");
 const searchInput=document.getElementById("search");
 const tabButtons=document.querySelectorAll(".top-tabs button");
+const authPopup=document.getElementById("authPopup");
+const authTitle=document.getElementById("authTitle");
+const authName=document.getElementById("authName");
+const authEmail=document.getElementById("authEmail");
+const authPassword=document.getElementById("authPassword");
+const authBtn=document.getElementById("authBtn");
+const toggleAuth=document.getElementById("toggleAuth");
+const accountBtn=document.querySelector(".bottom-nav button:last-child span");
 
+// التحقق من تسجيل دخول سابق
+let currentUser=JSON.parse(localStorage.getItem("currentUser")) || null;
+if(currentUser){
+  accountBtn.innerText=currentUser.name;
+}
+
+// عرض المنتجات
 function renderProducts(list){
   productsDiv.innerHTML="";
   list.forEach(p=>{
@@ -266,11 +307,7 @@ function renderProducts(list){
 // وظائف السلة
 function addToCart(name,price){
   const existing=cart.find(i=>i.name===name);
-  if(existing){
-    existing.qty+=1;
-  }else{
-    cart.push({name,price,qty:1});
-  }
+  if(existing){ existing.qty+=1; }else{ cart.push({name,price,qty:1}); }
   updateCart();
   showToast("تمت الإضافة للسلة");
 }
@@ -314,21 +351,7 @@ function openCart(){
   cartPopup.style.display="block";
 }
 
-function showToast(msg){
-  const t=document.getElementById("toast");
-  t.innerText=msg;
-  t.style.display="block";
-  setTimeout(()=>t.style.display="none",2000);
-}
-
-// البحث حسب الفئة
-searchInput.addEventListener("input",()=>{
-  const query=searchInput.value.toLowerCase();
-  const filtered=productsData.filter(p=>p.category===currentCategory && p.name.toLowerCase().includes(query));
-  renderProducts(filtered);
-});
-
-// التبويبات للفئات
+// التبويبات
 tabButtons.forEach(btn=>{
   btn.addEventListener("click",()=>{
     tabButtons.forEach(b=>b.classList.remove("active"));
@@ -339,7 +362,75 @@ tabButtons.forEach(btn=>{
   });
 });
 
-// عرض المنتجات عند التحميل
+// البحث
+searchInput.addEventListener("input",()=>{
+  const query=searchInput.value.toLowerCase();
+  renderProducts(productsData.filter(p=>p.category===currentCategory && p.name.toLowerCase().includes(query)));
+});
+
+// تنبيهات
+function showToast(msg){
+  const t=document.getElementById("toast");
+  t.innerText=msg;
+  t.style.display="block";
+  setTimeout(()=>t.style.display="none",2000);
+}
+
+// تسجيل ودخول
+let isRegister=false;
+
+function openAuth(register=false){
+  isRegister=register;
+  authPopup.style.display="block";
+  authName.style.display=register?"block":"none";
+  authTitle.innerText=register?"تسجيل حساب":"تسجيل الدخول";
+  authBtn.innerText=register?"سجل الآن":"دخول";
+  toggleAuth.innerText=register?"لديك حساب؟ سجل الدخول":"ليس لديك حساب؟ سجل الآن";
+}
+
+toggleAuth.addEventListener("click",()=>openAuth(!isRegister));
+
+authBtn.addEventListener("click",()=>{
+  const email=authEmail.value.trim();
+  const password=authPassword.value.trim();
+  const name=authName.value.trim();
+  if(isRegister){
+    if(!name || !email || !password){ showToast("املأ جميع الحقول"); return; }
+    let users=JSON.parse(localStorage.getItem("users") || "[]");
+    if(users.find(u=>u.email===email)){ showToast("البريد مستخدم مسبقاً"); return; }
+    users.push({name,email,password});
+    localStorage.setItem("users",JSON.stringify(users));
+    currentUser={name,email};
+    localStorage.setItem("currentUser",JSON.stringify(currentUser));
+    accountBtn.innerText=name;
+    showToast("تم التسجيل بنجاح");
+    authPopup.style.display="none";
+  }else{
+    let users=JSON.parse(localStorage.getItem("users") || "[]");
+    const user=users.find(u=>u.email===email && u.password===password);
+    if(user){
+      currentUser={name:user.name,email:user.email};
+      localStorage.setItem("currentUser",JSON.stringify(currentUser));
+      accountBtn.innerText=user.name;
+      showToast("تم تسجيل الدخول");
+      authPopup.style.display="none";
+    }else showToast("البريد أو كلمة المرور خاطئة");
+  }
+});
+
+// زر الحساب
+document.querySelector(".bottom-nav button:last-child").addEventListener("click",()=>{
+  if(currentUser){
+    if(confirm("تسجيل الخروج؟")){
+      localStorage.removeItem("currentUser");
+      currentUser=null;
+      accountBtn.innerText="حسابي";
+      showToast("تم تسجيل الخروج");
+    }
+  }else openAuth(false);
+});
+
+// عرض المنتجات الأولية
 renderProducts(productsData.filter(p=>p.category===currentCategory));
 </script>
 
