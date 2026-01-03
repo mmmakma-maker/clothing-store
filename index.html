@@ -5,15 +5,25 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>المتجر</title>
 <style>
-/* ===== أسلوب الجسم ===== */
-body { margin:0; font-family: 'Segoe UI', Tahoma; background:#f5f5f5; }
+/* ===== الأساس ===== */
+body{ margin:0; font-family: 'Segoe UI', Tahoma; background:#f5f5f5; }
+
+/* ===== الحاوية ===== */
 .container{ padding:15px; padding-bottom:90px; }
+
+/* ===== التبويبات العلوية ===== */
 .top-tabs{ display:flex; gap:10px; overflow-x:auto; margin-bottom:10px; }
 .top-tabs button{ border:none; padding:8px 16px; border-radius:20px; background:#eee; font-size:14px; }
 .top-tabs .active{ background:#000; color:#fff; }
+
+/* ===== البحث ===== */
 .search-bar input{ width:100%; padding:12px; border-radius:10px; border:1px solid #ccc; margin-bottom:10px; }
+
+/* ===== تصنيف / تصفية ===== */
 .sort-filter-bar{ display:flex; justify-content:space-around; background:#222; color:white; padding:10px; border-radius:10px; margin-bottom:15px; }
 .sort-filter-bar button{ background:none; border:none; color:white; font-size:14px; cursor:pointer; }
+
+/* ===== المنتجات ===== */
 .products{ display:flex; flex-wrap:wrap; gap:10px; }
 .product{ width:48%; background:white; border-radius:15px; padding:10px; position:relative; }
 .product img{ width:100%; height:220px; object-fit:cover; border-radius:10px; }
@@ -21,14 +31,18 @@ body { margin:0; font-family: 'Segoe UI', Tahoma; background:#f5f5f5; }
 .product h4{ margin:8px 0 5px; font-size:14px; }
 .price{ font-weight:bold; }
 .add-btn{ width:100%; margin-top:5px; border:none; padding:8px; background:#ff5722; color:white; border-radius:20px; cursor:pointer; }
+
+/* ===== السلة ===== */
 .cart-popup{ position:fixed; top:80px; left:50%; transform:translateX(-50%); background:white; width:90%; max-width:350px; border-radius:15px; padding:15px; display:none; z-index:2000; }
-.cart-popup ul{ list-style:none; padding:0; max-height:250px; overflow-y:auto; }
+.cart-popup ul{ list-style:none; padding:0; }
 .cart-popup li{ display:flex; justify-content:space-between; margin-bottom:8px; }
+
+/* ===== شريط سفلي ===== */
 .bottom-nav{ position:fixed; bottom:0; width:100%; height:65px; background:white; display:flex; justify-content:space-around; align-items:center; border-top:1px solid #ddd; }
 .bottom-nav button{ background:none; border:none; display:flex; flex-direction:column; align-items:center; font-size:14px; cursor:pointer; }
-#toast{ position:fixed; bottom:80px; left:50%; transform:translateX(-50%); background:#333; color:white; padding:10px 20px; border-radius:20px; display:none; z-index:2000; }
-#accountPopup{ display:none; position:fixed; top:80px; left:50%; transform:translateX(-50%); background:white; padding:20px; border-radius:15px; box-shadow:0 8px 20px rgba(0,0,0,0.2); z-index:2000; width:300px; text-align:center; }
-#accountPopup input{ width:90%; padding:8px; margin-bottom:10px; }
+
+/* ===== تنبيه ===== */
+#toast{ position:fixed; bottom:80px; left:50%; transform:translateX(-50%); background:#333; color:white; padding:10px 20px; border-radius:20px; display:none; }
 </style>
 </head>
 <body>
@@ -39,15 +53,18 @@ body { margin:0; font-family: 'Segoe UI', Tahoma; background:#f5f5f5; }
     <button>المنزل وأكثر</button>
     <button>الأطفال</button>
   </div>
+
   <!-- البحث -->
   <div class="search-bar">
     <input type="text" id="search" placeholder="ابحث">
   </div>
+
   <!-- تصنيف / تصفية -->
   <div class="sort-filter-bar">
     <button onclick="showToast('التصنيف قريباً')">⇅ تصنيف</button>
     <button onclick="showToast('التصفية قريباً')">☰ تصفية</button>
   </div>
+
   <!-- المنتجات -->
   <div class="products" id="products"></div>
 </div>
@@ -57,32 +74,15 @@ body { margin:0; font-family: 'Segoe UI', Tahoma; background:#f5f5f5; }
   <h3>سلة التسوق</h3>
   <ul id="cartList"></ul>
   <button onclick="cartPopup.style.display='none'">إغلاق</button>
-  <button onclick="payNow()">الدفع</button>
-</div>
-
-<!-- نافذة الحساب -->
-<div id="accountPopup">
-  <div id="loginForm">
-    <h3>تسجيل الدخول</h3>
-    <input type="text" id="userEmail" placeholder="البريد الإلكتروني"><br>
-    <input type="password" id="userPassword" placeholder="كلمة المرور"><br>
-    <button onclick="loginUser()">تسجيل الدخول</button>
-    <p id="userMsg" style="color:red;"></p>
-  </div>
-  <div id="welcomeUser" style="display:none;">
-    <h3>مرحبًا <span id="usernameDisplay"></span>!</h3>
-    <button onclick="logoutUser()">تسجيل الخروج</button>
-  </div>
-  <button onclick="closeAccount()">إغلاق</button>
 </div>
 
 <!-- الشريط السفلي -->
 <div class="bottom-nav">
   <button>🏠<span>الرئيسية</span></button>
-  <button onclick="showToast('الفئات قريباً')">📂<span>الفئات</span></button>
-  <button onclick="showToast('تخفيضات قريباً')">🔥<span>تخفيضات</span></button>
+  <button>📂<span>الفئات</span></button>
+  <button>🔥<span>تخفيضات</span></button>
   <button onclick="openCart()">🛒<span>السلة</span></button>
-  <button onclick="openAccount()">👤<span>حسابي</span></button>
+  <button>👤<span>حسابي</span></button>
 </div>
 
 <div id="toast"></div>
@@ -96,8 +96,6 @@ const productsData=[
   {name:"فستان مطرز",price:92.00,img:"https://i.imgur.com/7pG9x0k.jpg"}
 ];
 let cart=[];
-let users = JSON.parse(localStorage.getItem("users")) || [];
-let currentUser = JSON.parse(localStorage.getItem("currentUser")) || null;
 
 // ===== عرض المنتجات =====
 const productsDiv=document.getElementById("products");
@@ -129,46 +127,6 @@ function renderCart(){
   cart.forEach(i=>{
     cartList.innerHTML+=`<li>${i.name}<span>${i.price} ر.ع</span></li>`;
   });
-}
-function payNow(){
-  if(cart.length===0){ showToast("السلة فارغة!"); return; }
-  if(!currentUser){ showToast("سجل دخولك أولاً"); return; }
-  showToast("تمت عملية الدفع بنجاح!");
-  cart=[]; renderCart(); cartPopup.style.display='none';
-}
-
-// ===== الحساب =====
-const accountPopup = document.getElementById("accountPopup");
-function openAccount(){
-  accountPopup.style.display="block";
-  if(currentUser){
-    document.getElementById("loginForm").style.display = "none";
-    document.getElementById("welcomeUser").style.display = "block";
-    document.getElementById("usernameDisplay").textContent = currentUser.username;
-  } else {
-    document.getElementById("loginForm").style.display = "block";
-    document.getElementById("welcomeUser").style.display = "none";
-  }
-}
-function closeAccount(){ accountPopup.style.display="none"; }
-function loginUser(){
-  const email=document.getElementById("userEmail").value.trim();
-  const password=document.getElementById("userPassword").value.trim();
-  const msg=document.getElementById("userMsg");
-  let user = users.find(u=>u.email===email && u.password===password);
-  if(!user){ msg.textContent="بيانات الدخول غير صحيحة"; return; }
-  currentUser=user;
-  localStorage.setItem("currentUser",JSON.stringify(currentUser));
-  document.getElementById("loginForm").style.display="none";
-  document.getElementById("welcomeUser").style.display="block";
-  document.getElementById("usernameDisplay").textContent=currentUser.username;
-  msg.textContent="";
-}
-function logoutUser(){
-  currentUser=null;
-  localStorage.removeItem("currentUser");
-  document.getElementById("loginForm").style.display="block";
-  document.getElementById("welcomeUser").style.display="none";
 }
 
 // ===== إشعارات =====
