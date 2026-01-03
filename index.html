@@ -35,7 +35,6 @@ body{
 }
 #offerBar{
   display:flex;
-  justify-content:flex-start;
   align-items:center;
   gap:10px;
   padding:10px;
@@ -44,14 +43,20 @@ body{
   font-weight:bold;
   border-radius:5px;
   margin-bottom:10px;
+}
+#offerBar #offerContent{
+  display:flex;
+  align-items:center;
   overflow:hidden;
+  flex:1;
 }
 #offerBar img{
   height:50px;
   border-radius:5px;
+  margin-right:10px;
 }
 #offerBar span{
-  flex:1;
+  white-space:nowrap;
 }
 #offerBar button{
   border:none;
@@ -232,10 +237,12 @@ body{
     <button data-category="pieces">قطع بلوشي</button>
   </div>
 
-  <!-- شريط العروض -->
+  <!-- شريط العروض مع الانزلاق -->
   <div id="offerBar">
-    <img id="offerImg" src="" alt="عرض">
-    <span id="offerText">عرض اليوم</span>
+    <div id="offerContent">
+      <img id="offerImg" src="" alt="عرض">
+      <span id="offerText"></span>
+    </div>
     <button onclick="document.getElementById('offerBar').style.display='none'">❌</button>
   </div>
 
@@ -279,7 +286,7 @@ body{
 <div id="toast"></div>
 
 <script>
-// المنتجات
+// البيانات
 const productsData=[
   {name:"عباية عمانية سوداء",price:80.00,img:"https://i.imgur.com/0y8Ftya.jpg",category:"omani"},
   {name:"عباية عمانية بيضاء",price:85.50,img:"https://i.imgur.com/mP7a7bU.jpg",category:"omani"},
@@ -288,6 +295,12 @@ const productsData=[
   {name:"قطعة بلوشية",price:40.00,img:"https://i.imgur.com/1bX5QH6.jpg",category:"pieces"},
   {name:"قطع بلوشي مطرزة",price:50.00,img:"https://i.imgur.com/2ZqE3pT.jpg",category:"pieces"}
 ];
+
+const categoryOffers={
+  omani: {text:"عرض اليوم: خصم 10% على جميع العباءات العمانية!", img:"https://i.imgur.com/0y8Ftya.jpg"},
+  blushi: {text:"عرض اليوم: فستان بلوشي مطرز بسعر خاص!", img:"https://i.imgur.com/Yx8FqPz.jpg"},
+  pieces: {text:"عرض اليوم: قطعة بلوشية إضافية عند شراء أي منتج!", img:"https://i.imgur.com/1bX5QH6.jpg"}
+};
 
 let cart=[];
 let currentCategory="omani";
@@ -310,19 +323,7 @@ const accountBtn=document.querySelector(".bottom-nav button:last-child span");
 const offerBar=document.getElementById("offerBar");
 const offerText=document.getElementById("offerText");
 const offerImg=document.getElementById("offerImg");
-
-// عروض حسب الفئة مع صورة
-const categoryOffers={
-  omani: {text:"عرض اليوم: خصم 10% على جميع العباءات العمانية!", img:"https://i.imgur.com/0y8Ftya.jpg"},
-  blushi: {text:"عرض اليوم: فستان بلوشي مطرز بسعر خاص!", img:"https://i.imgur.com/Yx8FqPz.jpg"},
-  pieces: {text:"عرض اليوم: قطعة بلوشية إضافية عند شراء أي منتج!", img:"https://i.imgur.com/1bX5QH6.jpg"}
-};
-
-// التحقق من تسجيل دخول سابق
-let currentUser=JSON.parse(localStorage.getItem("currentUser")) || null;
-if(currentUser){
-  accountBtn.innerText=currentUser.name;
-}
+const offerContent=document.getElementById("offerContent");
 
 // عرض المنتجات
 function renderProducts(list){
@@ -413,12 +414,33 @@ searchInput.addEventListener("input",()=>{
   renderProducts(productsData.filter(p=>p.category===currentCategory && p.name.toLowerCase().includes(query)));
 });
 
-// تنبيهات
+// التنبيهات
 function showToast(msg){
   const t=document.getElementById("toast");
   t.innerText=msg;
   t.style.display="block";
   setTimeout(()=>t.style.display="none",2000);
+}
+
+// شريط العرض مع الانزلاق
+let scrollPos=0;
+let requestId=null;
+
+function startOfferScroll(){
+  const scrollWidth=offerContent.scrollWidth - offerContent.clientWidth;
+  if(scrollWidth>0){
+    cancelAnimationFrame(requestId);
+    function step(){
+      scrollPos+=0.5;
+      if(scrollPos>scrollWidth) scrollPos=0;
+      offerContent.scrollLeft=scrollPos;
+      requestId=requestAnimationFrame(step);
+    }
+    step();
+  } else {
+    offerContent.scrollLeft=0;
+    cancelAnimationFrame(requestId);
+  }
 }
 
 // تحديث عرض الفئة
@@ -428,15 +450,18 @@ function updateOffer(){
     offerText.innerText=offer.text;
     offerImg.src=offer.img;
     offerBar.style.display="flex";
+    scrollPos=0;
+    setTimeout(startOfferScroll,100);
   }else{
     offerText.innerText="عرض اليوم متاح!";
     offerImg.src="";
+    offerContent.scrollLeft=0;
+    cancelAnimationFrame(requestId);
   }
 }
 
-// تسجيل ودخول
+// تسجيل ودخول المستخدم
 let isRegister=false;
-
 function openAuth(register=false){
   isRegister=register;
   authPopup.style.display="block";
@@ -445,7 +470,6 @@ function openAuth(register=false){
   authBtn.innerText=register?"سجل الآن":"دخول";
   toggleAuth.innerText=register?"لديك حساب؟ سجل الدخول":"ليس لديك حساب؟ سجل الآن";
 }
-
 toggleAuth.addEventListener("click",()=>openAuth(!isRegister));
 
 authBtn.addEventListener("click",()=>{
@@ -453,8 +477,8 @@ authBtn.addEventListener("click",()=>{
   const password=authPassword.value.trim();
   const name=authName.value.trim();
   if(isRegister){
-    if(!name || !email || !password){ showToast("املأ جميع الحقول"); return; }
-    let users=JSON.parse(localStorage.getItem("users") || "[]");
+    if(!name||!email||!password){ showToast("املأ جميع الحقول"); return; }
+    let users=JSON.parse(localStorage.getItem("users")||"[]");
     if(users.find(u=>u.email===email)){ showToast("البريد مستخدم مسبقاً"); return; }
     users.push({name,email,password});
     localStorage.setItem("users",JSON.stringify(users));
@@ -463,8 +487,8 @@ authBtn.addEventListener("click",()=>{
     accountBtn.innerText=name;
     showToast("تم التسجيل بنجاح");
     authPopup.style.display="none";
-  }else{
-    let users=JSON.parse(localStorage.getItem("users") || "[]");
+  } else {
+    let users=JSON.parse(localStorage.getItem("users")||"[]");
     const user=users.find(u=>u.email===email && u.password===password);
     if(user){
       currentUser={name:user.name,email:user.email};
@@ -472,7 +496,7 @@ authBtn.addEventListener("click",()=>{
       accountBtn.innerText=user.name;
       showToast("تم تسجيل الدخول");
       authPopup.style.display="none";
-    }else showToast("البريد أو كلمة المرور خاطئة");
+    } else showToast("البريد أو كلمة المرور خاطئة");
   }
 });
 
@@ -487,6 +511,10 @@ document.querySelector(".bottom-nav button:last-child").addEventListener("click"
     }
   }else openAuth(false);
 });
+
+// التحقق من تسجيل دخول سابق
+let currentUser=JSON.parse(localStorage.getItem("currentUser")) || null;
+if(currentUser) accountBtn.innerText=currentUser.name;
 
 // عرض المنتجات الأولية
 renderProducts(productsData.filter(p=>p.category===currentCategory));
