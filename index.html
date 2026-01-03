@@ -6,20 +6,15 @@
 <title>المتجر</title>
 
 <style>
-/* ===== الأساس ===== */
 body{
   margin:0;
   font-family: 'Segoe UI', Tahoma;
   background:#f5f5f5;
 }
-
-/* ===== الحاوية ===== */
 .container{
   padding:15px;
   padding-bottom:90px;
 }
-
-/* ===== التبويبات العلوية ===== */
 .top-tabs{
   display:flex;
   gap:10px;
@@ -37,8 +32,6 @@ body{
   background:#000;
   color:#fff;
 }
-
-/* ===== البحث ===== */
 .search-bar input{
   width:100%;
   padding:12px;
@@ -46,8 +39,6 @@ body{
   border:1px solid #ccc;
   margin-bottom:10px;
 }
-
-/* ===== تصنيف / تصفية ===== */
 .sort-filter-bar{
   display:flex;
   justify-content:space-around;
@@ -63,8 +54,6 @@ body{
   color:white;
   font-size:14px;
 }
-
-/* ===== المنتجات ===== */
 .products{
   display:flex;
   flex-wrap:wrap;
@@ -90,6 +79,7 @@ body{
   background:white;
   border-radius:50%;
   padding:6px;
+  cursor:pointer;
 }
 .product h4{
   margin:8px 0 5px;
@@ -106,9 +96,8 @@ body{
   background:#ff5722;
   color:white;
   border-radius:20px;
+  cursor:pointer;
 }
-
-/* ===== السلة ===== */
 .cart-popup{
   position:fixed;
   top:80px;
@@ -131,8 +120,11 @@ body{
   justify-content:space-between;
   margin-bottom:8px;
 }
-
-/* ===== شريط سفلي ===== */
+.cart-total{
+  font-weight:bold;
+  margin-top:10px;
+  text-align:right;
+}
 .bottom-nav{
   position:fixed;
   bottom:0;
@@ -152,8 +144,6 @@ body{
   align-items:center;
   font-size:14px;
 }
-
-/* ===== تنبيه ===== */
 #toast{
   position:fixed;
   bottom:80px;
@@ -172,37 +162,32 @@ body{
 
 <div class="container">
 
-  <!-- التبويبات -->
   <div class="top-tabs">
     <button class="active">بريميوم</button>
     <button>المنزل وأكثر</button>
     <button>الأطفال</button>
   </div>
 
-  <!-- البحث -->
   <div class="search-bar">
     <input type="text" id="search" placeholder="ابحث">
   </div>
 
-  <!-- تصنيف / تصفية -->
   <div class="sort-filter-bar">
     <button onclick="showToast('التصنيف قريباً')">⇅ تصنيف</button>
     <button onclick="showToast('التصفية قريباً')">☰ تصفية</button>
   </div>
 
-  <!-- المنتجات -->
   <div class="products" id="products"></div>
 
 </div>
 
-<!-- السلة -->
 <div class="cart-popup" id="cartPopup">
   <h3>سلة التسوق</h3>
   <ul id="cartList"></ul>
+  <div class="cart-total" id="cartTotal">الإجمالي: 0 ر.ع</div>
   <button onclick="cartPopup.style.display='none'">إغلاق</button>
 </div>
 
-<!-- الشريط السفلي -->
 <div class="bottom-nav">
   <button>🏠<span>الرئيسية</span></button>
   <button>📂<span>الفئات</span></button>
@@ -217,8 +202,7 @@ body{
 const productsData=[
  {name:"فستان سهرة",price:81.93,img:"https://i.imgur.com/0y8Ftya.jpg"},
  {name:"فستان أسود",price:60.79,img:"https://i.imgur.com/mP7a7bU.jpg"},
- {name:"فستان وردي",price:74.50,img:"https://i.imgur.com/Yx8FqPz.jpg"},
- {name:"فستان مطرز",price:92.00,img:"https://i.imgur.com/7pG9x0k.jpg"}
+ {name:"فستان وردي",price:74.50,img:"https://i.imgur.com/Yx8FqPz.jpg"}
 ];
 
 let cart=[];
@@ -226,45 +210,83 @@ let cart=[];
 const productsDiv=document.getElementById("products");
 const cartPopup=document.getElementById("cartPopup");
 const cartList=document.getElementById("cartList");
+const cartTotal=document.getElementById("cartTotal");
+const searchInput=document.getElementById("search");
 
 function renderProducts(list){
- productsDiv.innerHTML="";
- list.forEach(p=>{
-  productsDiv.innerHTML+=`
-   <div class="product">
-    <div class="heart">♡</div>
-    <img src="${p.img}">
-    <h4>${p.name}</h4>
-    <div class="price">${p.price} ر.ع</div>
-    <button class="add-btn" onclick='addToCart("${p.name}",${p.price})'>أضف للسلة</button>
-   </div>
-  `;
- });
+  productsDiv.innerHTML="";
+  list.forEach(p=>{
+    const productDiv=document.createElement("div");
+    productDiv.className="product";
+    productDiv.innerHTML=`
+      <div class="heart">♡</div>
+      <img src="${p.img}">
+      <h4>${p.name}</h4>
+      <div class="price">${p.price} ر.ع</div>
+      <button class="add-btn">أضف للسلة</button>
+    `;
+    // إضافة الحدث للزر ♡
+    const heart=productDiv.querySelector(".heart");
+    heart.addEventListener("click",()=>{
+      if(heart.innerText==="♡"){
+        heart.innerText="❤️";
+        showToast("تمت الإضافة للمفضلة");
+      }else{
+        heart.innerText="♡";
+      }
+    });
+    // إضافة الحدث لزر السلة
+    const addBtn=productDiv.querySelector(".add-btn");
+    addBtn.addEventListener("click",()=>{
+      addToCart(p.name,p.price);
+    });
+    productsDiv.appendChild(productDiv);
+  });
 }
 
 function addToCart(name,price){
- cart.push({name,price});
- showToast("تمت الإضافة للسلة");
+  // إذا المنتج موجود مسبقاً زد الكمية
+  const existing=cart.find(i=>i.name===name);
+  if(existing){
+    existing.qty+=1;
+  }else{
+    cart.push({name,price,qty:1});
+  }
+  updateCart();
+  showToast("تمت الإضافة للسلة");
+}
+
+function updateCart(){
+  cartList.innerHTML="";
+  let total=0;
+  cart.forEach(i=>{
+    total+=i.price*i.qty;
+    cartList.innerHTML+=`<li>${i.name} × ${i.qty} <span>${(i.price*i.qty).toFixed(2)} ر.ع</span></li>`;
+  });
+  cartTotal.innerText="الإجمالي: "+total.toFixed(2)+" ر.ع";
 }
 
 function openCart(){
- cartList.innerHTML="";
- cart.forEach(i=>{
-  cartList.innerHTML+=`<li>${i.name}<span>${i.price}</span></li>`;
- });
- cartPopup.style.display="block";
+  updateCart();
+  cartPopup.style.display="block";
 }
 
 function showToast(msg){
- const t=document.getElementById("toast");
- t.innerText=msg;
- t.style.display="block";
- setTimeout(()=>t.style.display="none",2000);
+  const t=document.getElementById("toast");
+  t.innerText=msg;
+  t.style.display="block";
+  setTimeout(()=>t.style.display="none",2000);
 }
+
+// البحث الحي
+searchInput.addEventListener("input",()=>{
+  const query=searchInput.value.toLowerCase();
+  const filtered=productsData.filter(p=>p.name.toLowerCase().includes(query));
+  renderProducts(filtered);
+});
 
 renderProducts(productsData);
 </script>
 
 </body>
 </html>
-
