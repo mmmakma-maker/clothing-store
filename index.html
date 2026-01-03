@@ -33,6 +33,33 @@ body{
   background:#000;
   color:#fff;
 }
+#offerBar{
+  display:flex;
+  justify-content:flex-start;
+  align-items:center;
+  gap:10px;
+  padding:10px;
+  background:#ffcc00;
+  color:#000;
+  font-weight:bold;
+  border-radius:5px;
+  margin-bottom:10px;
+  overflow:hidden;
+}
+#offerBar img{
+  height:50px;
+  border-radius:5px;
+}
+#offerBar span{
+  flex:1;
+}
+#offerBar button{
+  border:none;
+  background:none;
+  font-weight:bold;
+  cursor:pointer;
+  font-size:18px;
+}
 .search-bar input{
   width:100%;
   padding:12px;
@@ -205,6 +232,13 @@ body{
     <button data-category="pieces">قطع بلوشي</button>
   </div>
 
+  <!-- شريط العروض -->
+  <div id="offerBar">
+    <img id="offerImg" src="" alt="عرض">
+    <span id="offerText">عرض اليوم</span>
+    <button onclick="document.getElementById('offerBar').style.display='none'">❌</button>
+  </div>
+
   <div class="search-bar">
     <input type="text" id="search" placeholder="ابحث">
   </div>
@@ -258,7 +292,6 @@ const productsData=[
 let cart=[];
 let currentCategory="omani";
 
-// عناصر الصفحة
 const productsDiv=document.getElementById("products");
 const cartPopup=document.getElementById("cartPopup");
 const cartList=document.getElementById("cartList");
@@ -273,6 +306,17 @@ const authPassword=document.getElementById("authPassword");
 const authBtn=document.getElementById("authBtn");
 const toggleAuth=document.getElementById("toggleAuth");
 const accountBtn=document.querySelector(".bottom-nav button:last-child span");
+
+const offerBar=document.getElementById("offerBar");
+const offerText=document.getElementById("offerText");
+const offerImg=document.getElementById("offerImg");
+
+// عروض حسب الفئة مع صورة
+const categoryOffers={
+  omani: {text:"عرض اليوم: خصم 10% على جميع العباءات العمانية!", img:"https://i.imgur.com/0y8Ftya.jpg"},
+  blushi: {text:"عرض اليوم: فستان بلوشي مطرز بسعر خاص!", img:"https://i.imgur.com/Yx8FqPz.jpg"},
+  pieces: {text:"عرض اليوم: قطعة بلوشية إضافية عند شراء أي منتج!", img:"https://i.imgur.com/1bX5QH6.jpg"}
+};
 
 // التحقق من تسجيل دخول سابق
 let currentUser=JSON.parse(localStorage.getItem("currentUser")) || null;
@@ -359,6 +403,7 @@ tabButtons.forEach(btn=>{
     currentCategory=btn.dataset.category;
     searchInput.value="";
     renderProducts(productsData.filter(p=>p.category===currentCategory));
+    updateOffer();
   });
 });
 
@@ -374,6 +419,19 @@ function showToast(msg){
   t.innerText=msg;
   t.style.display="block";
   setTimeout(()=>t.style.display="none",2000);
+}
+
+// تحديث عرض الفئة
+function updateOffer(){
+  const offer=categoryOffers[currentCategory];
+  if(offer){
+    offerText.innerText=offer.text;
+    offerImg.src=offer.img;
+    offerBar.style.display="flex";
+  }else{
+    offerText.innerText="عرض اليوم متاح!";
+    offerImg.src="";
+  }
 }
 
 // تسجيل ودخول
@@ -432,6 +490,7 @@ document.querySelector(".bottom-nav button:last-child").addEventListener("click"
 
 // عرض المنتجات الأولية
 renderProducts(productsData.filter(p=>p.category===currentCategory));
+updateOffer();
 </script>
 
 </body>
