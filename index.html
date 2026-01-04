@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>متجري للملابس النسائية</title>
-
 <style>
 body{
   margin:0;
@@ -244,8 +243,6 @@ body{
   border-radius:5px;
   border:1px solid #ccc;
 }
-
-/* خصائص الدفع */
 #paymentPopup input{
   width:100%;
   padding:8px;
@@ -263,9 +260,20 @@ body{
   margin-bottom:5px;
   cursor:pointer;
 }
+/* زر الإغلاق لكل popup */
+.popup-close{
+  position:absolute;
+  top:10px;
+  left:10px;
+  background:white;
+  border:none;
+  font-size:18px;
+  cursor:pointer;
+  border-radius:50%;
+  padding:4px 8px;
+}
 </style>
 </head>
-
 <body>
 
 <div class="container">
@@ -306,6 +314,7 @@ body{
 
 <!-- سلة التسوق -->
 <div class="cart-popup" id="cartPopup">
+  <button class="popup-close">❌</button>
   <h3>سلة التسوق</h3>
   <ul id="cartList"></ul>
   <div class="cart-total" id="cartTotal">الإجمالي: 0 ر.ع</div>
@@ -315,6 +324,7 @@ body{
 
 <!-- نافذة الدفع -->
 <div class="cart-popup" id="paymentPopup">
+  <button class="popup-close">❌</button>
   <h3>إتمام الدفع</h3>
 
   <label>
@@ -328,9 +338,9 @@ body{
   </label>
 
   <div id="cardBox" style="display:none;margin-top:10px;">
-    <input placeholder="رقم البطاقة" style="width:100%;margin-bottom:5px;">
-    <input placeholder="MM/YY" style="width:100%;margin-bottom:5px;">
-    <input placeholder="CVV" style="width:100%;">
+    <input placeholder="رقم البطاقة">
+    <input placeholder="MM/YY">
+    <input placeholder="CVV">
   </div>
 
   <button onclick="confirmPayment()">✅ تأكيد الطلب</button>
@@ -339,6 +349,7 @@ body{
 
 <!-- تسجيل / دخول المستخدم -->
 <div id="authPopup">
+  <button class="popup-close">❌</button>
   <h3 id="authTitle">تسجيل الدخول</h3>
   <input type="text" id="authName" placeholder="الاسم" style="display:none;">
   <input type="email" id="authEmail" placeholder="البريد الإلكتروني">
@@ -349,6 +360,7 @@ body{
 
 <!-- تسجيل التاجر -->
 <div id="adminLogin">
+  <button class="popup-close">❌</button>
   <h3>دخول التاجر</h3>
   <input type="password" id="adminPass" placeholder="الرقم السري">
   <button onclick="loginAdmin()">دخول</button>
@@ -356,6 +368,7 @@ body{
 
 <!-- لوحة تحكم التاجر -->
 <div id="adminPanel">
+  <button class="popup-close">❌</button>
   <h3>لوحة تحكم التاجر</h3>
   <input id="pName" placeholder="اسم المنتج">
   <input id="pPrice" type="number" placeholder="السعر">
@@ -377,7 +390,7 @@ body{
   <button>📂<span>الفئات</span></button>
   <button>🔥<span>تخفيضات</span></button>
   <button onclick="openCart()">🛒<span>السلة</span></button>
-  <button onclick="openAuth(false)"><span id="accountName">حسابي</span></button>
+  <button><span id="accountName">حسابي</span></button>
   <button onclick="openAdminLogin()">🛠️<span>تاجر</span></button>
 </div>
 
@@ -390,7 +403,6 @@ let productsData = JSON.parse(localStorage.getItem("products")) || [
   {name:"فستان بلوشي مطرز",price:95,img:"https://i.imgur.com/Yx8FqPz.jpg",category:"blushi"},
   {name:"قطعة بلوشية",price:40,img:"https://i.imgur.com/1bX5QH6.jpg",category:"pieces"}
 ];
-
 function saveProducts(){ localStorage.setItem("products", JSON.stringify(productsData)); }
 
 const categoryOffers={
@@ -433,6 +445,10 @@ const paymentPopup=document.getElementById("paymentPopup");
 
 const ADMIN_PASSWORD = "1234"; 
 let isAdmin = false;
+
+// ---------------- currentUser ----------------
+let currentUser = JSON.parse(localStorage.getItem("currentUser")) || null;
+if(currentUser) accountBtn.innerText=currentUser.name;
 
 // ---------------- عرض المنتجات ----------------
 function renderProducts(list){
@@ -630,9 +646,6 @@ document.querySelector(".bottom-nav button:nth-child(5)").addEventListener("clic
   } else openAuth(false);
 });
 
-let currentUser=JSON.parse(localStorage.getItem("currentUser"))||null;
-if(currentUser) accountBtn.innerText=currentUser.name;
-
 // ---------------- التاجر ----------------
 function openAdminLogin(){ adminLogin.style.display="block"; }
 function loginAdmin(){
@@ -712,6 +725,21 @@ function confirmPayment(){
   cartPopup.style.display="none";
   showToast("تم تنفيذ الطلب بنجاح ✅");
 }
+
+// ---------------- الإغلاق بالنقر خارج popup ----------------
+const allPopups=[authPopup,adminLogin,adminPanel,cartPopup,paymentPopup];
+allPopups.forEach(p=>{
+  const btn=p.querySelector(".popup-close");
+  if(btn) btn.addEventListener("click",()=>{ p.style.display="none"; });
+});
+
+document.addEventListener("click",(e)=>{
+  allPopups.forEach(p=>{
+    if(p.style.display==="block" && !p.contains(e.target) && !e.target.closest("button")){
+      p.style.display="none";
+    }
+  });
+});
 
 // ---------------- البداية ----------------
 renderProducts(productsData.filter(p=>p.category==="omani"));
