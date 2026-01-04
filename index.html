@@ -143,7 +143,7 @@ body{
   border-radius:20px;
   cursor:pointer;
 }
-.cart-popup, #authPopup, #adminLogin, #adminPanel, #myOrdersPopup{
+.cart-popup, #authPopup, #adminLogin, #adminPanel, #paymentPopup{
   position:fixed;
   top:80px;
   left:50%;
@@ -156,11 +156,11 @@ body{
   display:none;
   z-index:2000;
 }
-.cart-popup ul, #authPopup ul, #myOrdersPopup ul{
+.cart-popup ul, #authPopup ul{
   list-style:none;
   padding:0;
 }
-.cart-popup li, #myOrdersPopup li{
+.cart-popup li{
   display:flex;
   justify-content:space-between;
   align-items:center;
@@ -214,7 +214,7 @@ body{
   border-radius:20px;
   display:none;
 }
-#authPopup input, #adminPanel input, #adminPanel select{
+#authPopup input{
   width:100%;
   padding:8px;
   margin-bottom:8px;
@@ -236,6 +236,32 @@ body{
   margin-top:8px;
   cursor:pointer;
   color:#007bff;
+}
+#adminPanel input, #adminPanel select{
+  width:100%;
+  padding:5px;
+  margin-bottom:5px;
+  border-radius:5px;
+  border:1px solid #ccc;
+}
+
+/* خصائص الدفع */
+#paymentPopup input{
+  width:100%;
+  padding:8px;
+  margin-bottom:5px;
+  border-radius:5px;
+  border:1px solid #ccc;
+}
+#paymentPopup button{
+  width:100%;
+  padding:8px;
+  background:#ff5722;
+  color:white;
+  border:none;
+  border-radius:5px;
+  margin-bottom:5px;
+  cursor:pointer;
 }
 </style>
 </head>
@@ -260,7 +286,7 @@ body{
   </div>
 
   <!-- شريط إجمالي السلة -->
-  <div id="cartSummary" onclick="openCart()">
+  <div id="cartSummary">
     <span id="cartCount">0 عناصر</span>
     <span id="cartTotalSummary">0 ر.ع</span>
   </div>
@@ -283,15 +309,32 @@ body{
   <h3>سلة التسوق</h3>
   <ul id="cartList"></ul>
   <div class="cart-total" id="cartTotal">الإجمالي: 0 ر.ع</div>
-  <button onclick="payNow()">💳 دفع الآن</button>
+  <button onclick="openPayment()">💳 الدفع الآن</button>
   <button onclick="cartPopup.style.display='none'">إغلاق</button>
 </div>
 
-<!-- طلباتي -->
-<div class="cart-popup" id="myOrdersPopup">
-  <h3>طلباتي</h3>
-  <ul id="myOrdersList"></ul>
-  <button onclick="myOrdersPopup.style.display='none'">إغلاق</button>
+<!-- نافذة الدفع -->
+<div class="cart-popup" id="paymentPopup">
+  <h3>إتمام الدفع</h3>
+
+  <label>
+    <input type="radio" name="payMethod" value="cod" checked>
+    الدفع عند الاستلام
+  </label><br><br>
+
+  <label>
+    <input type="radio" name="payMethod" value="card">
+    بطاقة (تجريبي)
+  </label>
+
+  <div id="cardBox" style="display:none;margin-top:10px;">
+    <input placeholder="رقم البطاقة" style="width:100%;margin-bottom:5px;">
+    <input placeholder="MM/YY" style="width:100%;margin-bottom:5px;">
+    <input placeholder="CVV" style="width:100%;">
+  </div>
+
+  <button onclick="confirmPayment()">✅ تأكيد الطلب</button>
+  <button onclick="paymentPopup.style.display='none'">إلغاء</button>
 </div>
 
 <!-- تسجيل / دخول المستخدم -->
@@ -334,36 +377,37 @@ body{
   <button>📂<span>الفئات</span></button>
   <button>🔥<span>تخفيضات</span></button>
   <button onclick="openCart()">🛒<span>السلة</span></button>
-  <button onclick="openMyOrders()"><span id="accountName">حسابي</span></button>
+  <button onclick="openAuth(false)"><span id="accountName">حسابي</span></button>
   <button onclick="openAdminLogin()">🛠️<span>تاجر</span></button>
 </div>
 
 <div id="toast"></div>
 
 <script>
-// ===================== البيانات =====================
+// ---------------- البيانات ----------------
 let productsData = JSON.parse(localStorage.getItem("products")) || [
   {name:"عباية عمانية سوداء",price:80,img:"https://i.imgur.com/0y8Ftya.jpg",category:"omani"},
   {name:"فستان بلوشي مطرز",price:95,img:"https://i.imgur.com/Yx8FqPz.jpg",category:"blushi"},
   {name:"قطعة بلوشية",price:40,img:"https://i.imgur.com/1bX5QH6.jpg",category:"pieces"}
 ];
-let users = JSON.parse(localStorage.getItem("users")) || [];
-let currentUser = JSON.parse(localStorage.getItem("currentUser")) || null;
-let cart = JSON.parse(localStorage.getItem("cart")) || [];
-let orders = JSON.parse(localStorage.getItem("orders")) || [];
 
-// ===================== وظائف =====================
+function saveProducts(){ localStorage.setItem("products", JSON.stringify(productsData)); }
+
+const categoryOffers={
+  omani:{text:"عرض اليوم: خصم 10% على جميع العباءات العمانية!",img:"https://i.imgur.com/0y8Ftya.jpg"},
+  blushi:{text:"عرض اليوم: فستان بلوشي مطرز بسعر خاص!",img:"https://i.imgur.com/Yx8FqPz.jpg"},
+  pieces:{text:"عرض اليوم: قطعة بلوشية إضافية عند شراء أي منتج!",img:"https://i.imgur.com/1bX5QH6.jpg"}
+};
+
+let cart=[];
+let currentCategory="omani";
+
 const productsDiv=document.getElementById("products");
 const cartPopup=document.getElementById("cartPopup");
 const cartList=document.getElementById("cartList");
 const cartTotal=document.getElementById("cartTotal");
-const cartCount=document.getElementById("cartCount");
-const cartTotalSummary=document.getElementById("cartTotalSummary");
+const searchInput=document.getElementById("search");
 const tabButtons=document.querySelectorAll(".top-tabs button");
-const offerBar=document.getElementById("offerBar");
-const offerText=document.getElementById("offerText");
-const offerImg=document.getElementById("offerImg");
-const offerContent=document.getElementById("offerContent");
 const authPopup=document.getElementById("authPopup");
 const authTitle=document.getElementById("authTitle");
 const authName=document.getElementById("authName");
@@ -372,25 +416,25 @@ const authPassword=document.getElementById("authPassword");
 const authBtn=document.getElementById("authBtn");
 const toggleAuth=document.getElementById("toggleAuth");
 const accountBtn=document.getElementById("accountName");
-const myOrdersPopup=document.getElementById("myOrdersPopup");
-const myOrdersList=document.getElementById("myOrdersList");
+
+const offerBar=document.getElementById("offerBar");
+const offerText=document.getElementById("offerText");
+const offerImg=document.getElementById("offerImg");
+const offerContent=document.getElementById("offerContent");
+
+const cartSummary=document.getElementById("cartSummary");
+const cartCount=document.getElementById("cartCount");
+const cartTotalSummary=document.getElementById("cartTotalSummary");
+
 const adminLogin=document.getElementById("adminLogin");
 const adminPanel=document.getElementById("adminPanel");
-const ADMIN_PASSWORD = "1234";
-let currentCategory="omani";
-let isRegister=false;
-let isAdmin=false;
 
-// ===================== حفظ البيانات =====================
-function saveData(){
-  localStorage.setItem("products",JSON.stringify(productsData));
-  localStorage.setItem("users",JSON.stringify(users));
-  localStorage.setItem("currentUser",JSON.stringify(currentUser));
-  localStorage.setItem("cart",JSON.stringify(cart));
-  localStorage.setItem("orders",JSON.stringify(orders));
-}
+const paymentPopup=document.getElementById("paymentPopup");
 
-// ===================== عرض المنتجات =====================
+const ADMIN_PASSWORD = "1234"; 
+let isAdmin = false;
+
+// ---------------- عرض المنتجات ----------------
 function renderProducts(list){
   productsDiv.innerHTML="";
   list.forEach(p=>{
@@ -414,12 +458,10 @@ function renderProducts(list){
   });
 }
 
-// ===================== السلة =====================
+// ---------------- وظائف السلة ----------------
 function addToCart(name,price){
-  if(!currentUser){ showToast("سجل دخولك أولاً"); openAuth(false); return; }
   const existing=cart.find(i=>i.name===name);
   if(existing){ existing.qty+=1; }else{ cart.push({name,price,qty:1}); }
-  saveData();
   updateCart();
   showToast("تمت الإضافة للسلة");
 }
@@ -453,45 +495,20 @@ function changeQty(name,delta){
   if(!item) return;
   item.qty+=delta;
   if(item.qty<1) removeItem(name);
-  saveData();
   updateCart();
 }
 
 function removeItem(name){
   cart=cart.filter(i=>i.name!==name);
-  saveData();
   updateCart();
 }
 
-function openCart(){ updateCart(); cartPopup.style.display="block"; }
-
-function payNow(){
-  if(cart.length===0){ showToast("السلة فارغة!"); return; }
-  orders.push({user:currentUser.email,items:[...cart],total:cart.reduce((s,i)=>s+i.price*i.qty,0)});
-  cart=[];
-  saveData();
+function openCart(){
   updateCart();
-  cartPopup.style.display="none";
-  showToast("تم الدفع بنجاح!");
+  cartPopup.style.display="block";
 }
 
-// ===================== الطلبات =====================
-function openMyOrders(){
-  if(!currentUser){ showToast("سجل دخولك أولاً"); openAuth(false); return; }
-  myOrdersList.innerHTML="";
-  const userOrders=orders.filter(o=>o.user===currentUser.email);
-  if(userOrders.length===0) myOrdersList.innerHTML="<li>لا توجد طلبات حتى الآن</li>";
-  else{
-    userOrders.forEach(o=>{
-      const li=document.createElement("li");
-      li.innerHTML=`${o.items.map(i=>i.name+" x"+i.qty).join(", ")} - 💰 ${o.total.toFixed(2)} ر.ع`;
-      myOrdersList.appendChild(li);
-    });
-  }
-  myOrdersPopup.style.display="block";
-}
-
-// ===================== التبويبات =====================
+// ---------------- التبويبات ----------------
 tabButtons.forEach(btn=>{
   btn.addEventListener("click",()=>{
     tabButtons.forEach(b=>b.classList.remove("active"));
@@ -503,13 +520,13 @@ tabButtons.forEach(btn=>{
   });
 });
 
-// ===================== البحث =====================
+// ---------------- البحث ----------------
 searchInput.addEventListener("input",()=>{
   const query=searchInput.value.toLowerCase();
   renderProducts(productsData.filter(p=>p.category===currentCategory && p.name.toLowerCase().includes(query)));
 });
 
-// ===================== التنبيهات =====================
+// ---------------- التنبيهات ----------------
 function showToast(msg){
   const t=document.getElementById("toast");
   t.innerText=msg;
@@ -517,12 +534,7 @@ function showToast(msg){
   setTimeout(()=>t.style.display="none",2000);
 }
 
-// ===================== شريط العروض =====================
-const categoryOffers={
-  omani:{text:"عرض اليوم: خصم 10% على جميع العباءات العمانية!",img:"https://i.imgur.com/0y8Ftya.jpg"},
-  blushi:{text:"عرض اليوم: فستان بلوشي مطرز بسعر خاص!",img:"https://i.imgur.com/Yx8FqPz.jpg"},
-  pieces:{text:"عرض اليوم: قطعة بلوشية إضافية عند شراء أي منتج!",img:"https://i.imgur.com/1bX5QH6.jpg"}
-};
+// ---------------- شريط العروض ----------------
 let scrollPos=0;
 let requestId=null;
 function startOfferScroll(){
@@ -536,8 +548,12 @@ function startOfferScroll(){
       requestId=requestAnimationFrame(step);
     }
     step();
-  } else { offerContent.scrollLeft=0; cancelAnimationFrame(requestId); }
+  } else {
+    offerContent.scrollLeft=0;
+    cancelAnimationFrame(requestId);
+  }
 }
+
 function updateOffer(){
   const offer=categoryOffers[currentCategory];
   if(offer){
@@ -546,7 +562,7 @@ function updateOffer(){
     offerBar.style.display="flex";
     scrollPos=0;
     setTimeout(startOfferScroll,100);
-  } else {
+  }else{
     offerText.innerText="عرض اليوم متاح!";
     offerImg.src="";
     offerContent.scrollLeft=0;
@@ -554,7 +570,8 @@ function updateOffer(){
   }
 }
 
-// ===================== تسجيل / دخول المستخدم =====================
+// ---------------- تسجيل ودخول المستخدم ----------------
+let isRegister=false;
 function openAuth(register=false){
   isRegister=register;
   authPopup.style.display="block";
@@ -571,18 +588,21 @@ authBtn.addEventListener("click",()=>{
   const name=authName.value.trim();
   if(isRegister){
     if(!name||!email||!password){ showToast("املأ جميع الحقول"); return; }
+    let users=JSON.parse(localStorage.getItem("users")||"[]");
     if(users.find(u=>u.email===email)){ showToast("البريد مستخدم مسبقاً"); return; }
     users.push({name,email,password});
+    localStorage.setItem("users",JSON.stringify(users));
     currentUser={name,email};
-    saveData();
+    localStorage.setItem("currentUser",JSON.stringify(currentUser));
     accountBtn.innerText=name;
     showToast("تم التسجيل بنجاح");
     authPopup.style.display="none";
   } else {
+    let users=JSON.parse(localStorage.getItem("users")||"[]");
     const user=users.find(u=>u.email===email && u.password===password);
     if(user){
       currentUser={name:user.name,email:user.email};
-      saveData();
+      localStorage.setItem("currentUser",JSON.stringify(currentUser));
       accountBtn.innerText=user.name;
       showToast("تم تسجيل الدخول");
       authPopup.style.display="none";
@@ -593,11 +613,27 @@ authBtn.addEventListener("click",()=>{
 // زر الحساب
 document.querySelector(".bottom-nav button:nth-child(5)").addEventListener("click",()=>{
   if(currentUser){
-    openMyOrders();
+    const orders=JSON.parse(localStorage.getItem("orders")||"[]").filter(o=>o.user===currentUser.email);
+    if(orders.length>0){
+      let msg="طلباتي:\n";
+      orders.forEach((o,i)=>{
+        msg+=`${i+1}. ${o.items.map(it=>it.name+"("+it.qty+")").join(", ")} = ${o.total} ر.ع\nطريقة الدفع: ${o.method}\n`;
+      });
+      alert(msg);
+    }else{
+      if(confirm("سجل الخروج؟")){
+        localStorage.removeItem("currentUser");
+        currentUser=null;
+        accountBtn.innerText="حسابي";
+      }
+    }
   } else openAuth(false);
 });
 
-// ===================== التاجر =====================
+let currentUser=JSON.parse(localStorage.getItem("currentUser"))||null;
+if(currentUser) accountBtn.innerText=currentUser.name;
+
+// ---------------- التاجر ----------------
 function openAdminLogin(){ adminLogin.style.display="block"; }
 function loginAdmin(){
   const pass=document.getElementById("adminPass").value;
@@ -618,7 +654,7 @@ function addProduct(){
   const category=pCat.value;
   if(!name||!price||!img){ showToast("أدخل جميع البيانات"); return; }
   productsData.push({name,price,img,category});
-  saveData();
+  saveProducts();
   renderProducts(productsData.filter(p=>p.category===currentCategory));
   renderAdminProducts();
   pName.value=""; pPrice.value=""; pImg.value="";
@@ -626,7 +662,7 @@ function addProduct(){
 
 function deleteProduct(index){
   productsData.splice(index,1);
-  saveData();
+  saveProducts();
   renderProducts(productsData.filter(p=>p.category===currentCategory));
   renderAdminProducts();
 }
@@ -639,11 +675,48 @@ function renderAdminProducts(){
   });
 }
 
-// ===================== البداية =====================
+// ---------------- الدفع ----------------
+function openPayment(){
+  if(!currentUser){
+    showToast("سجّل الدخول أولاً");
+    return;
+  }
+  if(cart.length===0){
+    showToast("السلة فارغة");
+    return;
+  }
+  paymentPopup.style.display="block";
+}
+
+document.querySelectorAll("input[name='payMethod']").forEach(r=>{
+  r.addEventListener("change",()=>{
+    document.getElementById("cardBox").style.display =
+      r.value==="card" && r.checked ? "block" : "none";
+  });
+});
+
+function confirmPayment(){
+  const method=document.querySelector("input[name='payMethod']:checked").value;
+  let orders = JSON.parse(localStorage.getItem("orders") || "[]");
+  orders.push({
+    user: currentUser.email,
+    items: cart,
+    total: cart.reduce((s,i)=>s+i.price*i.qty,0),
+    method,
+    date: new Date().toLocaleString()
+  });
+  localStorage.setItem("orders",JSON.stringify(orders));
+  cart=[];
+  updateCart();
+  paymentPopup.style.display="none";
+  cartPopup.style.display="none";
+  showToast("تم تنفيذ الطلب بنجاح ✅");
+}
+
+// ---------------- البداية ----------------
 renderProducts(productsData.filter(p=>p.category==="omani"));
 updateOffer();
 updateCart();
-
 </script>
 
 </body>
