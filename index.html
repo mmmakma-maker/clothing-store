@@ -1,631 +1,105 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>متجري للملابس النسائية</title>
+  <meta charset="UTF-8">
+  <title>متجر الملابس النسائية</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<style>
-body{
-  margin:0;
-  font-family: 'Segoe UI', Tahoma;
-  background:#f5f5f5;
-}
-.container{
-  padding:15px;
-  padding-bottom:90px;
-}
-.top-tabs{
-  display:flex;
-  gap:10px;
-  overflow-x:auto;
-  margin-bottom:10px;
-}
-.top-tabs button{
-  border:none;
-  padding:8px 16px;
-  border-radius:20px;
-  background:#eee;
-  font-size:14px;
-  cursor:pointer;
-}
-.top-tabs .active{
-  background:#000;
-  color:#fff;
-}
-#offerBar{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  padding:10px;
-  background:#ffcc00;
-  color:#000;
-  font-weight:bold;
-  border-radius:5px;
-  margin-bottom:10px;
-}
-#offerBar #offerContent{
-  display:flex;
-  align-items:center;
-  overflow:hidden;
-  flex:1;
-}
-#offerBar img{
-  height:50px;
-  border-radius:5px;
-  margin-right:10px;
-}
-#offerBar span{
-  white-space:nowrap;
-}
-#offerBar button{
-  border:none;
-  background:none;
-  font-weight:bold;
-  cursor:pointer;
-  font-size:18px;
-}
-#cartSummary{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  padding:10px;
-  background:#ff5722;
-  color:white;
-  font-weight:bold;
-  border-radius:5px;
-  margin-bottom:10px;
-  cursor:pointer;
-}
-.search-bar input{
-  width:100%;
-  padding:12px;
-  border-radius:10px;
-  border:1px solid #ccc;
-  margin-bottom:10px;
-}
-.sort-filter-bar{
-  display:flex;
-  justify-content:space-around;
-  background:#222;
-  color:white;
-  padding:10px;
-  border-radius:10px;
-  margin-bottom:15px;
-}
-.sort-filter-bar button{
-  background:none;
-  border:none;
-  color:white;
-  font-size:14px;
-}
-.products{
-  display:flex;
-  flex-wrap:wrap;
-  gap:10px;
-}
-.product{
-  width:48%;
-  background:white;
-  border-radius:15px;
-  padding:10px;
-  position:relative;
-}
-.product img{
-  width:100%;
-  height:220px;
-  object-fit:cover;
-  border-radius:10px;
-}
-.heart{
-  position:absolute;
-  top:10px;
-  left:10px;
-  background:white;
-  border-radius:50%;
-  padding:6px;
-  cursor:pointer;
-}
-.product h4{
-  margin:8px 0 5px;
-  font-size:14px;
-}
-.price{
-  font-weight:bold;
-}
-.add-btn{
-  width:100%;
-  margin-top:5px;
-  border:none;
-  padding:8px;
-  background:#ff5722;
-  color:white;
-  border-radius:20px;
-  cursor:pointer;
-}
-.cart-popup, #authPopup, #adminLogin, #adminPanel{
-  position:fixed;
-  top:80px;
-  left:50%;
-  transform:translateX(-50%);
-  background:white;
-  width:90%;
-  max-width:350px;
-  border-radius:15px;
-  padding:15px;
-  display:none;
-  z-index:2000;
-}
-.cart-popup ul, #authPopup ul{
-  list-style:none;
-  padding:0;
-}
-.cart-popup li{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  margin-bottom:8px;
-}
-.cart-item-controls{
-  display:flex;
-  gap:5px;
-  align-items:center;
-}
-.cart-item-controls button{
-  padding:2px 6px;
-  border:none;
-  border-radius:5px;
-  background:#ff5722;
-  color:white;
-  cursor:pointer;
-}
-.cart-total{
-  font-weight:bold;
-  margin-top:10px;
-  text-align:right;
-}
-.bottom-nav{
-  position:fixed;
-  bottom:0;
-  width:100%;
-  height:65px;
-  background:white;
-  display:flex;
-  justify-content:space-around;
-  align-items:center;
-  border-top:1px solid #ddd;
-}
-.bottom-nav button{
-  background:none;
-  border:none;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  font-size:14px;
-}
-#toast{
-  position:fixed;
-  bottom:80px;
-  left:50%;
-  transform:translateX(-50%);
-  background:#333;
-  color:white;
-  padding:10px 20px;
-  border-radius:20px;
-  display:none;
-}
-#authPopup input{
-  width:100%;
-  padding:8px;
-  margin-bottom:8px;
-  border-radius:5px;
-  border:1px solid #ccc;
-}
-#authPopup button, #adminPanel button, #adminLogin button{
-  width:100%;
-  padding:8px;
-  background:#ff5722;
-  color:white;
-  border:none;
-  border-radius:5px;
-  cursor:pointer;
-  margin-bottom:5px;
-}
-#authPopup p{
-  text-align:center;
-  margin-top:8px;
-  cursor:pointer;
-  color:#007bff;
-}
-#adminPanel input, #adminPanel select{
-  width:100%;
-  padding:5px;
-  margin-bottom:5px;
-  border-radius:5px;
-  border:1px solid #ccc;
-}
-</style>
+  <!-- ملف التنسيق -->
+  <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-<div class="container">
+  <!-- زر السلة -->
+  <button id="cartButton">
+    🛒 السلة (<span id="cartCount">0</span>)
+  </button>
 
-  <div class="top-tabs">
-    <button class="active" data-category="omani">عمانية</button>
-    <button data-category="blushi">بلوشي</button>
-    <button data-category="pieces">قطع بلوشي</button>
-  </div>
+  <!-- الحاوية -->
+  <div class="container">
 
-  <!-- شريط العروض -->
-  <div id="offerBar">
-    <div id="offerContent">
-      <img id="offerImg" src="" alt="عرض">
-      <span id="offerText"></span>
+    <!-- الشعار -->
+    <img src="images/logo.png" alt="الشعار" class="logo">
+
+    <!-- الفلاتر -->
+    <div class="filters">
+      <button onclick="filterCategory('all')">الكل</button>
+      <button onclick="filterCategory('نسائي')">نسائي</button>
     </div>
-    <button onclick="document.getElementById('offerBar').style.display='none'">❌</button>
+
+    <!-- البحث -->
+    <input type="text" id="search" placeholder="ابحث عن منتج...">
+
+    <!-- المنتجات -->
+    <div id="products" class="products"></div>
+
+    <!-- تفاصيل المنتج -->
+    <div id="productDetail" class="product-detail" style="display:none;"></div>
+
+    <!-- تسجيل المستخدم -->
+    <div id="userLoginDiv">
+      <h3>تسجيل الدخول / إنشاء حساب</h3>
+      <input id="fullName" placeholder="الاسم الكامل">
+      <input id="username" placeholder="اسم المستخدم">
+      <input id="userEmail" placeholder="البريد الإلكتروني">
+      <input id="userPassword" type="password" placeholder="كلمة المرور">
+      <button onclick="registerUser()">إنشاء حساب</button>
+      <button onclick="loginUser()">تسجيل دخول</button>
+      <p id="userMsg"></p>
+    </div>
+
+    <!-- بعد تسجيل الدخول -->
+    <div id="welcomeUser" style="display:none;">
+      <h3>مرحباً <span id="usernameDisplay"></span> 👋</h3>
+      <button onclick="logoutUser()">تسجيل الخروج</button>
+      <div id="myOrders"></div>
+    </div>
+
+    <hr>
+
+    <!-- دخول التاجر -->
+    <div id="loginDiv">
+      <h3>دخول التاجر</h3>
+      <input type="password" id="adminPassword" placeholder="كلمة المرور">
+      <button onclick="loginAsAdmin()">دخول</button>
+      <p id="loginMsg"></p>
+    </div>
+
+    <!-- لوحة التاجر -->
+    <div id="adminDiv" style="display:none;">
+      <h3>لوحة تحكم التاجر</h3>
+
+      <input id="newName" placeholder="اسم المنتج">
+      <input id="newPrice" type="number" placeholder="السعر">
+      <input id="newImage" placeholder="رابط الصورة">
+      <input id="newCategory" placeholder="التصنيف">
+      <input id="newDelivery" type="number" placeholder="مدة التوصيل">
+      <input id="newColors" placeholder="الألوان (مفصولة بفاصلة)">
+      <input id="newSizes" placeholder="المقاسات (مفصولة بفاصلة)">
+      <input id="newStock" type="number" placeholder="المخزون">
+
+      <button onclick="addProduct()">➕ إضافة منتج</button>
+
+      <div id="ordersAdmin"></div>
+    </div>
+
   </div>
 
-  <!-- شريط إجمالي السلة -->
-  <div id="cartSummary">
-    <span id="cartCount">0 عناصر</span>
-    <span id="cartTotalSummary">0 ر.ع</span>
+  <!-- نافذة السلة -->
+  <div class="cart-popup" id="cartPopup" style="display:none;">
+    <h3>سلة المشتريات</h3>
+    <ul id="cartPopupList"></ul>
+    <p id="popupTotal">المجموع: 0 ريال</p>
+    <button onclick="payNow()">الدفع الآن</button>
+    <button onclick="closeCart()">إغلاق</button>
   </div>
 
-  <div class="search-bar">
-    <input type="text" id="search" placeholder="ابحث">
-  </div>
+  <!-- الإشعارات -->
+  <div id="toast"></div>
 
-  <div class="sort-filter-bar">
-    <button onclick="showToast('التصنيف قريباً')">⇅ تصنيف</button>
-    <button onclick="showToast('التصفية قريباً')">☰ تصفية</button>
-  </div>
-
-  <div class="products" id="products"></div>
-
-</div>
-
-<!-- سلة التسوق -->
-<div class="cart-popup" id="cartPopup">
-  <h3>سلة التسوق</h3>
-  <ul id="cartList"></ul>
-  <div class="cart-total" id="cartTotal">الإجمالي: 0 ر.ع</div>
-  <button onclick="cartPopup.style.display='none'">إغلاق</button>
-</div>
-
-<!-- تسجيل / دخول المستخدم -->
-<div id="authPopup">
-  <h3 id="authTitle">تسجيل الدخول</h3>
-  <input type="text" id="authName" placeholder="الاسم" style="display:none;">
-  <input type="email" id="authEmail" placeholder="البريد الإلكتروني">
-  <input type="password" id="authPassword" placeholder="كلمة المرور">
-  <button id="authBtn">دخول</button>
-  <p id="toggleAuth">ليس لديك حساب؟ سجل الآن</p>
-</div>
-
-<!-- تسجيل التاجر -->
-<div id="adminLogin">
-  <h3>دخول التاجر</h3>
-  <input type="password" id="adminPass" placeholder="الرقم السري">
-  <button onclick="loginAdmin()">دخول</button>
-</div>
-
-<!-- لوحة تحكم التاجر -->
-<div id="adminPanel">
-  <h3>لوحة تحكم التاجر</h3>
-  <input id="pName" placeholder="اسم المنتج">
-  <input id="pPrice" type="number" placeholder="السعر">
-  <input id="pImg" placeholder="رابط الصورة">
-  <select id="pCat">
-    <option value="omani">عمانية</option>
-    <option value="blushi">بلوشي</option>
-    <option value="pieces">قطع بلوشي</option>
-  </select>
-  <button onclick="addProduct()">➕ إضافة منتج</button>
-  <hr>
-  <div id="adminProducts"></div>
-  <button onclick="logoutAdmin()">خروج</button>
-</div>
-
-<!-- شريط السفلي -->
-<div class="bottom-nav">
-  <button>🏠<span>الرئيسية</span></button>
-  <button>📂<span>الفئات</span></button>
-  <button>🔥<span>تخفيضات</span></button>
-  <button onclick="openCart()">🛒<span>السلة</span></button>
-  <button onclick="openAuth(false)"><span id="accountName">حسابي</span></button>
-  <button onclick="openAdminLogin()">🛠️<span>تاجر</span></button>
-</div>
-
-<div id="toast"></div>
-
-<script>
-// البيانات والـ localStorage
-let productsData = JSON.parse(localStorage.getItem("products")) || [
-  {name:"عباية عمانية سوداء",price:80,img:"https://i.imgur.com/0y8Ftya.jpg",category:"omani"},
-  {name:"فستان بلوشي مطرز",price:95,img:"https://i.imgur.com/Yx8FqPz.jpg",category:"blushi"},
-  {name:"قطعة بلوشية",price:40,img:"https://i.imgur.com/1bX5QH6.jpg",category:"pieces"}
-];
-
-function saveProducts(){ localStorage.setItem("products", JSON.stringify(productsData)); }
-
-const categoryOffers={
-  omani:{text:"عرض اليوم: خصم 10% على جميع العباءات العمانية!",img:"https://i.imgur.com/0y8Ftya.jpg"},
-  blushi:{text:"عرض اليوم: فستان بلوشي مطرز بسعر خاص!",img:"https://i.imgur.com/Yx8FqPz.jpg"},
-  pieces:{text:"عرض اليوم: قطعة بلوشية إضافية عند شراء أي منتج!",img:"https://i.imgur.com/1bX5QH6.jpg"}
-};
-
-let cart=[];
-let currentCategory="omani";
-
-const productsDiv=document.getElementById("products");
-const cartPopup=document.getElementById("cartPopup");
-const cartList=document.getElementById("cartList");
-const cartTotal=document.getElementById("cartTotal");
-const searchInput=document.getElementById("search");
-const tabButtons=document.querySelectorAll(".top-tabs button");
-const authPopup=document.getElementById("authPopup");
-const authTitle=document.getElementById("authTitle");
-const authName=document.getElementById("authName");
-const authEmail=document.getElementById("authEmail");
-const authPassword=document.getElementById("authPassword");
-const authBtn=document.getElementById("authBtn");
-const toggleAuth=document.getElementById("toggleAuth");
-const accountBtn=document.getElementById("accountName");
-
-const offerBar=document.getElementById("offerBar");
-const offerText=document.getElementById("offerText");
-const offerImg=document.getElementById("offerImg");
-const offerContent=document.getElementById("offerContent");
-
-const cartSummary=document.getElementById("cartSummary");
-const cartCount=document.getElementById("cartCount");
-const cartTotalSummary=document.getElementById("cartTotalSummary");
-
-const adminLogin=document.getElementById("adminLogin");
-const adminPanel=document.getElementById("adminPanel");
-
-const ADMIN_PASSWORD = "1234"; 
-let isAdmin = false;
-
-// عرض المنتجات
-function renderProducts(list){
-  productsDiv.innerHTML="";
-  list.forEach(p=>{
-    const productDiv=document.createElement("div");
-    productDiv.className="product";
-    productDiv.innerHTML=`
-      <div class="heart">♡</div>
-      <img src="${p.img}">
-      <h4>${p.name}</h4>
-      <div class="price">${p.price} ر.ع</div>
-      <button class="add-btn">أضف للسلة</button>
-    `;
-    const heart=productDiv.querySelector(".heart");
-    heart.addEventListener("click",()=>{
-      heart.innerText = heart.innerText==="♡" ? "❤️" : "♡";
-      showToast(heart.innerText==="❤️"?"تمت الإضافة للمفضلة":"تمت الإزالة من المفضلة");
-    });
-    const addBtn=productDiv.querySelector(".add-btn");
-    addBtn.addEventListener("click",()=>{ addToCart(p.name,p.price); });
-    productsDiv.appendChild(productDiv);
-  });
-}
-
-// وظائف السلة
-function addToCart(name,price){
-  const existing=cart.find(i=>i.name===name);
-  if(existing){ existing.qty+=1; }else{ cart.push({name,price,qty:1}); }
-  updateCart();
-  showToast("تمت الإضافة للسلة");
-}
-
-function updateCart(){
-  cartList.innerHTML="";
-  let total=0, totalQty=0;
-  cart.forEach(i=>{
-    total+=i.price*i.qty;
-    totalQty+=i.qty;
-    const li=document.createElement("li");
-    li.innerHTML=`
-      ${i.name} 
-      <div class="cart-item-controls">
-        <button onclick="changeQty('${i.name}',-1)">-</button>
-        <span>${i.qty}</span>
-        <button onclick="changeQty('${i.name}',1)">+</button>
-        <button onclick="removeItem('${i.name}')">🗑️</button>
-        <span>${(i.price*i.qty).toFixed(2)} ر.ع</span>
-      </div>
-    `;
-    cartList.appendChild(li);
-  });
-  cartTotal.innerText="الإجمالي: "+total.toFixed(2)+" ر.ع";
-  cartCount.innerText=`${totalQty} عناصر`;
-  cartTotalSummary.innerText=`${total.toFixed(2)} ر.ع`;
-}
-
-function changeQty(name,delta){
-  const item=cart.find(i=>i.name===name);
-  if(!item) return;
-  item.qty+=delta;
-  if(item.qty<1) removeItem(name);
-  updateCart();
-}
-
-function removeItem(name){
-  cart=cart.filter(i=>i.name!==name);
-  updateCart();
-}
-
-function openCart(){
-  updateCart();
-  cartPopup.style.display="block";
-}
-
-// التبويبات
-tabButtons.forEach(btn=>{
-  btn.addEventListener("click",()=>{
-    tabButtons.forEach(b=>b.classList.remove("active"));
-    btn.classList.add("active");
-    currentCategory=btn.dataset.category;
-    searchInput.value="";
-    renderProducts(productsData.filter(p=>p.category===currentCategory));
-    updateOffer();
-  });
-});
-
-// البحث
-searchInput.addEventListener("input",()=>{
-  const query=searchInput.value.toLowerCase();
-  renderProducts(productsData.filter(p=>p.category===currentCategory && p.name.toLowerCase().includes(query)));
-});
-
-// التنبيهات
-function showToast(msg){
-  const t=document.getElementById("toast");
-  t.innerText=msg;
-  t.style.display="block";
-  setTimeout(()=>t.style.display="none",2000);
-}
-
-// شريط العرض مع الانزلاق
-let scrollPos=0;
-let requestId=null;
-function startOfferScroll(){
-  const scrollWidth=offerContent.scrollWidth - offerContent.clientWidth;
-  if(scrollWidth>0){
-    cancelAnimationFrame(requestId);
-    function step(){
-      scrollPos+=0.5;
-      if(scrollPos>scrollWidth) scrollPos=0;
-      offerContent.scrollLeft=scrollPos;
-      requestId=requestAnimationFrame(step);
-    }
-    step();
-  } else {
-    offerContent.scrollLeft=0;
-    cancelAnimationFrame(requestId);
-  }
-}
-
-// تحديث عرض الفئة
-function updateOffer(){
-  const offer=categoryOffers[currentCategory];
-  if(offer){
-    offerText.innerText=offer.text;
-    offerImg.src=offer.img;
-    offerBar.style.display="flex";
-    scrollPos=0;
-    setTimeout(startOfferScroll,100);
-  }else{
-    offerText.innerText="عرض اليوم متاح!";
-    offerImg.src="";
-    offerContent.scrollLeft=0;
-    cancelAnimationFrame(requestId);
-  }
-}
-
-// تسجيل ودخول المستخدم
-let isRegister=false;
-function openAuth(register=false){
-  isRegister=register;
-  authPopup.style.display="block";
-  authName.style.display=register?"block":"none";
-  authTitle.innerText=register?"تسجيل حساب":"تسجيل الدخول";
-  authBtn.innerText=register?"سجل الآن":"دخول";
-  toggleAuth.innerText=register?"لديك حساب؟ سجل الدخول":"ليس لديك حساب؟ سجل الآن";
-}
-toggleAuth.addEventListener("click",()=>openAuth(!isRegister));
-
-authBtn.addEventListener("click",()=>{
-  const email=authEmail.value.trim();
-  const password=authPassword.value.trim();
-  const name=authName.value.trim();
-  if(isRegister){
-    if(!name||!email||!password){ showToast("املأ جميع الحقول"); return; }
-    let users=JSON.parse(localStorage.getItem("users")||"[]");
-    if(users.find(u=>u.email===email)){ showToast("البريد مستخدم مسبقاً"); return; }
-    users.push({name,email,password});
-    localStorage.setItem("users",JSON.stringify(users));
-    currentUser={name,email};
-    localStorage.setItem("currentUser",JSON.stringify(currentUser));
-    accountBtn.innerText=name;
-    showToast("تم التسجيل بنجاح");
-    authPopup.style.display="none";
-  } else {
-    let users=JSON.parse(localStorage.getItem("users")||"[]");
-    const user=users.find(u=>u.email===email && u.password===password);
-    if(user){
-      currentUser={name:user.name,email:user.email};
-      localStorage.setItem("currentUser",JSON.stringify(currentUser));
-      accountBtn.innerText=user.name;
-      showToast("تم تسجيل الدخول");
-      authPopup.style.display="none";
-    } else showToast("البريد أو كلمة المرور خاطئة");
-  }
-});
-
-// زر الحساب
-document.querySelector(".bottom-nav button:nth-child(5)").addEventListener("click",()=>{
-  if(currentUser){
-    if(confirm("تسجيل الخروج؟")){
-      localStorage.removeItem("currentUser");
-      currentUser=null;
-      accountBtn.innerText="حسابي";
-    }
-  } else openAuth(false);
-});
-
-let currentUser=JSON.parse(localStorage.getItem("currentUser"))||null;
-if(currentUser) accountBtn.innerText=currentUser.name;
-
-// التاجر
-function openAdminLogin(){ adminLogin.style.display="block"; }
-function loginAdmin(){
-  const pass=document.getElementById("adminPass").value;
-  if(pass===ADMIN_PASSWORD){
-    isAdmin=true;
-    adminLogin.style.display="none";
-    adminPanel.style.display="block";
-    renderAdminProducts();
-    showToast("تم دخول التاجر");
-  } else showToast("الرقم السري خطأ");
-}
-function logoutAdmin(){ isAdmin=false; adminPanel.style.display="none"; }
-
-function addProduct(){
-  const name=pName.value.trim();
-  const price=Number(pPrice.value);
-  const img=pImg.value.trim();
-  const category=pCat.value;
-  if(!name||!price||!img){ showToast("أدخل جميع البيانات"); return; }
-  productsData.push({name,price,img,category});
-  saveProducts();
-  renderProducts(productsData.filter(p=>p.category===currentCategory));
-  renderAdminProducts();
-  pName.value=""; pPrice.value=""; pImg.value="";
-}
-
-function deleteProduct(index){
-  productsData.splice(index,1);
-  saveProducts();
-  renderProducts(productsData.filter(p=>p.category===currentCategory));
-  renderAdminProducts();
-}
-
-function renderAdminProducts(){
-  const box=document.getElementById("adminProducts");
-  box.innerHTML="";
-  productsData.forEach((p,i)=>{
-    box.innerHTML+=`<div style="margin-bottom:5px;">${p.name} - ${p.price} ر.ع <button onclick="deleteProduct(${i})">🗑️</button></div>`;
-  });
-}
-
-// البداية
-renderProducts(productsData.filter(p=>p.category==="omani"));
-updateOffer();
-updateCart();
-</script>
+  <!-- ملف الجافاسكربت -->
+  <script src="script.js"></script>
 
 </body>
 </html>
