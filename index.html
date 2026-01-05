@@ -263,14 +263,26 @@ body{
 /* زر الإغلاق لكل popup */
 .popup-close{
   position:absolute;
-  top:10px;
-  left:10px;
-  background:white;
+  top:12px;
+  right:12px;
+  background:#f2f2f2;
   border:none;
-  font-size:18px;
+  font-size:16px;
   cursor:pointer;
   border-radius:50%;
-  padding:4px 8px;
+  width:32px;
+  height:32px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#555;
+  transition:0.2s;
+}
+
+.popup-close:hover{
+  background:#ff5722;
+  color:white;
+}
 }
 </style>
 </head>
