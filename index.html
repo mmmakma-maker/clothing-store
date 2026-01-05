@@ -735,12 +735,18 @@ allPopups.forEach(p=>{
 
 document.addEventListener("click",(e)=>{
   allPopups.forEach(p=>{
-    if(p.style.display==="block" && !p.contains(e.target) && !e.target.closest("button")){
-      p.style.display="none";
+    if(
+      p.style.display === "block" &&
+      !p.contains(e.target) &&
+      !e.target.closest("button") &&
+      !e.target.closest("input") &&
+      !e.target.closest("label") &&
+      !e.target.closest("textarea")
+    ){
+      p.style.display = "none";
     }
   });
 });
-
 // ---------------- البداية ----------------
 renderProducts(productsData.filter(p=>p.category==="omani"));
 updateOffer();
