@@ -628,22 +628,41 @@ authBtn.addEventListener("click",()=>{
 
 // زر الحساب
 document.querySelector(".bottom-nav button:nth-child(5)").addEventListener("click",()=>{
-  if(currentUser){
-    const orders=JSON.parse(localStorage.getItem("orders")||"[]").filter(o=>o.user===currentUser.email);
-    if(orders.length>0){
-      let msg="طلباتي:\n";
-      orders.forEach((o,i)=>{
-        msg+=`${i+1}. ${o.items.map(it=>it.name+"("+it.qty+")").join(", ")} = ${o.total} ر.ع\nطريقة الدفع: ${o.method}\n`;
-      });
-      alert(msg);
-    }else{
-      if(confirm("سجل الخروج؟")){
-        localStorage.removeItem("currentUser");
-        currentUser=null;
-        accountBtn.innerText="حسابي";
-      }
+  if(!currentUser){
+    openAuth(false);
+    return;
+  }
+
+  const choice = confirm(
+    "ماذا تريد؟\n\nموافق = تسجيل خروج\nإلغاء = عرض طلباتي"
+  );
+
+  if(choice){
+    // تسجيل خروج
+    localStorage.removeItem("currentUser");
+    currentUser = null;
+    accountBtn.innerText = "حسابي";
+    showToast("تم تسجيل الخروج");
+  } else {
+    // عرض الطلبات
+    const orders = JSON.parse(localStorage.getItem("orders") || "[]")
+      .filter(o => o.user === currentUser.email);
+
+    if(orders.length === 0){
+      alert("لا توجد طلبات بعد");
+      return;
     }
-  } else openAuth(false);
+
+    let msg="طلباتي:\n\n";
+    orders.forEach((o,i)=>{
+      msg+=`${i+1}. ${o.items.map(it=>it.name+"("+it.qty+")").join(", ")}
+الإجمالي: ${o.total} ر.ع
+طريقة الدفع: ${o.method}
+-------------------\n`;
+    });
+
+    alert(msg);
+  }
 });
 
 // ---------------- التاجر ----------------
