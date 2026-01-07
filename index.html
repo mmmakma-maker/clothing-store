@@ -423,7 +423,7 @@ const categoryOffers={
 };
 
 let cart=[];
-let currentCategory="omani";
+let cart = JSON.parse(localStorage.getItem("cart")) || [];
 
 const productsDiv=document.getElementById("products");
 const cartPopup=document.getElementById("cartPopup");
