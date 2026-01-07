@@ -750,8 +750,9 @@ function confirmPayment(){
     date: new Date().toLocaleString()
   });
   localStorage.setItem("orders",JSON.stringify(orders));
-  cart=[];
-  updateCart();
+ cart = [];
+localStorage.removeItem("cart");
+updateCart();
   paymentPopup.style.display="none";
   cartPopup.style.display="none";
   showToast("تم تنفيذ الطلب بنجاح ✅");
