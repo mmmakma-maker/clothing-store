@@ -516,8 +516,8 @@ function updateCart(){
     cartList.appendChild(li);
   });
   cartTotal.innerText="الإجمالي: "+total.toFixed(2)+" ر.ع";
-  cartCount.innerText=${totalQty} عناصر;
-  cartTotalSummary.innerText=${total.toFixed(2)} ر.ع;
+ cartCount.innerText = `${totalQty} عناصر`;
+ cartTotalSummary.innerText = `${total.toFixed(2)} ر.ع`;
 }
 
 function changeQty(name,delta){
