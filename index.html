@@ -423,7 +423,14 @@ const categoryOffers={
 };
 
 let cart=[];
-let cart = JSON.parse(localStorage.getItem("cart")) || [];
+let cart = [];
+
+try {
+  cart = JSON.parse(localStorage.getItem("cart")) || [];
+} catch (e) {
+  cart = [];
+  localStorage.removeItem("cart");
+}
 
 const productsDiv=document.getElementById("products");
 const cartPopup=document.getElementById("cartPopup");
