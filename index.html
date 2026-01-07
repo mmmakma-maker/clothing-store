@@ -468,13 +468,14 @@ function renderProducts(list){
   list.forEach(p=>{
     const productDiv=document.createElement("div");
     productDiv.className="product";
-    productDiv.innerHTML=
-      <div class="heart">♡</div>
-      <img src="${p.img}">
-      <h4>${p.name}</h4>
-      <div class="price">${p.price} ر.ع</div>
-      <button class="add-btn">أضف للسلة</button>
-    ;
+   productDiv.innerHTML = `
+    <div class="heart">♡</div>
+    <img src="${p.img}">
+    <h4>${p.name}</h4>
+    <div class="price">${p.price} ر.ع</div>
+    <button class="add-btn">أضف للسلة</button>
+`;
+
     const heart=productDiv.querySelector(".heart");
     heart.addEventListener("click",()=>{
       heart.innerText = heart.innerText==="♡" ? "❤️" : "♡";
