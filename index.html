@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>متجري للملابس النسائية</title>
 <style>
-body{margin:0;font-family: 'Segoe UI', Tahoma;background:#f5f5f5;}
+body{margin:0;font-family:'Segoe UI',Tahoma;background:#f5f5f5;}
 .container{padding:15px;padding-bottom:90px;}
 .top-tabs{display:flex;gap:10px;overflow-x:auto;margin-bottom:10px;}
 .top-tabs button{border:none;padding:8px 16px;border-radius:20px;background:#eee;font-size:14px;cursor:pointer;}
@@ -26,8 +26,8 @@ body{margin:0;font-family: 'Segoe UI', Tahoma;background:#f5f5f5;}
 .product h4{margin:8px 0 5px;font-size:14px;}
 .price{font-weight:bold;}
 .add-btn{width:100%;margin-top:5px;border:none;padding:8px;background:#ff5722;color:white;border-radius:20px;cursor:pointer;}
-.cart-popup, #authPopup, #adminLogin, #adminPanel, #paymentPopup{position:fixed;top:80px;left:50%;transform:translateX(-50%);background:white;width:90%;max-width:350px;border-radius:15px;padding:15px;display:none;z-index:2000;}
-.cart-popup ul, #authPopup ul{list-style:none;padding:0;}
+.cart-popup,#authPopup,#adminLogin,#adminPanel,#paymentPopup{position:fixed;top:80px;left:50%;transform:translateX(-50%);background:white;width:90%;max-width:350px;border-radius:15px;padding:15px;display:none;z-index:2000;}
+.cart-popup ul,#authPopup ul{list-style:none;padding:0;}
 .cart-popup li{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
 .cart-item-controls{display:flex;gap:5px;align-items:center;}
 .cart-item-controls button{padding:2px 6px;border:none;border-radius:5px;background:#ff5722;color:white;cursor:pointer;}
@@ -35,25 +35,20 @@ body{margin:0;font-family: 'Segoe UI', Tahoma;background:#f5f5f5;}
 .bottom-nav{position:fixed;bottom:0;width:100%;height:65px;background:white;display:flex;justify-content:space-around;align-items:center;border-top:1px solid #ddd;}
 .bottom-nav button{background:none;border:none;display:flex;flex-direction:column;align-items:center;font-size:14px;}
 #toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#333;color:white;padding:10px 20px;border-radius:20px;display:none;}
-#authPopup input{width:100%;padding:8px;margin-bottom:8px;border-radius:5px;border:1px solid #ccc;}
-#authPopup button, #adminPanel button, #adminLogin button{width:100%;padding:8px;background:#ff5722;color:white;border:none;border-radius:5px;cursor:pointer;margin-bottom:5px;}
+#authPopup input,#paymentPopup input,#adminPanel input,#adminPanel select{width:100%;padding:8px;margin-bottom:5px;border-radius:5px;border:1px solid #ccc;}
+#authPopup button,#adminPanel button,#adminLogin button,#paymentPopup button{width:100%;padding:8px;background:#ff5722;color:white;border:none;border-radius:5px;cursor:pointer;margin-bottom:5px;}
 #authPopup p{text-align:center;margin-top:8px;cursor:pointer;color:#007bff;}
-#adminPanel input, #adminPanel select{width:100%;padding:5px;margin-bottom:5px;border-radius:5px;border:1px solid #ccc;}
-#paymentPopup input{width:100%;padding:8px;margin-bottom:5px;border-radius:5px;border:1px solid #ccc;}
-#paymentPopup button{width:100%;padding:8px;background:#ff5722;color:white;border:none;border-radius:5px;margin-bottom:5px;cursor:pointer;}
 .popup-close{position:absolute;top:12px;right:12px;background:#f2f2f2;border:none;font-size:16px;cursor:pointer;border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;color:#555;transition:0.2s;}
 .popup-close:hover{background:#ff5722;color:white;}
 </style>
 </head>
 <body>
-
 <div class="container">
   <div class="top-tabs">
     <button class="active" data-category="omani">عمانية</button>
     <button data-category="blushi">بلوشي</button>
     <button data-category="pieces">قطع بلوشي</button>
   </div>
-
   <div id="offerBar">
     <div id="offerContent">
       <img id="offerImg" src="" alt="عرض">
@@ -61,25 +56,21 @@ body{margin:0;font-family: 'Segoe UI', Tahoma;background:#f5f5f5;}
     </div>
     <button onclick="document.getElementById('offerBar').style.display='none'">❌</button>
   </div>
-
   <div id="cartSummary">
     <span id="cartCount">0 عناصر</span>
     <span id="cartTotalSummary">0 ر.ع</span>
   </div>
-
   <div class="search-bar">
     <input type="text" id="search" placeholder="ابحث">
   </div>
-
   <div class="sort-filter-bar">
     <button onclick="showToast('التصنيف قريباً')">⇅ تصنيف</button>
     <button onclick="showToast('التصفية قريباً')">☰ تصفية</button>
   </div>
-
   <div class="products" id="products"></div>
 </div>
 
-<!-- السلة، الدفع، الحساب، التاجر كما في كودك السابق -->
+<!-- سلة التسوق -->
 <div class="cart-popup" id="cartPopup">
   <button class="popup-close">❌</button>
   <h3>سلة التسوق</h3>
@@ -89,6 +80,7 @@ body{margin:0;font-family: 'Segoe UI', Tahoma;background:#f5f5f5;}
   <button onclick="cartPopup.style.display='none'">إغلاق</button>
 </div>
 
+<!-- نافذة الدفع -->
 <div class="cart-popup" id="paymentPopup">
   <button class="popup-close">❌</button>
   <h3>إتمام الدفع</h3>
@@ -103,6 +95,7 @@ body{margin:0;font-family: 'Segoe UI', Tahoma;background:#f5f5f5;}
   <button onclick="paymentPopup.style.display='none'">إلغاء</button>
 </div>
 
+<!-- تسجيل / دخول المستخدم -->
 <div id="authPopup">
   <button class="popup-close">❌</button>
   <h3 id="authTitle">تسجيل الدخول</h3>
@@ -113,6 +106,7 @@ body{margin:0;font-family: 'Segoe UI', Tahoma;background:#f5f5f5;}
   <p id="toggleAuth">ليس لديك حساب؟ سجل الآن</p>
 </div>
 
+<!-- تسجيل التاجر -->
 <div id="adminLogin">
   <button class="popup-close">❌</button>
   <h3>دخول التاجر</h3>
@@ -120,6 +114,7 @@ body{margin:0;font-family: 'Segoe UI', Tahoma;background:#f5f5f5;}
   <button onclick="loginAdmin()">دخول</button>
 </div>
 
+<!-- لوحة تحكم التاجر -->
 <div id="adminPanel">
   <button class="popup-close">❌</button>
   <h3>لوحة تحكم التاجر</h3>
@@ -137,25 +132,25 @@ body{margin:0;font-family: 'Segoe UI', Tahoma;background:#f5f5f5;}
   <button onclick="logoutAdmin()">خروج</button>
 </div>
 
+<!-- شريط السفلي -->
 <div class="bottom-nav">
   <button>🏠<span>الرئيسية</span></button>
   <button>📂<span>الفئات</span></button>
   <button>🔥<span>تخفيضات</span></button>
   <button onclick="openCart()">🛒<span>السلة</span></button>
-  <button id="accountBtn"><span id="accountName">حسابي</span></button>
+  <button><span id="accountName">حسابي</span></button>
   <button onclick="openAdminLogin()">🛠️<span>تاجر</span></button>
 </div>
-
 <div id="toast"></div>
 
 <script>
-// ---------------- البيانات الأساسية ----------------
+// ------------- البيانات ----------------
 let productsData = JSON.parse(localStorage.getItem("products")) || [
   {name:"عباية عمانية سوداء",price:80,img:"https://i.imgur.com/0y8Ftya.jpg",category:"omani"},
   {name:"فستان بلوشي مطرز",price:95,img:"https://i.imgur.com/Yx8FqPz.jpg",category:"blushi"},
   {name:"قطعة بلوشية",price:40,img:"https://i.imgur.com/1bX5QH6.jpg",category:"pieces"}
 ];
-function saveProducts(){ localStorage.setItem("products", JSON.stringify(productsData)); }
+function saveProducts(){ localStorage.setItem("products",JSON.stringify(productsData)); }
 
 const categoryOffers={
   omani:{text:"عرض اليوم: خصم 10% على جميع العباءات العمانية!",img:"https://i.imgur.com/0y8Ftya.jpg"},
@@ -165,8 +160,6 @@ const categoryOffers={
 
 let cart=[];
 let currentCategory="omani";
-let currentUser = JSON.parse(localStorage.getItem("currentUser")) || null;
-
 const productsDiv=document.getElementById("products");
 const cartPopup=document.getElementById("cartPopup");
 const cartList=document.getElementById("cartList");
@@ -180,238 +173,123 @@ const authEmail=document.getElementById("authEmail");
 const authPassword=document.getElementById("authPassword");
 const authBtn=document.getElementById("authBtn");
 const toggleAuth=document.getElementById("toggleAuth");
-const accountBtn=document.getElementById("accountBtn");
-const accountNameSpan=document.getElementById("accountName");
-
+const accountBtn=document.getElementById("accountName");
 const offerBar=document.getElementById("offerBar");
 const offerText=document.getElementById("offerText");
 const offerImg=document.getElementById("offerImg");
 const offerContent=document.getElementById("offerContent");
-
-const cartSummary=document.getElementById("cartSummary");
 const cartCount=document.getElementById("cartCount");
 const cartTotalSummary=document.getElementById("cartTotalSummary");
-
 const adminLogin=document.getElementById("adminLogin");
 const adminPanel=document.getElementById("adminPanel");
 const paymentPopup=document.getElementById("paymentPopup");
+const ADMIN_PASSWORD="1234"; 
+let isAdmin=false;
 
-const ADMIN_PASSWORD = "1234"; 
-let isAdmin = false;
+// ---------------- currentUser ----------------
+let currentUser = JSON.parse(localStorage.getItem("currentUser")) || null;
+if(currentUser) accountBtn.innerText=currentUser.name;
 
-if(currentUser) accountNameSpan.innerText=currentUser.name;
-
-// ---------------- دوال عامة ----------------
-function showToast(msg){
-  const t=document.getElementById("toast");
-  t.innerText=msg;
-  t.style.display="block";
-  setTimeout(()=>t.style.display="none",2000);
-}
-
-// ---------------- عرض المنتجات ----------------
+// ------------- دوال المساعدة ----------------
+function showToast(msg){ const t=document.getElementById("toast"); t.innerText=msg; t.style.display="block"; setTimeout(()=>t.style.display="none",2000); }
 function renderProducts(list){
   productsDiv.innerHTML="";
   list.forEach(p=>{
     const productDiv=document.createElement("div");
     productDiv.className="product";
-    productDiv.innerHTML = `
-      <div class="heart">♡</div>
-      <img src="${p.img}">
-      <h4>${p.name}</h4>
-      <div class="price">${p.price} ر.ع</div>
-      <button class="add-btn">أضف للسلة</button>
-    `;
+    productDiv.innerHTML=`<div class="heart">♡</div><img src="${p.img}"><h4>${p.name}</h4><div class="price">${p.price} ر.ع</div><button class="add-btn">أضف للسلة</button>`;
     const heart=productDiv.querySelector(".heart");
-    heart.addEventListener("click",()=>{ heart.innerText = heart.innerText==="♡" ? "❤️":"♡"; showToast(heart.innerText==="❤️"?"تمت الإضافة للمفضلة":"تمت الإزالة من المفضلة"); });
+    heart.addEventListener("click",()=>{heart.innerText = heart.innerText==="♡"?"❤️":"♡"; showToast(heart.innerText==="❤️"?"تمت الإضافة للمفضلة":"تمت الإزالة من المفضلة");});
     const addBtn=productDiv.querySelector(".add-btn");
     addBtn.addEventListener("click",()=>{ addToCart(p.name,p.price); });
     productsDiv.appendChild(productDiv);
   });
 }
-
-// ---------------- وظائف السلة ----------------
-function addToCart(name,price){
-  const existing=cart.find(i=>i.name===name);
-  if(existing){ existing.qty+=1; }else{ cart.push({name,price,qty:1}); }
-  updateCart();
-  showToast("تمت الإضافة للسلة");
-}
-
+function addToCart(name,price){ const existing=cart.find(i=>i.name===name); if(existing){existing.qty+=1;}else{cart.push({name,price,qty:1});} updateCart(); showToast("تمت الإضافة للسلة"); }
 function updateCart(){
-  cartList.innerHTML="";
-  let total=0, totalQty=0;
-  cart.forEach(i=>{
-    total+=i.price*i.qty;
-    totalQty+=i.qty;
+  cartList.innerHTML=""; let total=0,totalQty=0;
+  cart.forEach(i=>{ total+=i.price*i.qty; totalQty+=i.qty;
     const li=document.createElement("li");
-    li.innerHTML = `
-      ${i.name}
-      <div class="cart-item-controls">
-        <button onclick="changeQty('${i.name}',-1)">-</button>
-        <span>${i.qty}</span>
-        <button onclick="changeQty('${i.name}',1)">+</button>
-        <button onclick="removeItem('${i.name}')">🗑️</button>
-        <span>${(i.price*i.qty).toFixed(2)} ر.ع</span>
-      </div>
-    `;
+    li.innerHTML=`${i.name}<div class="cart-item-controls"><button onclick="changeQty('${i.name}',-1)">-</button><span>${i.qty}</span><button onclick="changeQty('${i.name}',1)">+</button><button onclick="removeItem('${i.name}')">🗑️</button><span>${(i.price*i.qty).toFixed(2)} ر.ع</span></div>`;
     cartList.appendChild(li);
   });
   cartTotal.innerText="الإجمالي: "+total.toFixed(2)+" ر.ع";
-  cartCount.innerText = `${totalQty} عناصر`;
-  cartTotalSummary.innerText = `${total.toFixed(2)} ر.ع`;
+  cartCount.innerText=`${totalQty} عناصر`;
+  cartTotalSummary.innerText=`${total.toFixed(2)} ر.ع`;
 }
-
-function changeQty(name,delta){
-  const item=cart.find(i=>i.name===name);
-  if(!item) return;
-  item.qty+=delta;
-  if(item.qty<1) removeItem(name);
-  updateCart();
-}
-
-function removeItem(name){
-  cart=cart.filter(i=>i.name!==name);
-  updateCart();
-}
-
+function changeQty(name,delta){ const item=cart.find(i=>i.name===name); if(!item) return; item.qty+=delta; if(item.qty<1) removeItem(name); updateCart(); }
+function removeItem(name){ cart=cart.filter(i=>i.name!==name); updateCart(); }
 function openCart(){ updateCart(); cartPopup.style.display="block"; }
 
-// ---------------- التبويبات ----------------
-tabButtons.forEach(btn=>{
-  btn.addEventListener("click",()=>{
-    tabButtons.forEach(b=>b.classList.remove("active"));
-    btn.classList.add("active");
-    currentCategory=btn.dataset.category;
-    searchInput.value="";
-    renderProducts(productsData.filter(p=>p.category===currentCategory));
-    updateOffer();
-  });
-});
+// --------------- التبويبات ----------------
+tabButtons.forEach(btn=>{ btn.addEventListener("click",()=>{ tabButtons.forEach(b=>b.classList.remove("active")); btn.classList.add("active"); currentCategory=btn.dataset.category; searchInput.value=""; renderProducts(productsData.filter(p=>p.category===currentCategory)); updateOffer(); }); });
 
 // ---------------- البحث ----------------
-searchInput.addEventListener("input",()=>{
-  const query=searchInput.value.toLowerCase();
-  renderProducts(productsData.filter(p=>p.category===currentCategory && p.name.toLowerCase().includes(query)));
-});
+searchInput.addEventListener("input",()=>{ const query=searchInput.value.toLowerCase(); renderProducts(productsData.filter(p=>p.category===currentCategory && p.name.toLowerCase().includes(query))); });
 
 // ---------------- العروض ----------------
-let scrollPos=0; let requestId=null;
-function startOfferScroll(){
-  const scrollWidth=offerContent.scrollWidth - offerContent.clientWidth;
-  if(scrollWidth>0){ cancelAnimationFrame(requestId); function step(){ scrollPos+=0.5; if(scrollPos>scrollWidth) scrollPos=0; offerContent.scrollLeft=scrollPos; requestId=requestAnimationFrame(step);} step(); } 
-  else { offerContent.scrollLeft=0; cancelAnimationFrame(requestId); }
-}
-
-function updateOffer(){
-  const offer=categoryOffers[currentCategory];
-  if(offer){ offerText.innerText=offer.text; offerImg.src=offer.img; offerBar.style.display="flex"; scrollPos=0; setTimeout(startOfferScroll,100);}
-  else{ offerText.innerText="عرض اليوم متاح!"; offerImg.src=""; offerContent.scrollLeft=0; cancelAnimationFrame(requestId);}
-}
+let scrollPos=0,requestId=null;
+function startOfferScroll(){ const scrollWidth=offerContent.scrollWidth - offerContent.clientWidth; if(scrollWidth>0){ cancelAnimationFrame(requestId); function step(){ scrollPos+=0.5; if(scrollPos>scrollWidth) scrollPos=0; offerContent.scrollLeft=scrollPos; requestId=requestAnimationFrame(step); } step();} else{ offerContent.scrollLeft=0; cancelAnimationFrame(requestId); } }
+function updateOffer(){ const offer=categoryOffers[currentCategory]; if(offer){ offerText.innerText=offer.text; offerImg.src=offer.img; offerBar.style.display="flex"; scrollPos=0; setTimeout(startOfferScroll,100);} else{ offerText.innerText="عرض اليوم متاح!"; offerImg.src=""; offerContent.scrollLeft=0; cancelAnimationFrame(requestId); } }
 
 // ---------------- تسجيل ودخول المستخدم ----------------
 let isRegister=false;
-function openAuth(register=false){
-  isRegister=register;
-  authPopup.style.display="block";
-  authName.style.display=register?"block":"none";
-  authTitle.innerText=register?"تسجيل حساب":"تسجيل الدخول";
-  authBtn.innerText=register?"سجل الآن":"دخول";
-  toggleAuth.innerText=register?"لديك حساب؟ سجل الدخول":"ليس لديك حساب؟ سجل الآن";
-}
+function openAuth(register=false){ isRegister=register; authPopup.style.display="block"; authName.style.display=register?"block":"none"; authTitle.innerText=register?"تسجيل حساب":"تسجيل الدخول"; authBtn.innerText=register?"سجل الآن":"دخول"; toggleAuth.innerText=register?"لديك حساب؟ سجل الدخول":"ليس لديك حساب؟ سجل الآن"; }
 toggleAuth.addEventListener("click",()=>openAuth(!isRegister));
-
 authBtn.addEventListener("click",()=>{
-  const email=authEmail.value.trim();
-  const password=authPassword.value.trim();
-  const name=authName.value.trim();
+  const email=authEmail.value.trim(); const password=authPassword.value.trim(); const name=authName.value.trim();
   if(isRegister){
     if(!name||!email||!password){ showToast("املأ جميع الحقول"); return; }
     let users=JSON.parse(localStorage.getItem("users")||"[]");
     if(users.find(u=>u.email===email)){ showToast("البريد مستخدم مسبقاً"); return; }
-    users.push({name,email,password});
-    localStorage.setItem("users",JSON.stringify(users));
-    currentUser={name,email};
-    localStorage.setItem("currentUser",JSON.stringify(currentUser));
-    accountNameSpan.innerText=name;
-    showToast("تم التسجيل بنجاح");
-    authPopup.style.display="none";
-  } else{
+    users.push({name,email,password}); localStorage.setItem("users",JSON.stringify(users));
+    currentUser={name,email}; localStorage.setItem("currentUser",JSON.stringify(currentUser)); accountBtn.innerText=name;
+    showToast("تم التسجيل بنجاح"); authPopup.style.display="none";
+  } else {
     let users=JSON.parse(localStorage.getItem("users")||"[]");
-    let user=users.find(u=>u.email===email && u.password===password);
-    if(!user){ showToast("بيانات غير صحيحة"); return; }
-    currentUser={name:user.name,email:user.email};
-    localStorage.setItem("currentUser",JSON.stringify(currentUser));
-    accountNameSpan.innerText=user.name;
-    showToast("تم تسجيل الدخول");
-    authPopup.style.display="none";
+    const user=users.find(u=>u.email===email && u.password===password);
+    if(user){ currentUser={name:user.name,email:user.email}; localStorage.setItem("currentUser",JSON.stringify(currentUser)); accountBtn.innerText=user.name; showToast("تم تسجيل الدخول"); authPopup.style.display="none"; }
+    else showToast("البريد أو كلمة المرور خاطئة");
   }
 });
 
-// ---------------- زر حساب المستخدم ----------------
-accountBtn.addEventListener("click",()=>{
+// ---------------- زر حسابي ----------------
+document.querySelector(".bottom-nav button:nth-child(5)").addEventListener("click",()=>{
   if(!currentUser){ openAuth(false); return; }
-  const choice=confirm("ماذا تريد؟\nموافق=تسجيل خروج\nإلغاء=عرض طلباتي");
-  if(choice){
-    localStorage.removeItem("currentUser");
-    currentUser=null;
-    accountNameSpan.innerText="حسابي";
-    showToast("تم تسجيل الخروج");
-  } else{
-    const orders=JSON.parse(localStorage.getItem("orders")||"[]").filter(o=>o.user===currentUser.email);
-    if(orders.length===0){ alert("لا توجد طلبات بعد"); return; }
-    let msg="طلباتي:\n\n";
-    orders.forEach((o,i)=>{ msg+=`${i+1}. ${o.items.map(it=>it.name+"("+it.qty+")").join(",")}\nالإجمالي: ${o.total} ر.ع\nطريقة الدفع: ${o.method}\n----------------\n`; });
-    alert(msg);
-  }
+  const choice=confirm("هل تريد تسجيل الخروج؟"); if(choice){ currentUser=null; localStorage.removeItem("currentUser"); accountBtn.innerText="حسابي"; showToast("تم تسجيل الخروج"); }
 });
 
-// ---------------- الدفع ----------------
-function openPayment(){ paymentPopup.style.display="block"; }
-paymentPopup.querySelectorAll('input[name="payMethod"]').forEach(r=>r.addEventListener("change",(e)=>{ document.getElementById("cardBox").style.display=e.target.value==="card"?"block":"none"; }));
-function confirmPayment(){
-  const method=paymentPopup.querySelector('input[name="payMethod"]:checked').value;
-  if(cart.length===0){ showToast("السلة فارغة"); return; }
-  const orders=JSON.parse(localStorage.getItem("orders")||"[]");
-  orders.push({user:currentUser.email,items:cart,total:cart.reduce((a,i)=>a+i.price*i.qty,0),method});
-  localStorage.setItem("orders",JSON.stringify(orders));
-  cart=[];
-  updateCart();
-  paymentPopup.style.display="none";
-  showToast("تم تأكيد الطلب");
-}
-
-// ---------------- التاجر ----------------
+// ---------------- لوحة التاجر ----------------
 function openAdminLogin(){ adminLogin.style.display="block"; }
-function loginAdmin(){ if(document.getElementById("adminPass").value===ADMIN_PASSWORD){ isAdmin=true; adminLogin.style.display="none"; adminPanel.style.display="block"; renderAdminProducts(); } else{ showToast("الرقم السري خاطئ"); }}
-function logoutAdmin(){ isAdmin=false; adminPanel.style.display="none"; }
+function loginAdmin(){ if(document.getElementById("adminPass").value===ADMIN_PASSWORD){ isAdmin=true; adminLogin.style.display="none"; adminPanel.style.display="block"; renderAdminProducts(); } else{ showToast("كلمة المرور خاطئة"); } }
+function logoutAdmin(){ isAdmin=false; adminPanel.style.display="none"; showToast("تم الخروج"); }
 function addProduct(){
-  const pName=document.getElementById("pName").value;
-  const pPrice=parseFloat(document.getElementById("pPrice").value);
-  const pImg=document.getElementById("pImg").value;
-  const pCat=document.getElementById("pCat").value;
-  if(!pName||!pPrice||!pImg||!pCat){ showToast("املأ جميع الحقول"); return; }
-  productsData.push({name:pName,price:pPrice,img:pImg,category:pCat});
-  saveProducts(); renderProducts(productsData.filter(p=>p.category===currentCategory));
-  showToast("تم إضافة المنتج");
-  renderAdminProducts();
+  const name=document.getElementById("pName").value;
+  const price=parseFloat(document.getElementById("pPrice").value);
+  const img=document.getElementById("pImg").value;
+  const cat=document.getElementById("pCat").value;
+  if(!name||!price||!img){ showToast("املأ جميع الحقول"); return; }
+  productsData.push({name,price,img,category:cat}); saveProducts(); renderProducts(productsData.filter(p=>p.category===currentCategory)); renderAdminProducts();
+  showToast("تم إضافة المنتج"); document.getElementById("pName").value=""; document.getElementById("pPrice").value=""; document.getElementById("pImg").value="";
 }
 function renderAdminProducts(){
-  const div=document.getElementById("adminProducts"); div.innerHTML="";
+  const container=document.getElementById("adminProducts"); container.innerHTML="";
   productsData.forEach((p,i)=>{
-    const d=document.createElement("div"); d.innerHTML=`${p.name} - ${p.price} ر.ع <button onclick="productsData.splice(${i},1); saveProducts(); renderProducts(productsData.filter(p=>p.category==='${currentCategory}')); renderAdminProducts();">🗑️</button>`;
-    div.appendChild(d);
+    const div=document.createElement("div"); div.style.borderBottom="1px solid #ccc"; div.style.marginBottom="5px";
+    div.innerHTML=`${p.name} - ${p.price} ر.ع <button onclick="deleteProduct(${i})">🗑️</button>`;
+    container.appendChild(div);
   });
 }
+function deleteProduct(idx){ productsData.splice(idx,1); saveProducts(); renderProducts(productsData.filter(p=>p.category===currentCategory)); renderAdminProducts(); showToast("تم الحذف"); }
+
+// ---------------- الدفع ----------------
+document.querySelectorAll('input[name="payMethod"]').forEach(r=>r.addEventListener("change",e=>{ document.getElementById("cardBox").style.display=e.target.value==="card"?"block":"none"; }));
+function openPayment(){ cartPopup.style.display="none"; paymentPopup.style.display="block"; }
+function confirmPayment(){ showToast("تم إتمام الدفع!"); paymentPopup.style.display="none"; cart=[]; updateCart(); }
 
 // ---------------- إغلاق النوافذ ----------------
-document.querySelectorAll(".popup-close").forEach(b=>b.addEventListener("click",()=>b.parentElement.style.display="none"));
+document.querySelectorAll(".popup-close").forEach(btn=>btn.addEventListener("click",()=>btn.parentElement.style.display="none"));
 
-// ---------------- بدء التطبيق ----------------
+// ---------------- البداية ----------------
 renderProducts(productsData.filter(p=>p.category===currentCategory));
 updateOffer();
-updateCart();
-</script>
-
-</body>
-</html>
