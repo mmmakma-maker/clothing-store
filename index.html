@@ -719,8 +719,12 @@ function renderAdminProducts(){
   const box=document.getElementById("adminProducts");
   box.innerHTML="";
   productsData.forEach((p,i)=>{
-    box.innerHTML+=<div style="margin-bottom:5px;">${p.name} - ${p.price} ر.ع <button onclick="deleteProduct(${i})">🗑️</button></div>;
-  });
+  box.innerHTML += `
+  <div style="margin-bottom:5px;">
+    ${p.name} - ${p.price} ر.ع
+    <button onclick="deleteProduct(${i})">🗑️</button>
+  </div>
+`;
 }
 
 // ---------------- الدفع ----------------
