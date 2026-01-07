@@ -502,16 +502,17 @@ function updateCart(){
     total+=i.price*i.qty;
     totalQty+=i.qty;
     const li=document.createElement("li");
-    li.innerHTML=
-      ${i.name} 
-      <div class="cart-item-controls">
-        <button onclick="changeQty('${i.name}',-1)">-</button>
-        <span>${i.qty}</span>
-        <button onclick="changeQty('${i.name}',1)">+</button>
-        <button onclick="removeItem('${i.name}')">🗑️</button>
-        <span>${(i.price*i.qty).toFixed(2)} ر.ع</span>
-      </div>
-    ;
+  li.innerHTML = `
+  ${i.name}
+  <div class="cart-item-controls">
+    <button onclick="changeQty('${i.name}',-1)">-</button>
+    <span>${i.qty}</span>
+    <button onclick="changeQty('${i.name}',1)">+</button>
+    <button onclick="removeItem('${i.name}')">🗑️</button>
+    <span>${(i.price*i.qty).toFixed(2)} ر.ع</span>
+  </div>
+`;
+
     cartList.appendChild(li);
   });
   cartTotal.innerText="الإجمالي: "+total.toFixed(2)+" ر.ع";
