@@ -302,7 +302,7 @@ body{
       <img id="offerImg" src="" alt="عرض">
       <span id="offerText"></span>
     </div>
-    <button onclick="document.getElementById('offerBar').style.display='none'">❌</button>
+    <button onclick="offerBar.style.display='none'">❌</button>
   </div>
 
   <!-- شريط إجمالي السلة -->
@@ -409,7 +409,8 @@ body{
 <div id="toast"></div>
 
 <script>
-// ---------------- البيانات ----------------
+document.addEventListener("DOMContentLoaded", ()=>{
+
 let productsData = JSON.parse(localStorage.getItem("products")) || [
   {name:"عباية عمانية سوداء",price:80,img:"https://i.imgur.com/0y8Ftya.jpg",category:"omani"},
   {name:"فستان بلوشي مطرز",price:95,img:"https://i.imgur.com/Yx8FqPz.jpg",category:"blushi"},
@@ -457,37 +458,41 @@ const paymentPopup=document.getElementById("paymentPopup");
 
 const ADMIN_PASSWORD = "1234"; 
 let isAdmin = false;
-
-// ---------------- currentUser ----------------
 let currentUser = JSON.parse(localStorage.getItem("currentUser")) || null;
 if(currentUser) accountBtn.innerText=currentUser.name;
 
-// ---------------- عرض المنتجات ----------------
+// ---------------- وظائف ----------------
+
+function showToast(msg){
+  const t=document.getElementById("toast");
+  t.innerText=msg;
+  t.style.display="block";
+  setTimeout(()=>t.style.display="none",2000);
+}
+
 function renderProducts(list){
   productsDiv.innerHTML="";
   list.forEach(p=>{
     const productDiv=document.createElement("div");
     productDiv.className="product";
-   productDiv.innerHTML = `
-    <div class="heart">♡</div>
-    <img src="${p.img}">
-    <h4>${p.name}</h4>
-    <div class="price">${p.price} ر.ع</div>
-    <button class="add-btn">أضف للسلة</button>
-`;
-
-    const heart=productDiv.querySelector(".heart");
-    heart.addEventListener("click",()=>{
-      heart.innerText = heart.innerText==="♡" ? "❤️" : "♡";
+    productDiv.innerHTML = `
+      <div class="heart">♡</div>
+      <img src="${p.img}">
+      <h4>${p.name}</h4>
+      <div class="price">${p.price} ر.ع</div>
+      <button class="add-btn">أضف للسلة</button>
+    `;
+    productDiv.querySelector(".heart").addEventListener("click",()=>{
+      const heart = productDiv.querySelector(".heart");
+      heart.innerText = heart.innerText==="♡"?"❤️":"♡";
       showToast(heart.innerText==="❤️"?"تمت الإضافة للمفضلة":"تمت الإزالة من المفضلة");
     });
-    const addBtn=productDiv.querySelector(".add-btn");
-    addBtn.addEventListener("click",()=>{ addToCart(p.name,p.price); });
+    productDiv.querySelector(".add-btn").addEventListener("click",()=> addToCart(p.name,p.price));
     productsDiv.appendChild(productDiv);
   });
 }
 
-// ---------------- وظائف السلة ----------------
+// السلة
 function addToCart(name,price){
   const existing=cart.find(i=>i.name===name);
   if(existing){ existing.qty+=1; }else{ cart.push({name,price,qty:1}); }
@@ -497,27 +502,30 @@ function addToCart(name,price){
 
 function updateCart(){
   cartList.innerHTML="";
-  let total=0, totalQty=0;
+  let total=0,totalQty=0;
   cart.forEach(i=>{
-    total+=i.price*i.qty;
-    totalQty+=i.qty;
+    total += i.price*i.qty;
+    totalQty += i.qty;
     const li=document.createElement("li");
-  li.innerHTML = `
-  ${i.name}
-  <div class="cart-item-controls">
-    <button onclick="changeQty('${i.name}',-1)">-</button>
-    <span>${i.qty}</span>
-    <button onclick="changeQty('${i.name}',1)">+</button>
-    <button onclick="removeItem('${i.name}')">🗑️</button>
-    <span>${(i.price*i.qty).toFixed(2)} ر.ع</span>
-  </div>
-`;
-
+    li.innerHTML = `
+      ${i.name}
+      <div class="cart-item-controls">
+        <button>-</button>
+        <span>${i.qty}</span>
+        <button>+</button>
+        <button>🗑️</button>
+        <span>${(i.price*i.qty).toFixed(2)} ر.ع</span>
+      </div>
+    `;
+    const controls = li.querySelector(".cart-item-controls");
+    controls.children[0].addEventListener("click",()=>changeQty(i.name,-1));
+    controls.children[2].addEventListener("click",()=>changeQty(i.name,1));
+    controls.children[3].addEventListener("click",()=>removeItem(i.name));
     cartList.appendChild(li);
   });
   cartTotal.innerText="الإجمالي: "+total.toFixed(2)+" ر.ع";
- cartCount.innerText = `${totalQty} عناصر`;
- cartTotalSummary.innerText = `${total.toFixed(2)} ر.ع`;
+  cartCount.innerText = `${totalQty} عناصر`;
+  cartTotalSummary.innerText = `${total.toFixed(2)} ر.ع`;
 }
 
 function changeQty(name,delta){
@@ -538,7 +546,7 @@ function openCart(){
   cartPopup.style.display="block";
 }
 
-// ---------------- التبويبات ----------------
+// تبويبات
 tabButtons.forEach(btn=>{
   btn.addEventListener("click",()=>{
     tabButtons.forEach(b=>b.classList.remove("active"));
@@ -550,24 +558,16 @@ tabButtons.forEach(btn=>{
   });
 });
 
-// ---------------- البحث ----------------
+// بحث
 searchInput.addEventListener("input",()=>{
   const query=searchInput.value.toLowerCase();
   renderProducts(productsData.filter(p=>p.category===currentCategory && p.name.toLowerCase().includes(query)));
 });
 
-// ---------------- التنبيهات ----------------
-function showToast(msg){
-  const t=document.getElementById("toast");
-  t.innerText=msg;
-  t.style.display="block";
-  setTimeout(()=>t.style.display="none",2000);
-}
-
-// ---------------- شريط العروض ----------------
-let scrollPos=0;
-let requestId=null;
+// العروض
+let scrollPos=0,requestId=null;
 function startOfferScroll(){
+  if(!offerContent) return;
   const scrollWidth=offerContent.scrollWidth - offerContent.clientWidth;
   if(scrollWidth>0){
     cancelAnimationFrame(requestId);
@@ -578,219 +578,96 @@ function startOfferScroll(){
       requestId=requestAnimationFrame(step);
     }
     step();
-  } else {
-    offerContent.scrollLeft=0;
-    cancelAnimationFrame(requestId);
-  }
+  }else{ offerContent.scrollLeft=0; cancelAnimationFrame(requestId); }
 }
-
 function updateOffer(){
-  const offer=categoryOffers[currentCategory];
-  if(offer){
-    offerText.innerText=offer.text;
-    offerImg.src=offer.img;
-    offerBar.style.display="flex";
-    scrollPos=0;
-    setTimeout(startOfferScroll,100);
-  }else{
-    offerText.innerText="عرض اليوم متاح!";
-    offerImg.src="";
-    offerContent.scrollLeft=0;
-    cancelAnimationFrame(requestId);
-  }
+  const o = categoryOffers[currentCategory];
+  offerText.innerText=o.text;
+  offerImg.src=o.img;
+  startOfferScroll();
 }
 
-// ---------------- تسجيل ودخول المستخدم ----------------
+// تسجيل / دخول المستخدم
 let isRegister=false;
-function openAuth(register=false){
-  isRegister=register;
-  authPopup.style.display="block";
-  authName.style.display=register?"block":"none";
-  authTitle.innerText=register?"تسجيل حساب":"تسجيل الدخول";
-  authBtn.innerText=register?"سجل الآن":"دخول";
-  toggleAuth.innerText=register?"لديك حساب؟ سجل الدخول":"ليس لديك حساب؟ سجل الآن";
-}
-toggleAuth.addEventListener("click",()=>openAuth(!isRegister));
+toggleAuth.addEventListener("click",()=>{
+  isRegister = !isRegister;
+  authName.style.display = isRegister ? "block" : "none";
+  authTitle.innerText = isRegister ? "تسجيل" : "تسجيل الدخول";
+  authBtn.innerText = isRegister ? "سجل" : "دخول";
+  toggleAuth.innerText = isRegister ? "لديك حساب؟ دخول" : "ليس لديك حساب؟ سجل الآن";
+});
 
 authBtn.addEventListener("click",()=>{
-  const email=authEmail.value.trim();
-  const password=authPassword.value.trim();
-  const name=authName.value.trim();
   if(isRegister){
-    if(!name||!email||!password){ showToast("املأ جميع الحقول"); return; }
-    let users=JSON.parse(localStorage.getItem("users")||"[]");
-    if(users.find(u=>u.email===email)){ showToast("البريد مستخدم مسبقاً"); return; }
-    users.push({name,email,password});
-    localStorage.setItem("users",JSON.stringify(users));
-    currentUser={name,email};
+    currentUser={name:authName.value,email:authEmail.value};
     localStorage.setItem("currentUser",JSON.stringify(currentUser));
-    accountBtn.innerText=name;
     showToast("تم التسجيل بنجاح");
     authPopup.style.display="none";
-  } else {
-    let users=JSON.parse(localStorage.getItem("users")||"[]");
-    const user=users.find(u=>u.email===email && u.password===password);
-    if(user){
-      currentUser={name:user.name,email:user.email};
-      localStorage.setItem("currentUser",JSON.stringify(currentUser));
-      accountBtn.innerText=user.name;
-      showToast("تم تسجيل الدخول");
-      authPopup.style.display="none";
-    } else showToast("البريد أو كلمة المرور خاطئة");
+    accountBtn.innerText=currentUser.name;
+  }else{
+    const user=JSON.parse(localStorage.getItem("currentUser"));
+    if(user && user.email===authEmail.value){ authPopup.style.display="none"; accountBtn.innerText=user.name; showToast("تم الدخول"); }
+    else{ showToast("بيانات خاطئة"); }
   }
 });
 
-// زر الحساب
-document.querySelector(".bottom-nav button:nth-child(5)").addEventListener("click",()=>{
-  if(!currentUser){
-    openAuth(false);
-    return;
-  }
+// فتح نافذة الدفع
+function openPayment(){ cartPopup.style.display="none"; paymentPopup.style.display="block"; }
+function confirmPayment(){ showToast("تم الطلب بنجاح"); cart=[]; updateCart(); paymentPopup.style.display="none"; }
 
-  const choice = confirm(
-    "ماذا تريد؟\n\nموافق = تسجيل خروج\nإلغاء = عرض طلباتي"
-  );
-
-  if(choice){
-    // تسجيل خروج
-    localStorage.removeItem("currentUser");
-    currentUser = null;
-    accountBtn.innerText = "حسابي";
-    showToast("تم تسجيل الخروج");
-  } else {
-    // عرض الطلبات
-    const orders = JSON.parse(localStorage.getItem("orders") || "[]")
-      .filter(o => o.user === currentUser.email);
-
-    if(orders.length === 0){
-      alert("لا توجد طلبات بعد");
-      return;
-    }
-
-    let msg="طلباتي:\n\n";
-    orders.forEach((o,i)=>{
-   msg += `
-${i+1}. ${o.items.map(it=>it.name+"("+it.qty+")").join(", ")}
-الإجمالي: ${o.total} ر.ع
-طريقة الدفع: ${o.method}
--------------------
-`;
-    });
-
-    alert(msg);
-  }
-});
-
-// ---------------- التاجر ----------------
+// تاجر
 function openAdminLogin(){ adminLogin.style.display="block"; }
-function loginAdmin(){
-  const pass=document.getElementById("adminPass").value;
-  if(pass===ADMIN_PASSWORD){
-    isAdmin=true;
-    adminLogin.style.display="none";
-    adminPanel.style.display="block";
-    renderAdminProducts();
-    showToast("تم دخول التاجر");
-  } else showToast("الرقم السري خطأ");
+function loginAdmin(){ 
+  if(document.getElementById("adminPass").value===ADMIN_PASSWORD){ isAdmin=true; adminLogin.style.display="none"; adminPanel.style.display="block"; renderAdminProducts(); }
+  else showToast("الرقم السري خاطئ");
 }
-function logoutAdmin(){ isAdmin=false; adminPanel.style.display="none"; }
-
+function logoutAdmin(){ isAdmin=false; adminPanel.style.display="none"; showToast("تم تسجيل الخروج"); }
 function addProduct(){
-  const name=pName.value.trim();
-  const price=Number(pPrice.value);
-  const img=pImg.value.trim();
-  const category=pCat.value;
-  if(!name||!price||!img){ showToast("أدخل جميع البيانات"); return; }
-  productsData.push({name,price,img,category});
+  const name=document.getElementById("pName").value;
+  const price=parseFloat(document.getElementById("pPrice").value);
+  const img=document.getElementById("pImg").value;
+  const cat=document.getElementById("pCat").value;
+  if(!name || isNaN(price) || !img){ showToast("أدخل جميع البيانات"); return; }
+  productsData.push({name,price,img,category:cat});
   saveProducts();
-  renderProducts(productsData.filter(p=>p.category===currentCategory));
   renderAdminProducts();
-  pName.value=""; pPrice.value=""; pImg.value="";
+  showToast("تمت الإضافة");
 }
-
-function deleteProduct(index){
-  productsData.splice(index,1);
-  saveProducts();
-  renderProducts(productsData.filter(p=>p.category===currentCategory));
-  renderAdminProducts();
-}
-
 function renderAdminProducts(){
   const box=document.getElementById("adminProducts");
   box.innerHTML="";
   productsData.forEach((p,i)=>{
-  box.innerHTML += `
-  <div style="margin-bottom:5px;">
-    ${p.name} - ${p.price} ر.ع
-    <button onclick="deleteProduct(${i})">🗑️</button>
-  </div>
-`;
-}
-
-// ---------------- الدفع ----------------
-function openPayment(){
-  if(!currentUser){
-    showToast("سجّل الدخول أولاً");
-    return;
-  }
-  if(cart.length===0){
-    showToast("السلة فارغة");
-    return;
-  }
-  paymentPopup.style.display="block";
-}
-
-document.querySelectorAll("input[name='payMethod']").forEach(r=>{
-  r.addEventListener("change",()=>{
-    document.getElementById("cardBox").style.display =
-      r.value==="card" && r.checked ? "block" : "none";
+    const div=document.createElement("div");
+    div.style.marginBottom="5px";
+    div.innerText = `${p.name} - ${p.price} ر.ع`;
+    const btn=document.createElement("button");
+    btn.innerText="🗑️";
+    btn.addEventListener("click",()=>{ productsData.splice(i,1); saveProducts(); renderAdminProducts(); showToast("تم الحذف"); });
+    div.appendChild(btn);
+    box.appendChild(div);
   });
-});
-
-function confirmPayment(){
-  const method=document.querySelector("input[name='payMethod']:checked").value;
-  let orders = JSON.parse(localStorage.getItem("orders") || "[]");
-  orders.push({
-    user: currentUser.email,
-    items: cart,
-    total: cart.reduce((s,i)=>s+i.price*i.qty,0),
-    method,
-    date: new Date().toLocaleString()
-  });
-  localStorage.setItem("orders",JSON.stringify(orders));
-  cart=[];
-  updateCart();
-  paymentPopup.style.display="none";
-  cartPopup.style.display="none";
-  showToast("تم تنفيذ الطلب بنجاح ✅");
 }
 
-// ---------------- الإغلاق بالنقر خارج popup ----------------
-const allPopups=[authPopup,adminLogin,adminPanel,cartPopup,paymentPopup];
-allPopups.forEach(p=>{
-  const btn=p.querySelector(".popup-close");
-  if(btn) btn.addEventListener("click",()=>{ p.style.display="none"; });
+// إغلاق النوافذ
+document.querySelectorAll(".popup-close").forEach(b=>{
+  b.addEventListener("click",()=>b.parentElement.style.display="none");
 });
-
 document.addEventListener("click",(e)=>{
-  allPopups.forEach(p=>{
-    if(
-      p.style.display === "block" &&
-      !p.contains(e.target) &&
-      !e.target.closest("button") &&
-      !e.target.closest("input") &&
-      !e.target.closest("label") &&
-      !e.target.closest("textarea")
-    ){
-      p.style.display = "none";
-    }
+  [cartPopup,paymentPopup,authPopup,adminLogin,adminPanel].forEach(p=>{
+    if(p.style.display==="block" && !p.contains(e.target) && !e.target.closest(".bottom-nav")){ p.style.display="none"; }
   });
 });
-// ---------------- البداية ----------------
-renderProducts(productsData.filter(p=>p.category==="omani"));
+
+document.querySelectorAll('input[name="payMethod"]').forEach(r=>{
+  r.addEventListener("change",()=>{ document.getElementById("cardBox").style.display=r.value==="card"?"block":"none"; });
+});
+
+// بدء كل شيء
+renderProducts(productsData.filter(p=>p.category===currentCategory));
 updateOffer();
 updateCart();
-</script>
 
+});
+</script>
 </body>
 </html>
