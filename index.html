@@ -494,6 +494,7 @@ function addToCart(name,price){
 }
 
 function updateCart(){
+  localStorage.setItem("cart", JSON.stringify(cart));
   cartList.innerHTML="";
   let total=0, totalQty=0;
   cart.forEach(i=>{
