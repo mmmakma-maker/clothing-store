@@ -669,10 +669,12 @@ document.querySelector(".bottom-nav button:nth-child(5)").addEventListener("clic
 
     let msg="طلباتي:\n\n";
     orders.forEach((o,i)=>{
-      msg+=${i+1}. ${o.items.map(it=>it.name+"("+it.qty+")").join(", ")}
+   msg += `
+${i+1}. ${o.items.map(it=>it.name+"("+it.qty+")").join(", ")}
 الإجمالي: ${o.total} ر.ع
 طريقة الدفع: ${o.method}
--------------------\n;
+-------------------
+`;
     });
 
     alert(msg);
