@@ -1,3 +1,5 @@
+
+You said:
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -283,6 +285,7 @@ body{
   background:#ff5722;
   color:white;
 }
+}
 </style>
 </head>
 <body>
@@ -423,14 +426,7 @@ const categoryOffers={
 };
 
 let cart=[];
-let cart = [];
-
-try {
-  cart = JSON.parse(localStorage.getItem("cart")) || [];
-} catch (e) {
-  cart = [];
-  localStorage.removeItem("cart");
-}
+let currentCategory="omani";
 
 const productsDiv=document.getElementById("products");
 const cartPopup=document.getElementById("cartPopup");
@@ -474,13 +470,13 @@ function renderProducts(list){
   list.forEach(p=>{
     const productDiv=document.createElement("div");
     productDiv.className="product";
-    productDiv.innerHTML=`
+    productDiv.innerHTML=
       <div class="heart">♡</div>
       <img src="${p.img}">
       <h4>${p.name}</h4>
       <div class="price">${p.price} ر.ع</div>
       <button class="add-btn">أضف للسلة</button>
-    `;
+    ;
     const heart=productDiv.querySelector(".heart");
     heart.addEventListener("click",()=>{
       heart.innerText = heart.innerText==="♡" ? "❤️" : "♡";
@@ -501,14 +497,13 @@ function addToCart(name,price){
 }
 
 function updateCart(){
-  localStorage.setItem("cart", JSON.stringify(cart));
   cartList.innerHTML="";
   let total=0, totalQty=0;
   cart.forEach(i=>{
     total+=i.price*i.qty;
     totalQty+=i.qty;
     const li=document.createElement("li");
-    li.innerHTML=`
+    li.innerHTML=
       ${i.name} 
       <div class="cart-item-controls">
         <button onclick="changeQty('${i.name}',-1)">-</button>
@@ -517,12 +512,12 @@ function updateCart(){
         <button onclick="removeItem('${i.name}')">🗑️</button>
         <span>${(i.price*i.qty).toFixed(2)} ر.ع</span>
       </div>
-    `;
+    ;
     cartList.appendChild(li);
   });
   cartTotal.innerText="الإجمالي: "+total.toFixed(2)+" ر.ع";
-  cartCount.innerText=`${totalQty} عناصر`;
-  cartTotalSummary.innerText=`${total.toFixed(2)} ر.ع`;
+  cartCount.innerText=${totalQty} عناصر;
+  cartTotalSummary.innerText=${total.toFixed(2)} ر.ع;
 }
 
 function changeQty(name,delta){
@@ -674,10 +669,10 @@ document.querySelector(".bottom-nav button:nth-child(5)").addEventListener("clic
 
     let msg="طلباتي:\n\n";
     orders.forEach((o,i)=>{
-      msg+=`${i+1}. ${o.items.map(it=>it.name+"("+it.qty+")").join(", ")}
+      msg+=${i+1}. ${o.items.map(it=>it.name+"("+it.qty+")").join(", ")}
 الإجمالي: ${o.total} ر.ع
 طريقة الدفع: ${o.method}
--------------------\n`;
+-------------------\n;
     });
 
     alert(msg);
@@ -722,7 +717,7 @@ function renderAdminProducts(){
   const box=document.getElementById("adminProducts");
   box.innerHTML="";
   productsData.forEach((p,i)=>{
-    box.innerHTML+=`<div style="margin-bottom:5px;">${p.name} - ${p.price} ر.ع <button onclick="deleteProduct(${i})">🗑️</button></div>`;
+    box.innerHTML+=<div style="margin-bottom:5px;">${p.name} - ${p.price} ر.ع <button onclick="deleteProduct(${i})">🗑️</button></div>;
   });
 }
 
@@ -757,9 +752,8 @@ function confirmPayment(){
     date: new Date().toLocaleString()
   });
   localStorage.setItem("orders",JSON.stringify(orders));
- cart = [];
-localStorage.removeItem("cart");
-updateCart();
+  cart=[];
+  updateCart();
   paymentPopup.style.display="none";
   cartPopup.style.display="none";
   showToast("تم تنفيذ الطلب بنجاح ✅");
