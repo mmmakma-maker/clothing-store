@@ -367,7 +367,14 @@ accountBtn.addEventListener("click",()=>{
 });
 
 // ---------------- الدفع ----------------
-function openPayment(){ paymentPopup.style.display="block"; }
+function openPayment(){
+  if(!currentUser){
+    showToast("يرجى تسجيل الدخول لإتمام الطلب");
+    openAuth(false);
+    return;
+  }
+  paymentPopup.style.display="block";
+}
 paymentPopup.querySelectorAll('input[name="payMethod"]').forEach(r=>r.addEventListener("change",(e)=>{ document.getElementById("cardBox").style.display=e.target.value==="card"?"block":"none"; }));
 function confirmPayment(){
   const method=paymentPopup.querySelector('input[name="payMethod"]:checked').value;
