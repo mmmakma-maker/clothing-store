@@ -205,6 +205,23 @@ const adminLogin=document.getElementById("adminLogin");
 const adminPanel=document.getElementById("adminPanel");
 const paymentPopup=document.getElementById("paymentPopup");
 
+  // ===== رفع ومعاينة صورة المنتج (لوحة التاجر) =====
+const pImgFile = document.getElementById("pImgFile");
+const previewImg = document.getElementById("previewImg");
+
+if(pImgFile){
+  pImgFile.addEventListener("change",()=>{
+    const file = pImgFile.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = e=>{
+      previewImg.src = e.target.result;
+      previewImg.style.display = "block";
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
 const ADMIN_PASSWORD = "1234"; 
 let isAdmin = false;
 
