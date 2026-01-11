@@ -419,16 +419,40 @@ function openAdminLogin(){ adminLogin.style.display="block"; }
 function loginAdmin(){ if(document.getElementById("adminPass").value===ADMIN_PASSWORD){ isAdmin=true; adminLogin.style.display="none"; adminPanel.style.display="block"; renderAdminProducts(); } else{ showToast("الرقم السري خاطئ"); }}
 function logoutAdmin(){ isAdmin=false; adminPanel.style.display="none"; }
 function addProduct(){
-  const pName=document.getElementById("pName").value;
-  const pPrice=parseFloat(document.getElementById("pPrice").value);
-  const pImg=document.getElementById("pImg").value;
-  const pCat=document.getElementById("pCat").value;
-  if(!pName||!pPrice||!pImg||!pCat){ showToast("املأ جميع الحقول"); return; }
-  productsData.push({name:pName,price:pPrice,img:pImg,category:pCat});
-  saveProducts(); renderProducts(productsData.filter(p=>p.category===currentCategory));
-  showToast("تم إضافة المنتج");
-  renderAdminProducts();
+  const pName = document.getElementById("pName").value.trim();
+  const pPrice = parseFloat(document.getElementById("pPrice").value);
+  const pCat = document.getElementById("pCat").value;
+  const file = pImgFile.files[0];
+
+  if(!pName || !pPrice || !file || !pCat){
+    showToast("املأ جميع الحقول");
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = function(e){
+    productsData.push({
+      name: pName,
+      price: pPrice,
+      img: e.target.result,   // الصورة من الكاميرا/الاستديو
+      category: pCat
+    });
+
+    saveProducts();
+    renderProducts(productsData.filter(p=>p.category===currentCategory));
+    renderAdminProducts();
+    showToast("تم إضافة المنتج");
+
+    // تفريغ الحقول
+    document.getElementById("pName").value="";
+    document.getElementById("pPrice").value="";
+    pImgFile.value="";
+    previewImg.style.display="none";
+  };
+
+  reader.readAsDataURL(file);
 }
+
 function renderAdminProducts(){
   const div=document.getElementById("adminProducts"); div.innerHTML="";
   productsData.forEach((p,i)=>{
