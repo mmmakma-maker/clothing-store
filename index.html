@@ -132,7 +132,9 @@ body{margin:0;font-family: 'Segoe UI', Tahoma;background:#f5f5f5;}
   <h3>لوحة تحكم التاجر</h3>
   <input id="pName" placeholder="اسم المنتج">
   <input id="pPrice" type="number" placeholder="السعر">
-  <input id="pImg" placeholder="رابط الصورة">
+  <label>صورة المنتج</label>
+  <input id="pImgFile" type="file" accept="image/*" capture="environment">
+  <img id="previewImg" style="width:100%;border-radius:10px;margin-bottom:5px;display:none;">
   <select id="pCat">
     <option value="omani">عمانية</option>
     <option value="blushi">بلوشي</option>
