@@ -518,7 +518,12 @@ function renderAdminProducts(){
 }
 
 // ---------------- إغلاق النوافذ ----------------
-document.querySelectorAll(".popup-close").forEach(b=>b.addEventListener("click",()=>b.parentElement.style.display="none"));
+// تضمن أن كل أزرار ❌ تعمل حتى نافذة تكبير الصورة
+document.addEventListener("DOMContentLoaded", ()=>{
+  document.querySelectorAll(".popup-close").forEach(b=>{
+    b.addEventListener("click", ()=> b.parentElement.style.display="none");
+  });
+});
   
  // ---------------- طلبات التاجر ----------------
 function renderAdminOrders(){
