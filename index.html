@@ -185,6 +185,7 @@ const categoryOffers={
 let cart=[];
 let currentCategory="omani";
 let currentUser = JSON.parse(localStorage.getItem("currentUser")) || null;
+let favorites = JSON.parse(localStorage.getItem("favorites") || "[]");
 
 const productsDiv=document.getElementById("products");
 const cartPopup=document.getElementById("cartPopup");
