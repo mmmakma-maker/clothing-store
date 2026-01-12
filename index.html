@@ -261,11 +261,9 @@ function renderProducts(list){
       <button class="add-btn">أضف للسلة</button>
     `;
 
-    // ✅ فتح نافذة تكبير الصورة
     const img = productDiv.querySelector(".product-img");
     img.addEventListener("click", () => openImagePopup(p));
 
-    // ❤️ المفضلة
     const heart = productDiv.querySelector(".heart");
     heart.addEventListener("click", ()=>{
       heart.innerText = heart.innerText==="♡" ? "❤️":"♡";
@@ -276,7 +274,6 @@ function renderProducts(list){
       );
     });
 
-    // 🛒 إضافة للسلة
     const addBtn = productDiv.querySelector(".add-btn");
     addBtn.addEventListener("click", ()=>{
       addToCart(p.name, p.price);
@@ -286,13 +283,6 @@ function renderProducts(list){
   });
 }
 
-    const heart=productDiv.querySelector(".heart");
-    heart.addEventListener("click",()=>{ heart.innerText = heart.innerText==="♡" ? "❤️":"♡"; showToast(heart.innerText==="❤️"?"تمت الإضافة للمفضلة":"تمت الإزالة من المفضلة"); });
-    const addBtn=productDiv.querySelector(".add-btn");
-    addBtn.addEventListener("click",()=>{ addToCart(p.name,p.price); });
-    productsDiv.appendChild(productDiv);
-  });
-}
 
 // ---------------- وظائف السلة ----------------
 function addToCart(name,price){
