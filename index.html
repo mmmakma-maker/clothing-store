@@ -527,6 +527,18 @@ function renderAdminOrders(){
     box.appendChild(div);
   });
 }
+  
+function updateOrderStatus(id, status){
+  let orders = JSON.parse(localStorage.getItem("orders") || "[]");
+  const order = orders.find(o => o.id === id);
+  if(!order) return;
+
+  order.status = status;
+  localStorage.setItem("orders", JSON.stringify(orders));
+
+  renderAdminOrders();
+  showToast("تم تحديث حالة الطلب");
+}
 
 // ---------------- بدء التطبيق ----------------
 renderProducts(productsData.filter(p=>p.category===currentCategory));
