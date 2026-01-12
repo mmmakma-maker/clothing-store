@@ -434,7 +434,17 @@ function confirmPayment(){
 
 // ---------------- التاجر ----------------
 function openAdminLogin(){ adminLogin.style.display="block"; }
-function loginAdmin(){ if(document.getElementById("adminPass").value===ADMIN_PASSWORD){ isAdmin=true; adminLogin.style.display="none"; adminPanel.style.display="block"; renderAdminProducts(); } else{ showToast("الرقم السري خاطئ"); }}
+function loginAdmin(){
+  if(document.getElementById("adminPass").value===ADMIN_PASSWORD){
+    isAdmin=true;
+    adminLogin.style.display="none";
+    adminPanel.style.display="block";
+    renderAdminProducts();
+    renderAdminOrders(); // ⭐ هذا السطر الجديد
+  } else{
+    showToast("الرقم السري خاطئ");
+  }
+}
 function logoutAdmin(){ isAdmin=false; adminPanel.style.display="none"; }
 function addProduct(){
   const pName = document.getElementById("pName").value.trim();
