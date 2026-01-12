@@ -427,6 +427,75 @@ function openPayment(){
 }
 paymentPopup.querySelectorAll('input[name="payMethod"]').forEach(r=>r.addEventListener("change",(e)=>{ document.getElementById("cardBox").style.display=e.target.value==="card"?"block":"none"; }));
 function confirmPayment(){
+
+  // التحقق من بيانات الشحن
+  if(
+    !shippingName.value ||
+    !shippingPhone.value ||
+    !shippingAddress.value
+  ){
+    showToast("يرجى تعبئة بيانات الشحن");
+    return;
+  }
+
+  const method = paymentPopup.querySelector(
+    'input[name="payMethod"]:checked'
+  ).value;
+
+  if(cart.length === 0){
+    showToast("السلة فارغة");
+    return;
+  }
+
+  // جلب الطلبات السابقة
+  const orders = JSON.parse(localStorage.getItem("orders") || "[]");
+
+  // إنشاء الطلب الجديد
+  const newOrder = {
+    id: Date.now(),
+    user: currentUser.email,
+    items: [...cart],
+    total: cart.reduce((a,i)=>a + i.price * i.qty, 0),
+    method: method,
+    status: "paid",
+    date: new Date().toLocaleString(),
+    shipping:{
+      name: shippingName.value,
+      phone: shippingPhone.value,
+      address: shippingAddress.value
+    }
+  };
+
+  orders.push(newOrder);
+  localStorage.setItem("orders", JSON.stringify(orders));
+
+  // 📲 إرسال الطلب إلى واتساب
+  const waNumber = "968XXXXXXXX"; // ← ضع رقمك هنا بدون +
+  let waMessage = "🛍️ طلب جديد:\n\n";
+
+  newOrder.items.forEach(item=>{
+    waMessage += `- ${item.name} × ${item.qty}\n`;
+  });
+
+  waMessage += `\n💰 الإجمالي: ${newOrder.total} ر.ع`;
+  waMessage += `\n💳 الدفع: ${newOrder.method}`;
+  waMessage += `\n👤 الاسم: ${newOrder.shipping.name}`;
+  waMessage += `\n📞 الهاتف: ${newOrder.shipping.phone}`;
+  waMessage += `\n📍 العنوان: ${newOrder.shipping.address}`;
+
+  window.open(
+    `https://wa.me/${waNumber}?text=${encodeURIComponent(waMessage)}`,
+    "_blank"
+  );
+
+  // تفريغ السلة
+  cart = [];
+  updateCart();
+  paymentPopup.style.display = "none";
+
+  showToast("تم تأكيد الطلب");
+}
+  
   const method=paymentPopup.querySelector('input[name="payMethod"]:checked').value;
   if(cart.length===0){ showToast("السلة فارغة"); return; }
   const orders=JSON.parse(localStorage.getItem("orders")||"[]");
