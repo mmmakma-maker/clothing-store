@@ -496,25 +496,6 @@ function confirmPayment(){
   showToast("تم تأكيد الطلب");
 }
   
-  const method=paymentPopup.querySelector('input[name="payMethod"]:checked').value;
-  if(cart.length===0){ showToast("السلة فارغة"); return; }
-  const orders=JSON.parse(localStorage.getItem("orders")||"[]");
-  orders.push({
-  id: Date.now(),
-  user: currentUser.email,
-  items: cart,
-  total: cart.reduce((a,i)=>a+i.price*i.qty,0),
-  method,
-  status: "paid", // مدفوع
-  date: new Date().toLocaleString()
-});
-  localStorage.setItem("orders",JSON.stringify(orders));
-  cart=[];
-  updateCart();
-  paymentPopup.style.display="none";
-  showToast("تم تأكيد الطلب");
-}
-  
 // ---------------- التاجر ----------------
 function openAdminLogin(){ adminLogin.style.display="block"; }
 function loginAdmin(){
