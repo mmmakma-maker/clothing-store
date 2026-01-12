@@ -312,6 +312,20 @@ function removeItem(name){
 }
 
 function openCart(){ updateCart(); cartPopup.style.display="block"; }
+  
+  // ---------------- هنا ضع هذه الدالة الجديدة ----------------
+function openImagePopup(product){
+  document.getElementById("popupImg").src = product.img;
+  document.getElementById("popupName").innerText = product.name;
+  document.getElementById("popupPrice").innerText = product.price + " ر.ع";
+
+  document.getElementById("popupAddBtn").onclick = ()=>{
+    addToCart(product.name, product.price);
+    document.getElementById("imagePopup").style.display = "none";
+  };
+
+  document.getElementById("imagePopup").style.display = "block";
+}
 
 // ---------------- التبويبات ----------------
 tabButtons.forEach(btn=>{
