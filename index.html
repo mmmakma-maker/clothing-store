@@ -252,18 +252,39 @@ function renderProducts(list){
   list.forEach(p=>{
     const productDiv=document.createElement("div");
     productDiv.className="product";
-    
-    productDiv.innerHTML = `
-      productDiv.innerHTML = `
-  <div class="heart">♡</div>
-  <img src="${p.img}" class="product-img" style="cursor:zoom-in;">
-  <h4>${p.name}</h4>
-  <div class="price">${p.price} ر.ع</div>
-  <button class="add-btn">أضف للسلة</button>
-  `;
 
-  const img = productDiv.querySelector(".product-img");
-  img.addEventListener("click", () => openImagePopup(p));
+    productDiv.innerHTML = `
+      <div class="heart">♡</div>
+      <img src="${p.img}" class="product-img" style="cursor:zoom-in;">
+      <h4>${p.name}</h4>
+      <div class="price">${p.price} ر.ع</div>
+      <button class="add-btn">أضف للسلة</button>
+    `;
+
+    // ✅ فتح نافذة تكبير الصورة
+    const img = productDiv.querySelector(".product-img");
+    img.addEventListener("click", () => openImagePopup(p));
+
+    // ❤️ المفضلة
+    const heart = productDiv.querySelector(".heart");
+    heart.addEventListener("click", ()=>{
+      heart.innerText = heart.innerText==="♡" ? "❤️":"♡";
+      showToast(
+        heart.innerText==="❤️"
+        ? "تمت الإضافة للمفضلة"
+        : "تمت الإزالة من المفضلة"
+      );
+    });
+
+    // 🛒 إضافة للسلة
+    const addBtn = productDiv.querySelector(".add-btn");
+    addBtn.addEventListener("click", ()=>{
+      addToCart(p.name, p.price);
+    });
+
+    productsDiv.appendChild(productDiv);
+  });
+}
 
     const heart=productDiv.querySelector(".heart");
     heart.addEventListener("click",()=>{ heart.innerText = heart.innerText==="♡" ? "❤️":"♡"; showToast(heart.innerText==="❤️"?"تمت الإضافة للمفضلة":"تمت الإزالة من المفضلة"); });
