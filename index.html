@@ -253,7 +253,7 @@ function renderProducts(list){
     productDiv.className="product";
     productDiv.innerHTML = `
       <div class="heart">♡</div>
-      <img src="${p.img}">
+      <img src="${p.img}" onclick='openImagePopup(${JSON.stringify(p)})' style="cursor:zoom-in;">
       <h4>${p.name}</h4>
       <div class="price">${p.price} ر.ع</div>
       <button class="add-btn">أضف للسلة</button>
