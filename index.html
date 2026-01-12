@@ -445,6 +445,20 @@ function confirmPayment(){
   paymentPopup.style.display="none";
   showToast("تم تأكيد الطلب");
 }
+  
+// --------- إرسال الطلب للواتساب ---------
+const waNumber = "968XXXXXXXX"; // ضع هنا رقمك بالصيغة الدولية بدون + (مثال: عمان 96891234567)
+let waMessage = `مرحبا! أرسل هذا الطلب:\n\n`;
+orders[orders.length-1].items.forEach(item => {
+  waMessage += `- ${item.name} (${item.qty})\n`;
+});
+waMessage += `\nالإجمالي: ${orders[orders.length-1].total} ر.ع`;
+waMessage += `\nطريقة الدفع: ${orders[orders.length-1].method}`;
+waMessage += `\nالاسم: ${document.getElementById("shippingName").value}`;
+waMessage += `\nالهاتف: ${document.getElementById("shippingPhone").value}`;
+waMessage += `\nالعنوان: ${document.getElementById("shippingAddress").value}`;
+
+window.open(`https://wa.me/${waNumber}?text=${encodeURIComponent(waMessage)}`, '_blank');
 
 // ---------------- التاجر ----------------
 function openAdminLogin(){ adminLogin.style.display="block"; }
