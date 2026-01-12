@@ -481,6 +481,52 @@ function renderAdminProducts(){
 
 // ---------------- إغلاق النوافذ ----------------
 document.querySelectorAll(".popup-close").forEach(b=>b.addEventListener("click",()=>b.parentElement.style.display="none"));
+  
+ // ---------------- طلبات التاجر ----------------
+function renderAdminOrders(){
+  const orders = JSON.parse(localStorage.getItem("orders") || "[]");
+  const box = document.getElementById("adminOrders");
+  const stats = document.getElementById("orderStats");
+
+  if(!box || !stats) return;
+
+  let paid = orders.filter(o => o.status === "paid").length;
+  let delivered = orders.filter(o => o.status === "delivered").length;
+
+  stats.innerHTML = `
+    💳 الطلبات المدفوعة: <b>${paid}</b><br>
+    🚚 الطلبات التي تم توصيلها: <b>${delivered}</b>
+  `;
+
+  box.innerHTML = "";
+
+  if(orders.length === 0){
+    box.innerHTML = "<p>لا توجد طلبات بعد</p>";
+    return;
+  }
+
+  orders.forEach((o, i) => {
+    const div = document.createElement("div");
+    div.style.border = "1px solid #ddd";
+    div.style.borderRadius = "10px";
+    div.style.padding = "8px";
+    div.style.marginBottom = "10px";
+
+    div.innerHTML = `
+      <b>طلب رقم ${i + 1}</b><br>
+      👤 ${o.user}<br>
+      🕒 ${o.date || ""}<br>
+      📦 ${o.items.map(it => `${it.name} (${it.qty})`).join(", ")}<br>
+      💰 ${o.total} ر.ع<br>
+      📌 الحالة الحالية: <b>${o.status || "paid"}</b><br><br>
+
+      <button onclick="updateOrderStatus(${o.id}, 'paid')">💳 مدفوع</button>
+      <button onclick="updateOrderStatus(${o.id}, 'delivered')">🚚 تم التوصيل</button>
+    `;
+
+    box.appendChild(div);
+  });
+}
 
 // ---------------- بدء التطبيق ----------------
 renderProducts(productsData.filter(p=>p.category===currentCategory));
