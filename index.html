@@ -534,27 +534,29 @@ function addProduct(){
   const name = document.getElementById("pName").value.trim();
   const price = parseFloat(document.getElementById("pPrice").value);
   const category = document.getElementById("pCat").value;
-  const imgUrl = document.getElementById("pImgUrl").value.trim();
+  const url = document.getElementById("pImgFile").value.trim(); // هنا رابط الصورة
 
-  const url = document.getElementById("pImgFile").value.trim(); // حقل رابط الصورة
-
-if(!name || !price || !category || !url){
+  if(!name || !price || !category || !url){
     showToast("يرجى تعبئة كل الحقول");
     return;
-}
-db.collection("products").add({
+  }
+
+  db.collection("products").add({
     name: name,
     price: price,
     category: category,
-    img: url  // نستخدم رابط الصورة مباشرة
-}).then(()=>{
+    img: url
+  }).then(()=>{
     showToast("تم إضافة المنتج بنجاح!");
     renderProducts();
     renderAdminProducts();
     document.getElementById("pName").value = "";
     document.getElementById("pPrice").value = "";
     document.getElementById("pImgFile").value = "";
-});
+  }).catch(err=>{
+    console.error(err);
+    showToast("حدث خطأ أثناء إضافة المنتج");
+  });
 }
 
 // ====================== عرض المنتجات في لوحة التاجر ======================
