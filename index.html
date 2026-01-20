@@ -158,7 +158,7 @@ body{margin:0;font-family:'Segoe UI',Tahoma;background:#f5f5f5;}
   <input id="pName" placeholder="اسم المنتج">
   <input id="pPrice" type="number" placeholder="السعر">
   <label>صورة المنتج</label>
- <input id="pImgUrl" placeholder="رابط الصورة (https://)">
+  <input id="pImgFile" type="file" accept="image/*">
   <img id="previewImg" style="width:100%;border-radius:10px;margin-bottom:5px;display:none;">
   <select id="pCat">
     <option value="omani">عمانية</option>
@@ -229,14 +229,14 @@ function renderCart(){
   cart.forEach((item,i)=>{
     total += item.price * item.qty;
     const li = document.createElement("li");
-    li.innerHTML = `
+    li.innerHTML = 
       ${item.name} (${item.qty}) - ${item.price*item.qty} ر.ع
       <div class="cart-item-controls">
         <button onclick="changeQty(${i},-1)">-</button>
         <button onclick="changeQty(${i},1)">+</button>
         <button onclick="removeItem(${i})">🗑️</button>
       </div>
-    `;
+    ;
     cartList.appendChild(li);
   });
   cartTotalElem.innerText = "الإجمالي: "+total+" ر.ع";
@@ -282,13 +282,13 @@ function renderProducts(filterCategory=null, search=""){
   filtered.forEach(prod=>{
     const div = document.createElement("div");
     div.classList.add("product");
-    div.innerHTML = `
+    div.innerHTML = 
       <img src="${prod.img}" alt="${prod.name}" onclick="openImagePopup('${prod.id}')">
       <div class="heart" onclick="toggleFavorite('${prod.id}')">❤️</div>
       <h4>${prod.name}</h4>
       <div class="price">${prod.price} ر.ع</div>
       <button class="add-btn" onclick="addToCart('${prod.id}')">أضف للسلة</button>
-    `;
+    ;
     productsContainer.appendChild(div);
   });
 }
@@ -394,17 +394,17 @@ function confirmPayment() {
 
       // إرسال الطلب على واتساب
       const waNumber = "96890000000"; // ضع رقمك هنا بصيغة دولية
-      let waMessage = `🛍️ طلب جديد من ${newOrder.userName}:\n\n`;
+      let waMessage = 🛍️ طلب جديد من ${newOrder.userName}:\n\n;
       newOrder.items.forEach(item=>{
-        waMessage += `- ${item.name} × ${item.qty}\n`;
+        waMessage += - ${item.name} × ${item.qty}\n;
       });
-      waMessage += `\n💰 الإجمالي: ${newOrder.total} ر.ع`;
-      waMessage += `\n💳 الدفع: ${newOrder.method}`;
-      waMessage += `\n👤 الاسم: ${newOrder.shipping.name}`;
-      waMessage += `\n📞 الهاتف: ${newOrder.shipping.phone}`;
-      waMessage += `\n📍 العنوان: ${newOrder.shipping.address}`;
+      waMessage += \n💰 الإجمالي: ${newOrder.total} ر.ع;
+      waMessage += \n💳 الدفع: ${newOrder.method};
+      waMessage += \n👤 الاسم: ${newOrder.shipping.name};
+      waMessage += \n📞 الهاتف: ${newOrder.shipping.phone};
+      waMessage += \n📍 العنوان: ${newOrder.shipping.address};
 
-      window.open(`https://wa.me/${waNumber}?text=${encodeURIComponent(waMessage)}`, "_blank");
+      window.open(https://wa.me/${waNumber}?text=${encodeURIComponent(waMessage)}, "_blank");
 
       // تفريغ السلة
       cart = [];
@@ -431,9 +431,9 @@ function showMyOrders(){
       let msg = "🛒 طلباتي:\n\n";
       snapshot.docs.forEach((doc,i)=>{
         const o = doc.data();
-        msg += `${i+1}. ${o.items.map(it=>it.name+" ("+it.qty+")").join(", ")}\n`;
-        msg += `الإجمالي: ${o.total} ر.ع\n`;
-        msg += `طريقة الدفع: ${o.method}\n----------------\n`;
+        msg += ${i+1}. ${o.items.map(it=>it.name+" ("+it.qty+")").join(", ")}\n;
+        msg += الإجمالي: ${o.total} ر.ع\n;
+        msg += طريقة الدفع: ${o.method}\n----------------\n;
       });
       alert(msg);
     })
@@ -482,10 +482,10 @@ function renderAdminOrders(){
     let paid = orders.filter(o => o.status==="paid").length;
     let delivered = orders.filter(o => o.status==="delivered").length;
 
-    stats.innerHTML = `
+    stats.innerHTML = 
       💳 الطلبات المدفوعة: <b>${paid}</b><br>
       🚚 الطلبات التي تم توصيلها: <b>${delivered}</b>
-    `;
+    ;
 
     box.innerHTML = "";
 
@@ -501,16 +501,16 @@ function renderAdminOrders(){
       div.style.padding="8px";
       div.style.marginBottom="10px";
 
-      div.innerHTML = `
+      div.innerHTML = 
         <b>طلب رقم ${i+1}</b><br>
         👤 ${o.shipping.name} (${o.userEmail})<br>
         🕒 ${o.date.toDate ? o.date.toDate().toLocaleString() : o.date}<br>
-        📦 ${o.items.map(it=>`${it.name} (${it.qty})`).join(", ")}<br>
+        📦 ${o.items.map(it=>${it.name} (${it.qty})).join(", ")}<br>
         💰 ${o.total} ر.ع<br>
         📌 الحالة الحالية: <b>${o.status || "paid"}</b><br><br>
         <button onclick="updateOrderStatus('${o.id}','paid')">💳 مدفوع</button>
         <button onclick="updateOrderStatus('${o.id}','delivered')">🚚 تم التوصيل</button>
-      `;
+      ;
       box.appendChild(div);
     });
   });
@@ -534,28 +534,35 @@ function addProduct(){
   const name = document.getElementById("pName").value.trim();
   const price = parseFloat(document.getElementById("pPrice").value);
   const category = document.getElementById("pCat").value;
-  const url = document.getElementById("pImgFile").value.trim(); // هنا رابط الصورة
+  const file = document.getElementById("pImgFile").files[0];
+  const previewImg = document.getElementById("previewImg");
 
-  if(!name || !price || !category || !url){
+  if(!name || !price || !category || !file){
     showToast("يرجى تعبئة كل الحقول");
     return;
   }
 
-  db.collection("products").add({
-    name: name,
-    price: price,
-    category: category,
-    img: url
-  }).then(()=>{
-    showToast("تم إضافة المنتج بنجاح!");
-    renderProducts();
-    renderAdminProducts();
-    document.getElementById("pName").value = "";
-    document.getElementById("pPrice").value = "";
-    document.getElementById("pImgFile").value = "";
+  const storageRef = storage.ref().child('products/' + Date.now() + '-' + file.name);
+  storageRef.put(file).then(snapshot=>{
+    snapshot.ref.getDownloadURL().then(url=>{
+      db.collection("products").add({
+        name:name,
+        price:price,
+        category:category,
+        img:url
+      }).then(()=>{
+        showToast("تم إضافة المنتج بنجاح!");
+        renderProducts();
+        renderAdminProducts();
+        previewImg.style.display = "none";
+        document.getElementById("pName").value = "";
+        document.getElementById("pPrice").value = "";
+        document.getElementById("pImgFile").value = "";
+      });
+    });
   }).catch(err=>{
     console.error(err);
-    showToast("حدث خطأ أثناء إضافة المنتج");
+    showToast("حدث خطأ أثناء رفع المنتج");
   });
 }
 
@@ -574,11 +581,11 @@ function renderAdminProducts(){
       div.style.borderRadius="10px";
       div.style.padding="5px";
       div.style.marginBottom="5px";
-      div.innerHTML = `
+      div.innerHTML = 
         <b>${p.name}</b> - ${p.price} ر.ع<br>
         <img src="${p.img}" style="width:100%;height:120px;object-fit:cover;border-radius:5px;"><br>
         <button onclick="deleteProduct('${p.id}')">🗑️ حذف</button>
-      `;
+      ;
       box.appendChild(div);
     });
   });
