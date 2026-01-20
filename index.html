@@ -506,26 +506,29 @@ function confirmPayment(){
   }
 
   // جلب الطلبات السابقة
-  const orders = JSON.parse(localStorage.getItem("orders") || "[]");
-
-  // إنشاء الطلب الجديد
-  const newOrder = {
-    id: Date.now(),
-    user: currentUser.email,
+  db.collection("orders").add({
+    userId: currentUser.uid,
+    userEmail: currentUser.email,
     items: [...cart],
     total: cart.reduce((a,i)=>a + i.price * i.qty, 0),
-    method: method,
-    status: "paid",
-    date: new Date().toLocaleString(),
     shipping:{
       name: shippingName.value,
       phone: shippingPhone.value,
       address: shippingAddress.value
-    }
-  };
+    },
+    method: method,
+    status: "paid",
+    date: new Date()
+})
+.then(docRef=>{
+    console.log("تم حفظ الطلب:", docRef.id);
+    showToast("تم حفظ الطلب بنجاح");
+})
+.catch(error=>{
+    console.error(error);
+    showToast("حدث خطأ أثناء حفظ الطلب");
+});
 
-  orders.push(newOrder);
-  localStorage.setItem("orders", JSON.stringify(orders));
 
   // 📲 إرسال الطلب إلى واتساب
   const waNumber = "968XXXXXXXX"; // ← ضع رقمك هنا بدون +
