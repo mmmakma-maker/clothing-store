@@ -624,7 +624,10 @@ document.addEventListener("DOMContentLoaded", ()=>{
   
  // ---------------- طلبات التاجر ----------------
 function renderAdminOrders(){
-  const orders = JSON.parse(localStorage.getItem("orders") || "[]");
+  db.collection("orders").get().then(snapshot => {
+  const orders = snapshot.docs.map(doc=> ({id: doc.id, ...doc.data()}));
+  // ثم تابع باقي الكود الحالي باستخدام هذه المصفوفة
+});
   const box = document.getElementById("adminOrders");
   const stats = document.getElementById("orderStats");
 
