@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>متجري للملابس النسائية</title>
 <style>
-body{margin:0;font-family: 'Segoe UI', Tahoma;background:#f5f5f5;}
+/* ======================= CSS ======================= */
+body{margin:0;font-family:'Segoe UI',Tahoma;background:#f5f5f5;}
 .container{padding:15px;padding-bottom:90px;}
 .top-tabs{display:flex;gap:10px;overflow-x:auto;margin-bottom:10px;}
 .top-tabs button{border:none;padding:8px 16px;border-radius:20px;background:#eee;font-size:14px;cursor:pointer;}
@@ -44,8 +45,8 @@ body{margin:0;font-family: 'Segoe UI', Tahoma;background:#f5f5f5;}
 .popup-close{position:absolute;top:12px;right:12px;background:#f2f2f2;border:none;font-size:16px;cursor:pointer;border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;color:#555;transition:0.2s;}
 .popup-close:hover{background:#ff5722;color:white;}
 </style>
-  
-  <!-- Firebase (الطريقة الصحيحة لـ HTML عادي) -->
+
+<!-- ======================= Firebase ======================= -->
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
@@ -60,50 +61,53 @@ body{margin:0;font-family: 'Segoe UI', Tahoma;background:#f5f5f5;}
     messagingSenderId: "562449644163",
     appId: "1:562449644163:web:d17ad0aa40c5c700a3b9b6"
   };
-
   firebase.initializeApp(firebaseConfig);
-
   const auth = firebase.auth();
   const db = firebase.firestore();
   const storage = firebase.storage();
 </script>
-
 </head>
 <body>
 
 <div class="container">
+  <!-- ======================= التبويبات ======================= -->
   <div class="top-tabs">
     <button class="active" data-category="omani">عمانية</button>
     <button data-category="blushi">بلوشي</button>
     <button data-category="pieces">قطع بلوشي</button>
   </div>
 
+  <!-- ======================= شريط العرض ======================= -->
   <div id="offerBar">
     <div id="offerContent">
       <img id="offerImg" src="" alt="عرض">
       <span id="offerText"></span>
     </div>
-    <button onclick="document.getElementById('offerBar').style.display='none'">❌</button>
+    <button onclick="offerBar.style.display='none'">❌</button>
   </div>
 
+  <!-- ======================= ملخص السلة ======================= -->
   <div id="cartSummary">
     <span id="cartCount">0 عناصر</span>
     <span id="cartTotalSummary">0 ر.ع</span>
   </div>
 
+  <!-- ======================= البحث ======================= -->
   <div class="search-bar">
     <input type="text" id="search" placeholder="ابحث">
   </div>
 
+  <!-- ======================= تصنيف وتصفية ======================= -->
   <div class="sort-filter-bar">
     <button onclick="showToast('التصنيف قريباً')">⇅ تصنيف</button>
     <button onclick="showToast('التصفية قريباً')">☰ تصفية</button>
   </div>
 
+  <!-- ======================= عرض المنتجات ======================= -->
   <div class="products" id="products"></div>
 </div>
 
-<!-- السلة، الدفع، الحساب، التاجر كما في كودك السابق -->
+<!-- ======================= النوافذ المنبثقة ======================= -->
 <div class="cart-popup" id="cartPopup">
   <button class="popup-close">❌</button>
   <h3>سلة التسوق</h3>
@@ -123,13 +127,10 @@ body{margin:0;font-family: 'Segoe UI', Tahoma;background:#f5f5f5;}
     <input placeholder="MM/YY">
     <input placeholder="CVV">
   </div>
-  
-  <!-- حقول الشحن -->
-<h4>بيانات الشحن</h4>
-<input id="shippingName" placeholder="الاسم الكامل للشحن">
-<input id="shippingPhone" placeholder="رقم الهاتف">
-<input id="shippingAddress" placeholder="العنوان">
-  
+  <h4>بيانات الشحن</h4>
+  <input id="shippingName" placeholder="الاسم الكامل للشحن">
+  <input id="shippingPhone" placeholder="رقم الهاتف">
+  <input id="shippingAddress" placeholder="العنوان">
   <button onclick="confirmPayment()">✅ تأكيد الطلب</button>
   <button onclick="paymentPopup.style.display='none'">إلغاء</button>
 </div>
@@ -167,15 +168,8 @@ body{margin:0;font-family: 'Segoe UI', Tahoma;background:#f5f5f5;}
   <button onclick="addProduct()">➕ إضافة منتج</button>
   <hr>
   <h4>📦 الطلبات</h4>
-
-<div id="orderStats"
-     style="background:#f5f5f5;
-            padding:8px;
-            border-radius:8px;
-            margin-bottom:10px;">
-</div>
-
-<div id="adminOrders"></div>
+  <div id="orderStats" style="background:#f5f5f5;padding:8px;border-radius:8px;margin-bottom:10px;"></div>
+  <div id="adminOrders"></div>
   <div id="adminProducts"></div>
   <button onclick="logoutAdmin()">خروج</button>
 </div>
@@ -191,499 +185,7 @@ body{margin:0;font-family: 'Segoe UI', Tahoma;background:#f5f5f5;}
 
 <div id="toast"></div>
 
-<script>
-// ---------------- البيانات الأساسية ----------------
-let productsData = JSON.parse(localStorage.getItem("products")) || [
-  {name:"عباية عمانية سوداء",price:80,img:"https://i.imgur.com/0y8Ftya.jpg",category:"omani"},
-  {name:"فستان بلوشي مطرز",price:95,img:"https://i.imgur.com/Yx8FqPz.jpg",category:"blushi"},
-  {name:"قطعة بلوشية",price:40,img:"https://i.imgur.com/1bX5QH6.jpg",category:"pieces"}
-];
-function saveProducts(){ localStorage.setItem("products", JSON.stringify(productsData)); }
-
-const categoryOffers={
-  omani:{text:"عرض اليوم: خصم 10% على جميع العباءات العمانية!",img:"https://i.imgur.com/0y8Ftya.jpg"},
-  blushi:{text:"عرض اليوم: فستان بلوشي مطرز بسعر خاص!",img:"https://i.imgur.com/Yx8FqPz.jpg"},
-  pieces:{text:"عرض اليوم: قطعة بلوشية إضافية عند شراء أي منتج!",img:"https://i.imgur.com/1bX5QH6.jpg"}
-};
-
-let cart=[];
-let currentCategory="omani";
-let currentUser = JSON.parse(localStorage.getItem("currentUser")) || null;
-let favorites = JSON.parse(localStorage.getItem("favorites") || "[]");
-
-const productsDiv=document.getElementById("products");
-const cartPopup=document.getElementById("cartPopup");
-const cartList=document.getElementById("cartList");
-const cartTotal=document.getElementById("cartTotal");
-const searchInput=document.getElementById("search");
-const tabButtons=document.querySelectorAll(".top-tabs button");
-const authPopup=document.getElementById("authPopup");
-const authTitle=document.getElementById("authTitle");
-const authName=document.getElementById("authName");
-const authEmail=document.getElementById("authEmail");
-const authPassword=document.getElementById("authPassword");
-const authBtn=document.getElementById("authBtn");
-const toggleAuth=document.getElementById("toggleAuth");
-const accountBtn=document.getElementById("accountBtn");
-const accountNameSpan=document.getElementById("accountName");
-
-const offerBar=document.getElementById("offerBar");
-const offerText=document.getElementById("offerText");
-const offerImg=document.getElementById("offerImg");
-const offerContent=document.getElementById("offerContent");
-
-const cartSummary=document.getElementById("cartSummary");
-const cartCount=document.getElementById("cartCount");
-const cartTotalSummary=document.getElementById("cartTotalSummary");
-cartSummary.addEventListener("click", openCart);
-
-const adminLogin=document.getElementById("adminLogin");
-const adminPanel=document.getElementById("adminPanel");
-const paymentPopup=document.getElementById("paymentPopup");
-
-  // ===== رفع ومعاينة صورة المنتج (لوحة التاجر) =====
-const pImgFile = document.getElementById("pImgFile");
-const previewImg = document.getElementById("previewImg");
-
-if(pImgFile){
-  pImgFile.addEventListener("change",()=>{
-    const file = pImgFile.files[0];
-    if(!file) return;
-    const reader = new FileReader();
-    reader.onload = e=>{
-      previewImg.src = e.target.result;
-      previewImg.style.display = "block";
-    };
-    reader.readAsDataURL(file);
-  });
-}
-
-const ADMIN_PASSWORD = "1234"; 
-let isAdmin = false;
-
-if(currentUser) accountNameSpan.innerText=currentUser.name;
-
-// ---------------- دوال عامة ----------------
-function showToast(msg){
-  const t=document.getElementById("toast");
-  t.innerText=msg;
-  t.style.display="block";
-  setTimeout(()=>t.style.display="none",2000);
-}
-
-// ---------------- عرض المنتجات ----------------
-function renderProducts(list){
-  productsDiv.innerHTML="";
-  list.forEach(p=>{
-    const productDiv=document.createElement("div");
-    productDiv.className="product";
-
-    productDiv.innerHTML = `
-      <div class="heart">♡</div>
-      <img src="${p.img}" class="product-img" style="cursor:zoom-in;">
-      <h4>${p.name}</h4>
-      <div class="price">${p.price} ر.ع</div>
-      <button class="add-btn">أضف للسلة</button>
-    `;
-
-    const img = productDiv.querySelector(".product-img");
-    img.addEventListener("click", () => openImagePopup(p));
-
-    const heart = productDiv.querySelector(".heart");
-    heart.addEventListener("click", ()=>{
-      heart.innerText = heart.innerText==="♡" ? "❤️":"♡";
-      showToast(
-        heart.innerText==="❤️"
-        ? "تمت الإضافة للمفضلة"
-        : "تمت الإزالة من المفضلة"
-      );
-    });
-
-    const addBtn = productDiv.querySelector(".add-btn");
-    addBtn.addEventListener("click", ()=>{
-      addToCart(p.name, p.price);
-    });
-
-    productsDiv.appendChild(productDiv);
-  });
-}
-
-
-// ---------------- وظائف السلة ----------------
-function addToCart(name,price){
-  const existing=cart.find(i=>i.name===name);
-  if(existing){ existing.qty+=1; }else{ cart.push({name,price,qty:1}); }
-  updateCart();
-  showToast("تمت الإضافة للسلة");
-}
-
-function updateCart(){
-  cartList.innerHTML="";
-  let total=0, totalQty=0;
-  cart.forEach(i=>{
-    total+=i.price*i.qty;
-    totalQty+=i.qty;
-    const li=document.createElement("li");
-    li.innerHTML = `
-      ${i.name}
-      <div class="cart-item-controls">
-        <button onclick="changeQty('${i.name}',-1)">-</button>
-        <span>${i.qty}</span>
-        <button onclick="changeQty('${i.name}',1)">+</button>
-        <button onclick="removeItem('${i.name}')">🗑️</button>
-        <span>${(i.price*i.qty).toFixed(2)} ر.ع</span>
-      </div>
-    `;
-    cartList.appendChild(li);
-  });
-  cartTotal.innerText="الإجمالي: "+total.toFixed(2)+" ر.ع";
-  cartCount.innerText = `${totalQty} عناصر`;
-  cartTotalSummary.innerText = `${total.toFixed(2)} ر.ع`;
-}
-
-function changeQty(name,delta){
-  const item=cart.find(i=>i.name===name);
-  if(!item) return;
-  item.qty+=delta;
-  if(item.qty<1) removeItem(name);
-  updateCart();
-}
-
-function removeItem(name){
-  cart=cart.filter(i=>i.name!==name);
-  updateCart();
-}
-
-function openCart(){ updateCart(); cartPopup.style.display="block"; }
-  
-  // ---------------- هنا ضع هذه الدالة الجديدة ----------------
-function openImagePopup(product){
-  document.getElementById("popupImg").src = product.img;
-  document.getElementById("popupName").innerText = product.name;
-  document.getElementById("popupPrice").innerText = product.price + " ر.ع";
-
-  document.getElementById("popupAddBtn").onclick = ()=>{
-    addToCart(product.name, product.price);
-    document.getElementById("imagePopup").style.display = "none";
-  };
-
-  document.getElementById("imagePopup").style.display = "block";
-}
-
-// ---------------- التبويبات ----------------
-tabButtons.forEach(btn=>{
-  btn.addEventListener("click",()=>{
-    tabButtons.forEach(b=>b.classList.remove("active"));
-    btn.classList.add("active");
-    currentCategory=btn.dataset.category;
-    searchInput.value="";
-    renderProducts(productsData.filter(p=>p.category===currentCategory));
-    updateOffer();
-  });
-});
-
-// ---------------- البحث ----------------
-searchInput.addEventListener("input",()=>{
-  const query=searchInput.value.toLowerCase();
-  renderProducts(productsData.filter(p=>p.category===currentCategory && p.name.toLowerCase().includes(query)));
-});
-
-// ---------------- العروض ----------------
-let scrollPos=0; let requestId=null;
-function startOfferScroll(){
-  const scrollWidth=offerContent.scrollWidth - offerContent.clientWidth;
-  if(scrollWidth>0){ cancelAnimationFrame(requestId); function step(){ scrollPos+=0.5; if(scrollPos>scrollWidth) scrollPos=0; offerContent.scrollLeft=scrollPos; requestId=requestAnimationFrame(step);} step(); } 
-  else { offerContent.scrollLeft=0; cancelAnimationFrame(requestId); }
-}
-
-function updateOffer(){
-  const offer=categoryOffers[currentCategory];
-  if(offer){ offerText.innerText=offer.text; offerImg.src=offer.img; offerBar.style.display="flex"; scrollPos=0; setTimeout(startOfferScroll,100);}
-  else{ offerText.innerText="عرض اليوم متاح!"; offerImg.src=""; offerContent.scrollLeft=0; cancelAnimationFrame(requestId);}
-}
-
-// ---------------- تسجيل ودخول المستخدم ----------------
-let isRegister=false;
-function openAuth(register=false){
-  isRegister=register;
-  authPopup.style.display="block";
-  authName.style.display=register?"block":"none";
-  authTitle.innerText=register?"تسجيل حساب":"تسجيل الدخول";
-  authBtn.innerText=register?"سجل الآن":"دخول";
-  toggleAuth.innerText=register?"لديك حساب؟ سجل الدخول":"ليس لديك حساب؟ سجل الآن";
-}
-toggleAuth.addEventListener("click",()=>openAuth(!isRegister));
-
-authBtn.addEventListener("click",()=>{
-  const email = authEmail.value.trim();
-  const password = authPassword.value.trim();
-  const name = authName.value.trim();
-
-  if(isRegister){
-    if(!name || !email || !password){ showToast("املأ جميع الحقول"); return; }
-    auth.createUserWithEmailAndPassword(email, password)
-      .then(userCredential=>{
-        const user = userCredential.user;
-        db.collection("users").doc(user.uid).set({name, email});
-        currentUser = {uid: user.uid, name, email};
-        accountNameSpan.innerText = name;
-        showToast("تم التسجيل بنجاح");
-        authPopup.style.display="none";
-      })
-      .catch(error=> showToast(error.message));
-  } else {
-    auth.signInWithEmailAndPassword(email, password)
-      .then(userCredential=>{
-        const user = userCredential.user;
-        db.collection("users").doc(user.uid).get().then(doc=>{
-          const data = doc.data();
-          currentUser = {uid: user.uid, name: data.name, email: data.email};
-          accountNameSpan.innerText = data.name;
-          showToast("تم تسجيل الدخول");
-          authPopup.style.display="none";
-        });
-      })
-      .catch(error=> showToast(error.message));
-  }
-});
-
-// ---------------- زر حساب المستخدم ----------------
-accountBtn.addEventListener("click",()=>{
-  if(!currentUser){ openAuth(false); return; }
-  const choice=confirm("ماذا تريد؟\nموافق=تسجيل خروج\nإلغاء=عرض طلباتي");
-  if(choice){
-    localStorage.removeItem("currentUser");
-    currentUser=null;
-    accountNameSpan.innerText="حسابي";
-    showToast("تم تسجيل الخروج");
-  } else{
-    function showMyOrders(){
-  if(!currentUser) return;
-  db.collection("orders").where("userId", "==", currentUser.uid).get()
-    .then(snapshot=>{
-      if(snapshot.empty){ alert("لا توجد طلبات بعد"); return; }
-      let msg = "طلباتي:\n\n";
-      snapshot.docs.forEach((doc,i)=>{
-        const o = doc.data();
-        msg += `${i+1}. ${o.items.map(it=>it.name+"("+it.qty+")").join(", ")}\nالإجمالي: ${o.total} ر.ع\nطريقة الدفع: ${o.method}\n----------------\n`;
-      });
-      alert(msg);
-    })
-    .catch(err=> showToast("حدث خطأ أثناء جلب الطلبات"));
-}
-    if(orders.length===0){ alert("لا توجد طلبات بعد"); return; }
-    let msg="طلباتي:\n\n";
-    orders.forEach((o,i)=>{ msg+=`${i+1}. ${o.items.map(it=>it.name+"("+it.qty+")").join(",")}\nالإجمالي: ${o.total} ر.ع\nطريقة الدفع: ${o.method}\n----------------\n`; });
-    alert(msg);
-  }
-});
-
-// ---------------- الدفع ----------------
-function openPayment(){
-  if(!currentUser){
-    showToast("يرجى تسجيل الدخول لإتمام الطلب");
-    openAuth(false);
-    return;
-  }
-  paymentPopup.style.display="block";
-}
-paymentPopup.querySelectorAll('input[name="payMethod"]').forEach(r=>r.addEventListener("change",(e)=>{ document.getElementById("cardBox").style.display=e.target.value==="card"?"block":"none"; }));
-function confirmPayment(){
-  if(!shippingName.value || !shippingPhone.value || !shippingAddress.value){
-    showToast("يرجى تعبئة بيانات الشحن");
-    return;
-  }
-
-  const method = paymentPopup.querySelector(
-    'input[name="payMethod"]:checked'
-  ).value;
-
-  if(cart.length === 0){
-    showToast("السلة فارغة");
-    return;
-  }
-
-  // إنشاء الطلب
-  const newOrder = {
-    userId: currentUser.uid,
-    userEmail: currentUser.email,
-    items: [...cart],
-    total: cart.reduce((a,i)=>a + i.price * i.qty, 0),
-    shipping:{
-      name: shippingName.value,
-      phone: shippingPhone.value,
-      address: shippingAddress.value
-    },
-    method: method,
-    status: "paid",
-    date: new Date()
-  };
-
-  // حفظ الطلب في Firebase
-  db.collection("orders").add(newOrder)
-    .then(docRef=>{
-      showToast("تم حفظ الطلب بنجاح");
-      console.log("تم حفظ الطلب:", docRef.id);
-    })
-    .catch(error=>{
-      console.error(error);
-      showToast("حدث خطأ أثناء حفظ الطلب");
-    });
-
-  // إرسال الطلب إلى واتساب
-  const waNumber = "968XXXXXXXX"; // ضع رقمك هنا
-  let waMessage = "🛍️ طلب جديد:\n\n";
-  newOrder.items.forEach(item=>{
-    waMessage += `- ${item.name} × ${item.qty}\n`;
-  });
-  waMessage += `\n💰 الإجمالي: ${newOrder.total} ر.ع`;
-  waMessage += `\n💳 الدفع: ${newOrder.method}`;
-  waMessage += `\n👤 الاسم: ${newOrder.shipping.name}`;
-  waMessage += `\n📞 الهاتف: ${newOrder.shipping.phone}`;
-  waMessage += `\n📍 العنوان: ${newOrder.shipping.address}`;
-
-  window.open(`https://wa.me/${waNumber}?text=${encodeURIComponent(waMessage)}`, "_blank");
-
-  // تفريغ السلة
-  cart = [];
-  updateCart();
-  paymentPopup.style.display = "none";
-
-  showToast("تم تأكيد الطلب");
-}
-// ---------------- التاجر ----------------
-function openAdminLogin(){ adminLogin.style.display="block"; }
-function loginAdmin(){
-  if(document.getElementById("adminPass").value===ADMIN_PASSWORD){
-    isAdmin=true;
-    adminLogin.style.display="none";
-    adminPanel.style.display="block";
-    renderAdminProducts();
-    renderAdminOrders(); // ⭐ هذا السطر الجديد
-  } else{
-    showToast("الرقم السري خاطئ");
-  }
-}
-function logoutAdmin(){ isAdmin=false; adminPanel.style.display="none"; }
-function addProduct(){
-  const pName = document.getElementById("pName").value.trim();
-  const pPrice = parseFloat(document.getElementById("pPrice").value);
-  const pCat = document.getElementById("pCat").value;
-  const file = pImgFile.files[0];
-
-  if(!pName || !pPrice || !file || !pCat){
-    showToast("املأ جميع الحقول");
-    return;
-  }
-
-  const reader = new FileReader();
-  reader.onload = function(e){
-    productsData.push({
-      name: pName,
-      price: pPrice,
-      img: e.target.result,   // الصورة من الكاميرا/الاستديو
-      category: pCat
-    });
-
-    saveProducts();
-    renderProducts(productsData.filter(p=>p.category===currentCategory));
-    renderAdminProducts();
-    showToast("تم إضافة المنتج");
-
-    // تفريغ الحقول
-    document.getElementById("pName").value="";
-    document.getElementById("pPrice").value="";
-    pImgFile.value="";
-    previewImg.style.display="none";
-  };
-
-  reader.readAsDataURL(file);
-}
-
-function renderAdminProducts(){
-  const div=document.getElementById("adminProducts"); div.innerHTML="";
-  productsData.forEach((p,i)=>{
-    const d=document.createElement("div"); d.innerHTML=`${p.name} - ${p.price} ر.ع <button onclick="productsData.splice(${i},1); saveProducts(); renderProducts(productsData.filter(p=>p.category==='${currentCategory}')); renderAdminProducts();">🗑️</button>`;
-    div.appendChild(d);
-  });
-}
-
-// ---------------- إغلاق النوافذ ----------------
-// تضمن أن كل أزرار ❌ تعمل حتى نافذة تكبير الصورة
-document.addEventListener("DOMContentLoaded", ()=>{
-  document.querySelectorAll(".popup-close").forEach(b=>{
-    b.addEventListener("click", ()=> b.parentElement.style.display="none");
-  });
-});
-  
- // ---------------- طلبات التاجر ----------------
-function renderAdminOrders(){
-  db.collection("orders").get().then(snapshot => {
-  const orders = snapshot.docs.map(doc=> ({id: doc.id, ...doc.data()}));
-  // ثم تابع باقي الكود الحالي باستخدام هذه المصفوفة
-});
-  const box = document.getElementById("adminOrders");
-  const stats = document.getElementById("orderStats");
-
-  if(!box || !stats) return;
-
-  let paid = orders.filter(o => o.status === "paid").length;
-  let delivered = orders.filter(o => o.status === "delivered").length;
-
-  stats.innerHTML = `
-    💳 الطلبات المدفوعة: <b>${paid}</b><br>
-    🚚 الطلبات التي تم توصيلها: <b>${delivered}</b>
-  `;
-
-  box.innerHTML = "";
-
-  if(orders.length === 0){
-    box.innerHTML = "<p>لا توجد طلبات بعد</p>";
-    return;
-  }
-
-  orders.forEach((o, i) => {
-    const div = document.createElement("div");
-    div.style.border = "1px solid #ddd";
-    div.style.borderRadius = "10px";
-    div.style.padding = "8px";
-    div.style.marginBottom = "10px";
-
-    div.innerHTML = `
-      <b>طلب رقم ${i + 1}</b><br>
-      👤 ${o.user}<br>
-      🕒 ${o.date || ""}<br>
-      📦 ${o.items.map(it => `${it.name} (${it.qty})`).join(", ")}<br>
-      💰 ${o.total} ر.ع<br>
-      📌 الحالة الحالية: <b>${o.status || "paid"}</b><br><br>
-
-      <button onclick="updateOrderStatus(${o.id}, 'paid')">💳 مدفوع</button>
-      <button onclick="updateOrderStatus(${o.id}, 'delivered')">🚚 تم التوصيل</button>
-    `;
-
-    box.appendChild(div);
-  });
-}
-  
-function updateOrderStatus(id, status){
-  let orders = JSON.parse(localStorage.getItem("orders") || "[]");
-  const order = orders.find(o => o.id === id);
-  if(!order) return;
-
-  order.status = status;
-  localStorage.setItem("orders", JSON.stringify(orders));
-
-  renderAdminOrders();
-  showToast("تم تحديث حالة الطلب");
-}
-
-// ---------------- بدء التطبيق ----------------
-renderProducts(productsData.filter(p=>p.category===currentCategory));
-updateOffer();
-updateCart();
-</script>
-
-  <!-- نافذة تكبير الصورة -->
+<!-- ======================= نافذة تكبير الصورة ======================= -->
 <div id="imagePopup" class="cart-popup">
   <button class="popup-close">❌</button>
   <img id="popupImg" style="width:100%;border-radius:10px;margin-bottom:5px;">
@@ -691,6 +193,515 @@ updateCart();
   <div id="popupPrice" class="price"></div>
   <button id="popupAddBtn" class="add-btn">أضف للسلة</button>
 </div>
+<script>
+let products = [];      // لتخزين المنتجات من Firebase
+let cart = [];          // السلة
+let currentUser = null; // المستخدم الحالي
+let isAdmin = false;    // حالة التاجر
 
-</body>
-</html>
+// عناصر DOM
+const productsContainer = document.getElementById("products");
+const cartPopup = document.getElementById("cartPopup");
+const cartList = document.getElementById("cartList");
+const cartTotalElem = document.getElementById("cartTotal");
+const cartCountElem = document.getElementById("cartCount");
+const cartTotalSummary = document.getElementById("cartTotalSummary");
+const paymentPopup = document.getElementById("paymentPopup");
+
+// ====================== Toast ======================
+function showToast(msg) {
+  const toast = document.getElementById("toast");
+  toast.innerText = msg;
+  toast.style.display = "block";
+  setTimeout(()=>toast.style.display="none", 2500);
+}
+
+// ====================== فتح السلة ======================
+function openCart(){
+  renderCart();
+  cartPopup.style.display = "block";
+}
+
+// ====================== عرض السلة ======================
+function renderCart(){
+  cartList.innerHTML = "";
+  let total = 0;
+  cart.forEach((item,i)=>{
+    total += item.price * item.qty;
+    const li = document.createElement("li");
+    li.innerHTML = `
+      ${item.name} (${item.qty}) - ${item.price*item.qty} ر.ع
+      <div class="cart-item-controls">
+        <button onclick="changeQty(${i},-1)">-</button>
+        <button onclick="changeQty(${i},1)">+</button>
+        <button onclick="removeItem(${i})">🗑️</button>
+      </div>
+    `;
+    cartList.appendChild(li);
+  });
+  cartTotalElem.innerText = "الإجمالي: "+total+" ر.ع";
+  cartCountElem.innerText = cart.length + " عناصر";
+  cartTotalSummary.innerText = total+" ر.ع";
+}
+
+// ====================== تغيير الكمية ======================
+function changeQty(index, delta){
+  cart[index].qty += delta;
+  if(cart[index].qty <= 0) cart.splice(index,1);
+  renderCart();
+}
+
+// ====================== إزالة عنصر ======================
+function removeItem(index){
+  cart.splice(index,1);
+  renderCart();
+}
+</script>
+<script>
+// ====================== جلب المنتجات من Firebase ======================
+function fetchProducts(){
+  db.collection("products").get().then(snapshot=>{
+    products = snapshot.docs.map(doc=>({id: doc.id, ...doc.data()}));
+    renderProducts();
+  });
+}
+
+// ====================== عرض المنتجات ======================
+function renderProducts(filterCategory=null, search=""){
+  productsContainer.innerHTML = "";
+  let filtered = products;
+
+  if(filterCategory) filtered = filtered.filter(p=>p.category===filterCategory);
+  if(search) filtered = filtered.filter(p=>p.name.toLowerCase().includes(search.toLowerCase()));
+
+  if(filtered.length === 0){
+    productsContainer.innerHTML = "<p>لا توجد منتجات</p>";
+    return;
+  }
+
+  filtered.forEach(prod=>{
+    const div = document.createElement("div");
+    div.classList.add("product");
+    div.innerHTML = `
+      <img src="${prod.img}" alt="${prod.name}" onclick="openImagePopup('${prod.id}')">
+      <div class="heart" onclick="toggleFavorite('${prod.id}')">❤️</div>
+      <h4>${prod.name}</h4>
+      <div class="price">${prod.price} ر.ع</div>
+      <button class="add-btn" onclick="addToCart('${prod.id}')">أضف للسلة</button>
+    `;
+    productsContainer.appendChild(div);
+  });
+}
+
+// ====================== فتح الصورة ======================
+function openImagePopup(id){
+  const p = products.find(p=>p.id===id);
+  if(!p) return;
+  const popup = document.getElementById("imagePopup");
+  document.getElementById("popupImg").src = p.img;
+  document.getElementById("popupName").innerText = p.name;
+  document.getElementById("popupPrice").innerText = p.price + " ر.ع";
+  document.getElementById("popupAddBtn").onclick = ()=>{ addToCart(p.id); popup.style.display='none'; };
+  popup.style.display = "block";
+}
+
+// ====================== إضافة للسلة ======================
+function addToCart(id){
+  const prod = products.find(p=>p.id===id);
+  if(!prod) return;
+  const existing = cart.find(c=>c.id===id);
+  if(existing) existing.qty +=1;
+  else cart.push({...prod, qty:1});
+  renderCart();
+  showToast(prod.name+" أضيفت للسلة");
+}
+
+// ====================== مفضلة (غير مرتبطة مع Firebase بعد) ======================
+function toggleFavorite(id){
+  showToast("ميزة المفضلة قريباً!");
+}
+
+// ====================== البحث ======================
+document.getElementById("search").addEventListener("input", e=>{
+  renderProducts(null, e.target.value);
+});
+
+// ====================== التبويبات ======================
+document.querySelectorAll(".top-tabs button").forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    document.querySelectorAll(".top-tabs button").forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
+    renderProducts(btn.dataset.category);
+  });
+});
+</script>
+<script>
+// ====================== فتح نافذة الدفع ======================
+function openPayment(){
+  if(cart.length === 0){
+    showToast("السلة فارغة!");
+    return;
+  }
+  paymentPopup.style.display = "block";
+}
+
+// ====================== تفعيل/إخفاء حقل البطاقة ======================
+const payMethods = paymentPopup.querySelectorAll('input[name="payMethod"]');
+payMethods.forEach(radio=>{
+  radio.addEventListener("change", ()=>{
+    document.getElementById("cardBox").style.display = radio.value==="card" ? "block" : "none";
+  });
+});
+
+// ====================== تأكيد الدفع ======================
+function confirmPayment() {
+  const shippingName = document.getElementById("shippingName").value.trim();
+  const shippingPhone = document.getElementById("shippingPhone").value.trim();
+  const shippingAddress = document.getElementById("shippingAddress").value.trim();
+
+  if(!shippingName || !shippingPhone || !shippingAddress){
+    showToast("يرجى تعبئة بيانات الشحن بالكامل");
+    return;
+  }
+
+  if(cart.length === 0){
+    showToast("السلة فارغة");
+    return;
+  }
+
+  const method = paymentPopup.querySelector('input[name="payMethod"]:checked').value;
+
+  const newOrder = {
+    userId: currentUser ? currentUser.uid : "guest",
+    userEmail: currentUser ? currentUser.email : "guest@example.com",
+    userName: currentUser && currentUser.name ? currentUser.name : shippingName,
+    items: [...cart],
+    total: cart.reduce((a,i)=>a + i.price*i.qty,0),
+    shipping:{
+      name: shippingName,
+      phone: shippingPhone,
+      address: shippingAddress
+    },
+    method: method,
+    status: "paid",
+    date: firebase.firestore.Timestamp.fromDate(new Date())
+  };
+
+  // حفظ الطلب في Firebase
+  db.collection("orders").add(newOrder)
+    .then(docRef=>{
+      showToast("تم حفظ الطلب بنجاح!");
+
+      // إرسال الطلب على واتساب
+      const waNumber = "96890000000"; // ضع رقمك هنا بصيغة دولية
+      let waMessage = `🛍️ طلب جديد من ${newOrder.userName}:\n\n`;
+      newOrder.items.forEach(item=>{
+        waMessage += `- ${item.name} × ${item.qty}\n`;
+      });
+      waMessage += `\n💰 الإجمالي: ${newOrder.total} ر.ع`;
+      waMessage += `\n💳 الدفع: ${newOrder.method}`;
+      waMessage += `\n👤 الاسم: ${newOrder.shipping.name}`;
+      waMessage += `\n📞 الهاتف: ${newOrder.shipping.phone}`;
+      waMessage += `\n📍 العنوان: ${newOrder.shipping.address}`;
+
+      window.open(`https://wa.me/${waNumber}?text=${encodeURIComponent(waMessage)}`, "_blank");
+
+      // تفريغ السلة
+      cart = [];
+      renderCart();
+      paymentPopup.style.display = "none";
+    })
+    .catch(err=>{
+      console.error(err);
+      showToast("حدث خطأ أثناء حفظ الطلب!");
+    });
+}
+
+// ====================== عرض طلبات المستخدم ======================
+function showMyOrders(){
+  if(!currentUser) {
+    showToast("يجب تسجيل الدخول أولاً!");
+    return;
+  }
+
+  db.collection("orders").where("userId", "==", currentUser.uid).get()
+    .then(snapshot=>{
+      if(snapshot.empty){ alert("لا توجد طلبات بعد"); return; }
+
+      let msg = "🛒 طلباتي:\n\n";
+      snapshot.docs.forEach((doc,i)=>{
+        const o = doc.data();
+        msg += `${i+1}. ${o.items.map(it=>it.name+" ("+it.qty+")").join(", ")}\n`;
+        msg += `الإجمالي: ${o.total} ر.ع\n`;
+        msg += `طريقة الدفع: ${o.method}\n----------------\n`;
+      });
+      alert(msg);
+    })
+    .catch(err=> showToast("حدث خطأ أثناء جلب الطلبات!"));
+}
+</script>
+<script>
+// ====================== فتح نافذة دخول التاجر ======================
+function openAdminLogin(){
+  document.getElementById("adminLogin").style.display = "block";
+}
+
+// ====================== تسجيل دخول التاجر ======================
+function loginAdmin(){
+  const pass = document.getElementById("adminPass").value.trim();
+  const adminPassword = "123456"; // ضع كلمة مرور التاجر هنا
+  if(pass === adminPassword){
+    isAdmin = true;
+    document.getElementById("adminLogin").style.display = "none";
+    document.getElementById("adminPanel").style.display = "block";
+    renderAdminOrders();
+    renderAdminProducts();
+    showToast("تم تسجيل الدخول كـ تاجر");
+  } else {
+    showToast("كلمة المرور خاطئة!");
+  }
+}
+
+// ====================== تسجيل خروج التاجر ======================
+function logoutAdmin(){
+  isAdmin = false;
+  document.getElementById("adminPanel").style.display = "none";
+  showToast("تم تسجيل الخروج");
+}
+
+// ====================== عرض الطلبات في لوحة التاجر ======================
+function renderAdminOrders(){
+  const box = document.getElementById("adminOrders");
+  const stats = document.getElementById("orderStats");
+
+  if(!box || !stats) return;
+
+  db.collection("orders").orderBy("date","desc").get().then(snapshot=>{
+    const orders = snapshot.docs.map(doc=>({id: doc.id, ...doc.data()}));
+
+    let paid = orders.filter(o => o.status==="paid").length;
+    let delivered = orders.filter(o => o.status==="delivered").length;
+
+    stats.innerHTML = `
+      💳 الطلبات المدفوعة: <b>${paid}</b><br>
+      🚚 الطلبات التي تم توصيلها: <b>${delivered}</b>
+    `;
+
+    box.innerHTML = "";
+
+    if(orders.length===0){
+      box.innerHTML = "<p>لا توجد طلبات بعد</p>";
+      return;
+    }
+
+    orders.forEach((o,i)=>{
+      const div = document.createElement("div");
+      div.style.border="1px solid #ddd";
+      div.style.borderRadius="10px";
+      div.style.padding="8px";
+      div.style.marginBottom="10px";
+
+      div.innerHTML = `
+        <b>طلب رقم ${i+1}</b><br>
+        👤 ${o.shipping.name} (${o.userEmail})<br>
+        🕒 ${o.date.toDate ? o.date.toDate().toLocaleString() : o.date}<br>
+        📦 ${o.items.map(it=>`${it.name} (${it.qty})`).join(", ")}<br>
+        💰 ${o.total} ر.ع<br>
+        📌 الحالة الحالية: <b>${o.status || "paid"}</b><br><br>
+        <button onclick="updateOrderStatus('${o.id}','paid')">💳 مدفوع</button>
+        <button onclick="updateOrderStatus('${o.id}','delivered')">🚚 تم التوصيل</button>
+      `;
+      box.appendChild(div);
+    });
+  });
+}
+
+// ====================== تحديث حالة الطلب ======================
+function updateOrderStatus(id,status){
+  db.collection("orders").doc(id).update({status})
+    .then(()=>{
+      showToast("تم تحديث حالة الطلب");
+      renderAdminOrders();
+    })
+    .catch(err=>{
+      console.error(err);
+      showToast("حدث خطأ أثناء تحديث الحالة");
+    });
+}
+
+// ====================== إضافة منتج جديد ======================
+function addProduct(){
+  const name = document.getElementById("pName").value.trim();
+  const price = parseFloat(document.getElementById("pPrice").value);
+  const category = document.getElementById("pCat").value;
+  const file = document.getElementById("pImgFile").files[0];
+  const previewImg = document.getElementById("previewImg");
+
+  if(!name || !price || !category || !file){
+    showToast("يرجى تعبئة كل الحقول");
+    return;
+  }
+
+  const storageRef = storage.ref().child('products/' + Date.now() + '-' + file.name);
+  storageRef.put(file).then(snapshot=>{
+    snapshot.ref.getDownloadURL().then(url=>{
+      db.collection("products").add({
+        name:name,
+        price:price,
+        category:category,
+        img:url
+      }).then(()=>{
+        showToast("تم إضافة المنتج بنجاح!");
+        renderProducts();
+        renderAdminProducts();
+        previewImg.style.display = "none";
+        document.getElementById("pName").value = "";
+        document.getElementById("pPrice").value = "";
+        document.getElementById("pImgFile").value = "";
+      });
+    });
+  }).catch(err=>{
+    console.error(err);
+    showToast("حدث خطأ أثناء رفع المنتج");
+  });
+}
+
+// ====================== عرض المنتجات في لوحة التاجر ======================
+function renderAdminProducts(){
+  const box = document.getElementById("adminProducts");
+  box.innerHTML = "<h4>📦 المنتجات</h4>";
+
+  db.collection("products").get().then(snapshot=>{
+    if(snapshot.empty){ box.innerHTML += "<p>لا توجد منتجات</p>"; return; }
+
+    snapshot.docs.forEach(doc=>{
+      const p = {id: doc.id, ...doc.data()};
+      const div = document.createElement("div");
+      div.style.border="1px solid #ddd";
+      div.style.borderRadius="10px";
+      div.style.padding="5px";
+      div.style.marginBottom="5px";
+      div.innerHTML = `
+        <b>${p.name}</b> - ${p.price} ر.ع<br>
+        <img src="${p.img}" style="width:100%;height:120px;object-fit:cover;border-radius:5px;"><br>
+        <button onclick="deleteProduct('${p.id}')">🗑️ حذف</button>
+      `;
+      box.appendChild(div);
+    });
+  });
+}
+
+// ====================== حذف منتج ======================
+function deleteProduct(id){
+  if(confirm("هل تريد حذف المنتج؟")){
+    db.collection("products").doc(id).delete()
+      .then(()=>{
+        showToast("تم حذف المنتج");
+        renderProducts();
+        renderAdminProducts();
+      })
+      .catch(err=>{
+        console.error(err);
+        showToast("حدث خطأ أثناء الحذف");
+      });
+  }
+}
+
+// ====================== معاينة صورة المنتج قبل الرفع ======================
+document.getElementById("pImgFile").addEventListener("change", e=>{
+  const file = e.target.files[0];
+  const previewImg = document.getElementById("previewImg");
+  if(file){
+    previewImg.src = URL.createObjectURL(file);
+    previewImg.style.display = "block";
+  }
+});
+</script>
+<script>
+// ====================== فتح نافذة تسجيل الدخول ======================
+document.getElementById("accountBtn").addEventListener("click", ()=>{
+  document.getElementById("authPopup").style.display = "block";
+});
+
+// ====================== التبديل بين تسجيل الدخول والتسجيل ======================
+const toggleAuth = document.getElementById("toggleAuth");
+const authTitle = document.getElementById("authTitle");
+const authNameInput = document.getElementById("authName");
+const authBtn = document.getElementById("authBtn");
+
+let isLogin = true;
+toggleAuth.addEventListener("click", ()=>{
+  isLogin = !isLogin;
+  authTitle.innerText = isLogin ? "تسجيل الدخول" : "إنشاء حساب";
+  authNameInput.style.display = isLogin ? "none" : "block";
+  toggleAuth.innerText = isLogin ? "ليس لديك حساب؟ سجل الآن" : "لديك حساب؟ سجل الدخول";
+});
+
+// ====================== تسجيل الدخول / إنشاء حساب ======================
+authBtn.addEventListener("click", ()=>{
+  const email = document.getElementById("authEmail").value.trim();
+  const password = document.getElementById("authPassword").value.trim();
+  const name = document.getElementById("authName").value.trim();
+
+  if(!email || !password || (!isLogin && !name)){
+    showToast("يرجى تعبئة كل الحقول");
+    return;
+  }
+
+  if(isLogin){
+    auth.signInWithEmailAndPassword(email,password)
+      .then(res=>{
+        currentUser = res.user;
+        document.getElementById("authPopup").style.display = "none";
+        showToast("تم تسجيل الدخول!");
+        document.getElementById("accountName").innerText = currentUser.email.split("@")[0];
+      })
+      .catch(err=>{
+        console.error(err);
+        showToast("بيانات تسجيل الدخول غير صحيحة!");
+      });
+  } else {
+    auth.createUserWithEmailAndPassword(email,password)
+      .then(res=>{
+        currentUser = res.user;
+        // إضافة الاسم إلى المستخدم في Firestore
+        db.collection("users").doc(currentUser.uid).set({name:name,email:email});
+        document.getElementById("authPopup").style.display = "none";
+        showToast("تم إنشاء الحساب!");
+        document.getElementById("accountName").innerText = name;
+      })
+      .catch(err=>{
+        console.error(err);
+        showToast("حدث خطأ أثناء إنشاء الحساب!");
+      });
+  }
+});
+
+// ====================== التحقق من الجلسة عند تحميل الصفحة ======================
+auth.onAuthStateChanged(user=>{
+  if(user){
+    currentUser = user;
+    // جلب الاسم من Firestore إن وجد
+    db.collection("users").doc(user.uid).get().then(doc=>{
+      if(doc.exists && doc.data().name){
+        document.getElementById("accountName").innerText = doc.data().name;
+      } else {
+        document.getElementById("accountName").innerText = user.email.split("@")[0];
+      }
+    });
+  } else {
+    currentUser = null;
+    document.getElementById("accountName").innerText = "حسابي";
+  }
+});
+
+// ====================== إغلاق النوافذ المنبثقة ======================
+document.querySelectorAll(".popup-close").forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    btn.parentElement.style.display = "none";
+  });
+});
+
+// ====================== تحميل المنتجات عند فتح الصفحة ======================
+fetchProducts();
+</script>
