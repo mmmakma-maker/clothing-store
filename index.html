@@ -457,7 +457,20 @@ accountBtn.addEventListener("click",()=>{
     accountNameSpan.innerText="حسابي";
     showToast("تم تسجيل الخروج");
   } else{
-    const orders=JSON.parse(localStorage.getItem("orders")||"[]").filter(o=>o.user===currentUser.email);
+    function showMyOrders(){
+  if(!currentUser) return;
+  db.collection("orders").where("userId", "==", currentUser.uid).get()
+    .then(snapshot=>{
+      if(snapshot.empty){ alert("لا توجد طلبات بعد"); return; }
+      let msg = "طلباتي:\n\n";
+      snapshot.docs.forEach((doc,i)=>{
+        const o = doc.data();
+        msg += `${i+1}. ${o.items.map(it=>it.name+"("+it.qty+")").join(", ")}\nالإجمالي: ${o.total} ر.ع\nطريقة الدفع: ${o.method}\n----------------\n`;
+      });
+      alert(msg);
+    })
+    .catch(err=> showToast("حدث خطأ أثناء جلب الطلبات"));
+}
     if(orders.length===0){ alert("لا توجد طلبات بعد"); return; }
     let msg="طلباتي:\n\n";
     orders.forEach((o,i)=>{ msg+=`${i+1}. ${o.items.map(it=>it.name+"("+it.qty+")").join(",")}\nالإجمالي: ${o.total} ر.ع\nطريقة الدفع: ${o.method}\n----------------\n`; });
