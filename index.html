@@ -542,24 +542,19 @@ if(!name || !price || !category || !url){
     showToast("يرجى تعبئة كل الحقول");
     return;
 }
-
-  db.collection("products").add({
+db.collection("products").add({
     name: name,
     price: price,
     category: category,
-    img: imgUrl
-  }).then(()=>{
+    img: url  // نستخدم رابط الصورة مباشرة
+}).then(()=>{
     showToast("تم إضافة المنتج بنجاح!");
     renderProducts();
     renderAdminProducts();
-
     document.getElementById("pName").value = "";
     document.getElementById("pPrice").value = "";
-    document.getElementById("pImgUrl").value = "";
-  }).catch(err=>{
-    console.error(err);
-    showToast("حدث خطأ أثناء الإضافة");
-  });
+    document.getElementById("pImgFile").value = "";
+});
 }
 
 // ====================== عرض المنتجات في لوحة التاجر ======================
