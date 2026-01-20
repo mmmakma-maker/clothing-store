@@ -418,26 +418,41 @@ authBtn.addEventListener("click",()=>{
   const email=authEmail.value.trim();
   const password=authPassword.value.trim();
   const name=authName.value.trim();
+  authBtn.addEventListener("click",()=>{
+  const email = authEmail.value.trim();
+  const password = authPassword.value.trim();
+  const name = authName.value.trim();
+
   if(isRegister){
-    if(!name||!email||!password){ showToast("املأ جميع الحقول"); return; }
-    let users=JSON.parse(localStorage.getItem("users")||"[]");
-    if(users.find(u=>u.email===email)){ showToast("البريد مستخدم مسبقاً"); return; }
-    users.push({name,email,password});
-    localStorage.setItem("users",JSON.stringify(users));
-    currentUser={name,email};
-    localStorage.setItem("currentUser",JSON.stringify(currentUser));
-    accountNameSpan.innerText=name;
-    showToast("تم التسجيل بنجاح");
-    authPopup.style.display="none";
-  } else{
-    let users=JSON.parse(localStorage.getItem("users")||"[]");
-    let user=users.find(u=>u.email===email && u.password===password);
-    if(!user){ showToast("بيانات غير صحيحة"); return; }
-    currentUser={name:user.name,email:user.email};
-    localStorage.setItem("currentUser",JSON.stringify(currentUser));
-    accountNameSpan.innerText=user.name;
-    showToast("تم تسجيل الدخول");
-    authPopup.style.display="none";
+    if(!name || !email || !password){ showToast("املأ جميع الحقول"); return; }
+    auth.createUserWithEmailAndPassword(email, password)
+      .then(userCredential=>{
+        const user = userCredential.user;
+        // حفظ الاسم في Firestore
+        db.collection("users").doc(user.uid).set({name, email});
+        currentUser = {uid: user.uid, name, email};
+        accountNameSpan.innerText = name;
+        showToast("تم التسجيل بنجاح");
+        authPopup.style.display="none";
+      })
+      .catch(error=>{
+        showToast(error.message);
+      });
+  } else {
+    auth.signInWithEmailAndPassword(email, password)
+      .then(userCredential=>{
+        const user = userCredential.user;
+        db.collection("users").doc(user.uid).get().then(doc=>{
+          const data = doc.data();
+          currentUser = {uid: user.uid, name: data.name, email: data.email};
+          accountNameSpan.innerText = data.name;
+          showToast("تم تسجيل الدخول");
+          authPopup.style.display="none";
+        });
+      })
+      .catch(error=>{
+        showToast(error.message);
+      });
   }
 });
 
