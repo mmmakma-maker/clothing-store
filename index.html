@@ -415,10 +415,6 @@ function openAuth(register=false){
 toggleAuth.addEventListener("click",()=>openAuth(!isRegister));
 
 authBtn.addEventListener("click",()=>{
-  const email=authEmail.value.trim();
-  const password=authPassword.value.trim();
-  const name=authName.value.trim();
-  authBtn.addEventListener("click",()=>{
   const email = authEmail.value.trim();
   const password = authPassword.value.trim();
   const name = authName.value.trim();
@@ -428,16 +424,13 @@ authBtn.addEventListener("click",()=>{
     auth.createUserWithEmailAndPassword(email, password)
       .then(userCredential=>{
         const user = userCredential.user;
-        // حفظ الاسم في Firestore
         db.collection("users").doc(user.uid).set({name, email});
         currentUser = {uid: user.uid, name, email};
         accountNameSpan.innerText = name;
         showToast("تم التسجيل بنجاح");
         authPopup.style.display="none";
       })
-      .catch(error=>{
-        showToast(error.message);
-      });
+      .catch(error=> showToast(error.message));
   } else {
     auth.signInWithEmailAndPassword(email, password)
       .then(userCredential=>{
@@ -450,9 +443,7 @@ authBtn.addEventListener("click",()=>{
           authPopup.style.display="none";
         });
       })
-      .catch(error=>{
-        showToast(error.message);
-      });
+      .catch(error=> showToast(error.message));
   }
 });
 
