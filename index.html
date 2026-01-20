@@ -534,35 +534,29 @@ function addProduct(){
   const name = document.getElementById("pName").value.trim();
   const price = parseFloat(document.getElementById("pPrice").value);
   const category = document.getElementById("pCat").value;
-  const file = document.getElementById("pImgFile").files[0];
-  const previewImg = document.getElementById("previewImg");
+  const imgUrl = document.getElementById("pImgUrl").value.trim();
 
-  if(!name || !price || !category || !file){
+  if(!name || !price || !category || !imgUrl){
     showToast("يرجى تعبئة كل الحقول");
     return;
   }
 
-  const storageRef = storage.ref().child('products/' + Date.now() + '-' + file.name);
-  storageRef.put(file).then(snapshot=>{
-    snapshot.ref.getDownloadURL().then(url=>{
-      db.collection("products").add({
-        name:name,
-        price:price,
-        category:category,
-        img:url
-      }).then(()=>{
-        showToast("تم إضافة المنتج بنجاح!");
-        renderProducts();
-        renderAdminProducts();
-        previewImg.style.display = "none";
-        document.getElementById("pName").value = "";
-        document.getElementById("pPrice").value = "";
-        document.getElementById("pImgFile").value = "";
-      });
-    });
+  db.collection("products").add({
+    name: name,
+    price: price,
+    category: category,
+    img: imgUrl
+  }).then(()=>{
+    showToast("تم إضافة المنتج بنجاح!");
+    renderProducts();
+    renderAdminProducts();
+
+    document.getElementById("pName").value = "";
+    document.getElementById("pPrice").value = "";
+    document.getElementById("pImgUrl").value = "";
   }).catch(err=>{
     console.error(err);
-    showToast("حدث خطأ أثناء رفع المنتج");
+    showToast("حدث خطأ أثناء الإضافة");
   });
 }
 
