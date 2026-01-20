@@ -489,13 +489,7 @@ function openPayment(){
 }
 paymentPopup.querySelectorAll('input[name="payMethod"]').forEach(r=>r.addEventListener("change",(e)=>{ document.getElementById("cardBox").style.display=e.target.value==="card"?"block":"none"; }));
 function confirmPayment(){
-
-  // التحقق من بيانات الشحن
-  if(
-    !shippingName.value ||
-    !shippingPhone.value ||
-    !shippingAddress.value
-  ){
+  if(!shippingName.value || !shippingPhone.value || !shippingAddress.value){
     showToast("يرجى تعبئة بيانات الشحن");
     return;
   }
@@ -509,8 +503,8 @@ function confirmPayment(){
     return;
   }
 
-  // جلب الطلبات السابقة
-  db.collection("orders").add({
+  // إنشاء الطلب
+  const newOrder = {
     userId: currentUser.uid,
     userEmail: currentUser.email,
     items: [...cart],
@@ -523,35 +517,32 @@ function confirmPayment(){
     method: method,
     status: "paid",
     date: new Date()
-})
-.then(docRef=>{
-    console.log("تم حفظ الطلب:", docRef.id);
-    showToast("تم حفظ الطلب بنجاح");
-})
-.catch(error=>{
-    console.error(error);
-    showToast("حدث خطأ أثناء حفظ الطلب");
-});
+  };
 
+  // حفظ الطلب في Firebase
+  db.collection("orders").add(newOrder)
+    .then(docRef=>{
+      showToast("تم حفظ الطلب بنجاح");
+      console.log("تم حفظ الطلب:", docRef.id);
+    })
+    .catch(error=>{
+      console.error(error);
+      showToast("حدث خطأ أثناء حفظ الطلب");
+    });
 
-  // 📲 إرسال الطلب إلى واتساب
-  const waNumber = "968XXXXXXXX"; // ← ضع رقمك هنا بدون +
+  // إرسال الطلب إلى واتساب
+  const waNumber = "968XXXXXXXX"; // ضع رقمك هنا
   let waMessage = "🛍️ طلب جديد:\n\n";
-
   newOrder.items.forEach(item=>{
     waMessage += `- ${item.name} × ${item.qty}\n`;
   });
-
   waMessage += `\n💰 الإجمالي: ${newOrder.total} ر.ع`;
   waMessage += `\n💳 الدفع: ${newOrder.method}`;
   waMessage += `\n👤 الاسم: ${newOrder.shipping.name}`;
   waMessage += `\n📞 الهاتف: ${newOrder.shipping.phone}`;
   waMessage += `\n📍 العنوان: ${newOrder.shipping.address}`;
 
-  window.open(
-    `https://wa.me/${waNumber}?text=${encodeURIComponent(waMessage)}`,
-    "_blank"
-  );
+  window.open(`https://wa.me/${waNumber}?text=${encodeURIComponent(waMessage)}`, "_blank");
 
   // تفريغ السلة
   cart = [];
@@ -560,7 +551,6 @@ function confirmPayment(){
 
   showToast("تم تأكيد الطلب");
 }
-  
 // ---------------- التاجر ----------------
 function openAdminLogin(){ adminLogin.style.display="block"; }
 function loginAdmin(){
