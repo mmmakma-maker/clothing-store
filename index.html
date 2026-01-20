@@ -536,10 +536,12 @@ function addProduct(){
   const category = document.getElementById("pCat").value;
   const imgUrl = document.getElementById("pImgUrl").value.trim();
 
-  if(!name || !price || !category || !imgUrl){
+  const url = document.getElementById("pImgFile").value.trim(); // حقل رابط الصورة
+
+if(!name || !price || !category || !url){
     showToast("يرجى تعبئة كل الحقول");
     return;
-  }
+}
 
   db.collection("products").add({
     name: name,
